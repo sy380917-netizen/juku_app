@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>個別指導スクエア 補習管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
+html,body,#app{height:100%}
+body{background:#f3f4f6}
+/* LOGIN/SETUP/SETTINGS */
+.center-page{min-height:100%;display:flex;align-items:center;justify-content:center;background:#f3f4f6}
+.setup-card{background:#fff;border-radius:14px;padding:24px;width:360px;max-width:95vw;box-shadow:0 2px 16px rgba(0,0,0,.1)}
+.setup-user{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.setup-section{margin-bottom:14px}
+.setup-sec-label{font-size:13px;font-weight:700;color:#111827;margin-bottom:7px}
+.setup-pills{display:flex;flex-wrap:wrap;gap:6px}
+.spx{padding:7px 14px;border-radius:22px;font-size:13px;font-weight:500;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;transition:all .15s;white-space:nowrap}
+.spx.s-act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
+.spx.b-act{background:#B91C1C;color:#fff;border-color:#B91C1C;font-weight:700}
+.spx.g-act{background:#3B82F6;color:#fff;border-color:#3B82F6;font-weight:700}
+.setup-confirm{width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:600;border:none;background:#e5e7eb;color:#9ca3af;cursor:default;margin-top:4px;transition:all .2s}
+.setup-confirm.ready{background:#22C55E;color:#fff;cursor:pointer;box-shadow:0 2px 10px rgba(34,197,94,.3)}
+.back-tiny{font-size:12px;color:#9ca3af;border:none;background:none;cursor:pointer;width:100%;text-align:center;margin-top:10px;display:block}
+.login-card{background:#fff;border-radius:14px;padding:36px;width:340px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.1)}
+.login-logo{font-size:20px;font-weight:700;color:#111827;margin-bottom:4px}
+.login-logo span{color:#B91C1C}
+.login-sub{font-size:13px;color:#6b7280;margin-bottom:26px}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px 16px;border:1.5px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;font-weight:500;color:#374151;margin-bottom:12px}
+.google-btn:hover{background:#f9fafb}
+.account-picker{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;text-align:left;margin-top:12px}
+.ap-hd{font-size:12px;color:#6b7280;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb}
+.ap-item{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid #f3f4f6}
+.ap-item:last-child{border-bottom:none}
+.ap-item:hover{background:#f9fafb}
+.ap-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+/* APP HEADER */
+.app-hdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb;z-index:10}
+.app-title{font-size:13px;font-weight:700;color:#111827}
+.app-title span{color:#B91C1C}
+.user-chip{display:flex;align-items:center;gap:6px}
+.user-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
+.hdr-btns{display:flex;gap:5px;align-items:center}
+.hdr-btn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
+/* SCHEDULE */
+.sch-page{display:flex;flex-direction:column;height:100%}
+.sch-scroll{flex:1;overflow-y:auto}
+.wnav{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;position:sticky;top:0;z-index:9}
+.nbtn{padding:5px 12px;background:#4B5563;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500}
+.wrange{font-size:13px;font-weight:600;color:#111827}
+.dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
+.gwrap{overflow-x:auto}
+table.stbl{width:100%;border-collapse:collapse}
+.stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap;min-width:88px}
+.stbl th.thT{background:#991B1B}
+.tp{display:inline-block;background:#EF4444;font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:2px}
+.stbl td.brn{background:#B91C1C;color:#fff;font-size:12px;font-weight:600;padding:6px 4px;text-align:center;border:1px solid #991B1B;min-width:56px}
+.stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;min-width:88px}
+.stbl td.dyt.tcol{background:#fffbeb}
+.cin{display:flex;flex-direction:column;gap:3px}
+.adc{width:22px;height:22px;border-radius:50%;background:#22C55E;color:#fff;border:none;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc{border-radius:6px;padding:5px 7px;font-size:10px;color:#fff;line-height:1.35;position:relative;cursor:pointer;transition:filter .12s}
+.sc:hover{filter:brightness(1.12)}
+.sc .sct{font-weight:600;font-size:10px}
+.sc .scd{margin-top:2px;font-size:10px;opacity:.92;word-break:break-all;padding-right:14px}
+.sc .eh{position:absolute;bottom:3px;right:5px;font-size:8px;opacity:.7;font-style:italic}
+.delbtn{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.3);border:none;color:#fff;width:14px;height:14px;border-radius:50%;cursor:pointer;font-size:9px;line-height:14px;text-align:center;padding:0;z-index:2}
+.delbtn:hover{background:rgba(0,0,0,.55)}
+/* FORM */
+.form-page{display:flex;flex-direction:column;height:100%}
+.form-fixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:20}
+.fix-row{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
+.h-pills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1}
+.h-pills::-webkit-scrollbar{display:none}
+.fix-lab{font-size:11px;color:#6b7280;white-space:nowrap;flex-shrink:0;min-width:28px}
+.update-bar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:46px}
+.ub-hint{font-size:12px;color:#9ca3af;flex:1}
+.ub-info{flex:1;min-width:0}
+.ub-time{font-size:13px;font-weight:700;color:#1E40AF}
+.ub-time.em{color:#92400E}
+.ub-stu{font-size:11px;color:#6b7280;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ub-clr{border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:11px;color:#9ca3af;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.ub-save{padding:9px 20px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(34,197,94,.35);flex-shrink:0}
+.ub-save:hover{background:#16A34A}
+.ub-save.em{background:#F59E0B}
+.ub-save.em:hover{background:#D97706}
+.dur-inline{display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap}
+.dur-lab{font-size:11px;color:#6b7280;white-space:nowrap}
+.dur-btn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
+.dur-btn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
+.form-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;position:relative}
+.fbody{padding:10px 12px}
+/* 確認パネル（タイムテーブル上部） */
+.confirm-panel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:10px 12px;padding:14px 16px;box-shadow:0 4px 16px rgba(34,197,94,.15)}
+.confirm-panel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
+.cp-title{font-size:14px;font-weight:700;color:#111827;margin-bottom:12px;text-align:center}
+.cp-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:0.5px solid #f3f4f6}
+.cp-row:last-of-type{border-bottom:none}
+.cp-lab{font-size:11px;color:#6b7280;width:46px;flex-shrink:0;padding-top:5px;font-weight:500}
+.cp-val{font-size:13px;color:#111827;font-weight:500;padding-top:3px;flex:1}
+.cp-pills{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.cpill{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;transition:all .12s;white-space:nowrap}
+.cpill:hover{border-color:#3B82F6;color:#1D4ED8}
+.cpill.act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
+.cedit-time-btn{margin-top:4px;font-size:11px;color:#3B82F6;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;display:block}
+.cp-btns{display:flex;gap:8px;margin-top:14px}
+.cp-ok{flex:1;padding:11px;border:none;border-radius:10px;background:#22C55E;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.cp-ok:hover{background:#16A34A}
+.cp-ok.em{background:#F59E0B}
+.cp-cancel{flex:1;padding:11px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
+.cp-cancel:hover{background:#f9fafb}
+/* タイムグリッド */
+.tgwrap{overflow-x:auto;border:1px solid #e5e7eb;border-radius:8px}
+.tg{border-collapse:collapse}
+.tg thead th{position:sticky;top:0;z-index:4;background:#f9fafb}
+.tg-hdr{background:#f9fafb;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;padding:5px 6px;font-size:10px;color:#6b7280;text-align:center;min-width:50px;white-space:nowrap;position:sticky;left:0;top:0;z-index:6}
+.th-hr{font-size:10px;font-weight:600;color:#374151;padding:4px 2px;text-align:left;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.th-30{font-size:8px;color:#9ca3af;padding:2px 0;text-align:center;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb}
+.th-30.at30{color:#6b7280;font-weight:500;border-left:1px solid #d1d5db}
+.td-d{font-size:11px;padding:4px 5px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;min-width:50px;line-height:1.4;position:sticky;left:0;z-index:2}
+.td-d.tdt{color:#3B82F6;font-weight:700}
+.td-d.psel{background:#FFF1F2;color:#B91C1C;font-weight:700;border-right:2px solid #B91C1C}
+.td-s{width:14px;min-width:14px;max-width:14px;height:46px;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
+.td-s.hr-start{border-left:1.5px solid #d1d5db}
+.td-s.half-start{border-left:1px solid #cbd5e1}
+.td-s.prow{background:#FFF5F5}
+.td-s.prow:hover{background:#FECDD3}
+.td-s:not(.prow):hover{background:#DBEAFE}
+.sel-merged{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid #2563EB;background:transparent;cursor:pointer;vertical-align:middle}
+.sel-bar{background:#2563EB;height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 8px;overflow:hidden;gap:2px;box-shadow:0 2px 8px rgba(37,99,235,.3)}
+.sel-bar-info{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2;text-align:center}
+.sel-bar-time{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap;line-height:1.2}
+.ex-merged{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;cursor:pointer;vertical-align:middle}
+.ex-bar{height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:3px 7px;overflow:hidden;gap:1px;transition:filter .1s;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.ex-bar:hover{filter:brightness(1.08)}
+.ex-bar-br{color:rgba(255,255,255,.8);font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ex-bar-main{color:#fff;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ex-bar-time{color:rgba(255,255,255,.85);font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ex-bar-stu{color:rgba(255,255,255,.7);font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.spill-sm{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
+.spill-sm.act{background:#22C55E;color:#fff;border-color:#22C55E}
+.gpill-sm{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#111827;font-weight:500;white-space:nowrap;flex-shrink:0}
+.gpill-sm.act{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
+.brpill-sm{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
+.brpill-sm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
+.auto-tag{background:#DCFCE7;color:#166534;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap}
+.fhdr-row{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid #f3f4f6}
+.bbtn{font-size:13px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280;white-space:nowrap}
+.kj-val{font-size:15px;font-weight:700;color:#B91C1C;white-space:nowrap;flex:1}
+.ebadge{font-size:10px;background:#F59E0B;color:#fff;padding:2px 7px;border-radius:20px;font-weight:600}
+.nbadge{font-size:10px;background:#22C55E;color:#fff;padding:2px 7px;border-radius:20px;font-weight:600}
+.delbf{font-size:11px;padding:4px 8px;border:1px solid #FECACA;border-radius:6px;background:#FEF2F2;color:#DC2626;cursor:pointer;white-space:nowrap}
+.tinp{width:100%;font-size:13px;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff}
+.legend{display:flex;align-items:center;gap:6px;font-size:11px;color:#6b7280;margin-bottom:5px;flex-wrap:wrap}
+.leg-box{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+</style>
+</head>
+<body><div id="app"></div>
+<script>
+var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
+var SBJ=['数学','英語','国語','理科','社会','算数'];
+var GRADES=['小','中1','中2','中3','高1','高2','高3'];
+var SCOL={数学:'#3B82F6',算数:'#3B82F6',英語:'#10B981',国語:'#D97706',理科:'#F87171',社会:'#7C3AED'};
+var DY=['日','月','火','水','木','金','土'];
+var TS0=480,TSD=10,TSN=84;
+function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
+// 講師名に「先生」なし
+var ACCOUNTS=[
+  {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
+  {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
+  {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
+  {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
+  {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
+  {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
+  {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
+  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
+];
+// 設定保存
+var accountSubjects={},accountBranches={},accountGrades={};
+var setupSubjects=[],setupBranches=[],setupGrades=[];
+var currentUser=null,showPicker=false;
+var wk=new Date('2026-05-18'),view='sch'; // view: sch|form|setup|settings
+var fBr='',fDate=null,fSj=null,fGr=null,fStu='',fIns='';
+var tR=null,tS=null,dur=null,editId=null,confirmOpen=false;
+var S=[
+  {id:1,br:'鳴門校',sj:'理科',gr:'高3',ins:'宮川 博',stu:'濱田',dt:'2026-05-17',s:'10:30',e:'12:00'},
+  {id:2,br:'鳴門校',sj:'数学',gr:'高3',ins:'宮川 博',stu:'長尾、川端',dt:'2026-05-18',s:'17:50',e:'19:20'},
+  {id:3,br:'鳴門校',sj:'数学',gr:'高2',ins:'宮川 博',stu:'高田、阿部',dt:'2026-05-19',s:'17:00',e:'18:30'},
+  {id:4,br:'鳴門校',sj:'理科',gr:'高3',ins:'宮川 博',stu:'濱田',dt:'2026-05-20',s:'16:00',e:'17:30'},
+  {id:5,br:'鳴門校',sj:'社会',gr:'中1',ins:'山下',stu:'江口',dt:'2026-05-21',s:'19:00',e:'20:20'},
+  {id:6,br:'石井校',sj:'数学',gr:'高3',ins:'三好',stu:'粟野',dt:'2026-05-17',s:'14:00',e:'15:30'},
+  {id:7,br:'石井校',sj:'数学',gr:'高2',ins:'宮川 博',stu:'坂東、岡山',dt:'2026-05-18',s:'19:00',e:'20:30'},
+  {id:8,br:'石井校',sj:'数学',gr:'高2',ins:'三好',stu:'粟野',dt:'2026-05-19',s:'14:00',e:'15:30'},
+  {id:9,br:'石井校',sj:'数学',gr:'高3',ins:'三好',stu:'粟野',dt:'2026-05-20',s:'14:00',e:'15:30'},
+  {id:10,br:'石井校',sj:'数学',gr:'高2',ins:'三好',stu:'粟野',dt:'2026-05-21',s:'14:00',e:'15:30'}
+];
+var nid=11;
+function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function fs(d){return(d.getMonth()+1)+'/'+d.getDate()}
+function isTd(d){return fd(d)==='2026-05-18'}
+function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
+function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
+function slot2min(i){return TS0+i*TSD}
+function av(n){return n.replace(/\s/g,'').slice(0,2)}
+function time2slot(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
+function time2min(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
+function mySbj(){return currentUser&&accountSubjects[currentUser.id]?accountSubjects[currentUser.id]:SBJ}
+function myBr(){return currentUser&&accountBranches[currentUser.id]?accountBranches[currentUser.id]:BR}
+function myGr(){return currentUser&&accountGrades[currentUser.id]?accountGrades[currentUser.id]:GRADES}
+function getSc(){var t=document.querySelector('.tgwrap');return t?t.scrollLeft:0}
+function restSc(sc){requestAnimationFrame(function(){var t=document.querySelector('.tgwrap');if(t)t.scrollLeft=sc;})}
+
+// ログイン
+window.loginAs=function(id){currentUser=ACCOUNTS.find(function(a){return a.id===id});fIns=currentUser.name;showPicker=false;if(!accountSubjects[currentUser.id]){setupSubjects=[];setupBranches=[];setupGrades=[];view='setup';}else view='sch';R();};
+window.togglePicker=function(){showPicker=!showPicker;R()};
+window.logout=function(){currentUser=null;showPicker=false;view='sch';R()};
+// セットアップ選択トグル
+window.tgSetupSubj=function(s){var i=setupSubjects.indexOf(s);if(i>=0)setupSubjects.splice(i,1);else setupSubjects.push(s);R()};
+window.tgSetupBr=function(b){var i=setupBranches.indexOf(b);if(i>=0)setupBranches.splice(i,1);else setupBranches.push(b);R()};
+window.tgSetupGr=function(g){var i=setupGrades.indexOf(g);if(i>=0)setupGrades.splice(i,1);else setupGrades.push(g);R()};
+window.confirmSetup=function(){
+  if(!setupSubjects.length){alert('担当教科を選択してください');return;}
+  if(!setupBranches.length){alert('担当教場を選択してください');return;}
+  if(!setupGrades.length){alert('担当学年を選択してください');return;}
+  accountSubjects[currentUser.id]=setupSubjects.slice();
+  accountBranches[currentUser.id]=setupBranches.slice();
+  accountGrades[currentUser.id]=setupGrades.slice();
+  fBr=setupBranches[0];view='sch';R();
+};
+// 設定変更画面（2回目以降）
+window.openSettings=function(){
+  setupSubjects=(accountSubjects[currentUser.id]||[]).slice();
+  setupBranches=(accountBranches[currentUser.id]||[]).slice();
+  setupGrades=(accountGrades[currentUser.id]||[]).slice();
+  view='settings';R();
+};
+window.saveSettings=function(){
+  if(!setupSubjects.length){alert('担当教科を選択してください');return;}
+  if(!setupBranches.length){alert('担当教場を選択してください');return;}
+  if(!setupGrades.length){alert('担当学年を選択してください');return;}
+  accountSubjects[currentUser.id]=setupSubjects.slice();
+  accountBranches[currentUser.id]=setupBranches.slice();
+  accountGrades[currentUser.id]=setupGrades.slice();
+  view='sch';R();
+};
+window.cancelSettings=function(){view='sch';R()};
+// スケジュール操作
+window.pWk=function(){var d=new Date(wk);d.setDate(d.getDate()-7);wk=d;R()};
+window.nWk=function(){var d=new Date(wk);d.setDate(d.getDate()+7);wk=d;R()};
+window.sWD=function(v){var d=new Date(v);d.setDate(d.getDate()-d.getDay());wk=d;R()};
+// フォーム操作
+window.oForm=function(br,dt){
+  view='form';editId=null;fBr=br;fDate=dt;fGr=null;fStu='';fIns=currentUser?currentUser.name:'';
+  tR=null;tS=null;dur=null;confirmOpen=false;
+  var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
+};
+window.editSession=function(id){
+  var s=S.find(function(x){return x.id===id});if(!s)return;
+  view='form';editId=id;fBr=s.br;fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
+  tR=s.dt;tS=time2slot(s.s);dur=time2min(s.e)-time2min(s.s);confirmOpen=false;R();
+  requestAnimationFrame(function(){var tw=document.querySelector('.tgwrap');if(tw)tw.scrollLeft=Math.max(0,tS*14-80);});
+};
+window.gBack=function(){view='sch';editId=null;confirmOpen=false;R()};
+window.sBr=function(b){var sc=getSc();fBr=b;R();restSc(sc)};
+window.sSj=function(s){var sc=getSc();fSj=s;R();restSc(sc)};
+window.sGr=function(g){var sc=getSc();fGr=fGr===g?null:g;if(fGr){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();restSc(sc);};
+window.delS=function(id,ev){if(ev)ev.stopPropagation();S=S.filter(function(s){return s.id!==id});R()};
+window.delFromForm=function(){if(editId!==null)S=S.filter(function(s){return s.id!==editId});view='sch';editId=null;R()};
+window.clearTime=function(){tR=null;tS=null;dur=null;confirmOpen=false;R()};
+window.clickSlot=function(dt,i){
+  var sc=getSc();tR=dt;tS=i;
+  if(fGr){var ds=getDurs(fGr);dur=ds.length===1?ds[0]:null;}else dur=null;
+  R();restSc(sc);
+};
+window.selectDur=function(d){if(!tR||tS===null)return;if(tS+d/TSD>TSN){alert('終了時刻が22:00を超えます');return;}dur=d;var sc=getSc();R();restSc(sc);};
+window.saveF=function(){
+  if(!fSj||!fGr||!tR||tS===null||!dur){alert('教科・学年・時間帯をすべて選択してください');return;}
+  confirmOpen=true;R();
+  requestAnimationFrame(function(){var fs=document.querySelector('.form-scroll');if(fs)fs.scrollTop=0;});
+};
+window.cancelConfirm=function(){confirmOpen=false;R()};
+window.cBr=function(b){fBr=b;R()};window.cSj=function(s){fSj=s;R()};
+window.cGr=function(g){fGr=g;var ds=getDurs(g);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;R()};
+window.editTime=function(){confirmOpen=false;R()};
+window.doSave=function(){
+  var sT=m2s(slot2min(tS)),eT=m2s(slot2min(tS)+dur);
+  if(editId!==null){S=S.map(function(s){return s.id===editId?{id:s.id,br:fBr,sj:fSj,gr:fGr,ins:fIns,stu:fStu,dt:tR,s:sT,e:eT}:s;});}
+  else{S.push({id:nid++,br:fBr,sj:fSj,gr:fGr,ins:fIns,stu:fStu,dt:tR,s:sT,e:eT});}
+  confirmOpen=false;view='sch';editId=null;tR=null;tS=null;dur=null;R();
+};
+
+function buildRanges(dt){
+  var uName=currentUser?currentUser.name:'';
+  var hasSel=(tR===dt&&tS!==null&&dur),selEnd=hasSel?tS+dur/TSD:0;
+  return S.filter(function(s){
+    if(s.ins!==uName||s.dt!==dt||s.id===editId)return false;
+    var st=Math.round(time2slot(s.s)),len=Math.round((time2min(s.e)-time2min(s.s))/TSD);
+    if(st<0||st+len>TSN)return false;
+    if(hasSel&&st<selEnd&&st+len>tS)return false;
+    return true;
+  }).map(function(s){return{start:Math.round(time2slot(s.s)),len:Math.round((time2min(s.e)-time2min(s.s))/TSD),s:s};})
+  .sort(function(a,b){return a.start-b.start;});
+}
+function tgRows(dates){
+  return dates.map(function(d){
+    var dt=fd(d),isPre=dt===fDate,tod=isTd(d)?' tdt':'';
+    var hasSel=(tR===dt&&tS!==null&&dur);
+    var ranges=buildRanges(dt);
+    var cells='',i=0;
+    while(i<TSN){
+      if(hasSel&&i===tS){
+        var parts=[];if(fBr)parts.push(fBr);if(fGr)parts.push(fGr);if(fSj)parts.push(fSj);
+        cells+='<td colspan="'+dur/TSD+'" class="sel-merged" onclick="clickSlot(\''+dt+'\','+tS+')">'
+          +'<div class="sel-bar"><div class="sel-bar-info">'+(parts.length?parts.join('　'):'設定中')+'</div>'
+          +'<div class="sel-bar-time">'+m2s(slot2min(tS))+'〜'+m2s(slot2min(tS)+dur)+'</div></div></td>';
+        i+=dur/TSD;continue;
+      }
+      var found=null;for(var k=0;k<ranges.length;k++){if(ranges[k].start===i){found=ranges[k];break;}}
+      if(found){
+        var s=found.s,col=SCOL[s.sj]||'#6B7280';
+        cells+='<td colspan="'+found.len+'" class="ex-merged" onclick="editSession('+s.id+')">'
+          +'<div class="ex-bar" style="background:'+col+'"><div class="ex-bar-br">'+s.br+'</div>'
+          +'<div class="ex-bar-main">'+s.gr+'　'+s.sj+'</div>'
+          +'<div class="ex-bar-time">'+s.s+'〜'+s.e+'</div>'
+          +'<div class="ex-bar-stu">'+s.stu+'</div></div></td>';
+        i+=found.len;continue;
+      }
+      var sm=slot2min(i),mm=sm%60;
+      var bc=mm===0?' hr-start':mm===30?' half-start':'';
+      cells+='<td class="td-s'+bc+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')" title="'+m2s(sm)+'"></td>';
+      i++;
+    }
+    return'<tr'+(isPre?' class="psel-row"':'')+'>'
+      +'<td class="td-d'+tod+(isPre?' psel':'')+'">'
+      +(isPre?'<span style="font-size:9px;background:#B91C1C;color:#fff;border-radius:3px;padding:0 3px;display:block;margin-bottom:1px">追加中</span>':'')
+      +d.getDate()+'<br><span style="font-size:10px">('+DY[d.getDay()]+')</span></td>'+cells+'</tr>';
+  }).join('');
+}
+
+function gsvg(){return'<svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57C21.36 18.09 22.56 15.27 22.56 12.25z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>';}
+
+function rAppHdr(backView){
+  var u=currentUser;
+  return'<div class="app-hdr">'
+    +'<div class="app-title"><span>■</span> 個別指導スクエア　補習管理</div>'
+    +'<div class="hdr-btns">'
+    +(backView?'':'<button class="hdr-btn" onclick="openSettings()">⚙ 設定変更</button>')
+    +'<div class="user-chip"><div class="user-av" style="background:'+u.color+'">'+av(u.name)+'</div>'
+    +'<span style="font-size:11px;font-weight:500;color:#374151">'+u.name+'</span>'
+    +'<button class="hdr-btn" onclick="logout()">ログアウト</button></div>'
+    +'</div></div>';
+}
+
+function rLogin(){
+  var picker='';
+  if(showPicker){
+    var items=ACCOUNTS.map(function(a){return'<div class="ap-item" onclick="loginAs('+a.id+')">'+'<div class="ap-av" style="background:'+a.color+'">'+av(a.name)+'</div><div><div style="font-size:13px;font-weight:500;color:#111827">'+a.name+'</div><div style="font-size:11px;color:#6b7280">'+a.email+'</div></div></div>';}).join('');
+    picker='<div class="account-picker"><div class="ap-hd">アカウントを選択</div>'+items+'</div>';
+  }
+  return'<div class="center-page"><div class="login-card"><div class="login-logo"><span>■</span> 個別指導スクエア</div><div class="login-sub">補習管理システム</div><button class="google-btn" onclick="togglePicker()">'+gsvg()+'<span>Googleアカウントでログイン</span></button><div style="font-size:11px;color:#9ca3af">※デモ版：講師を選んでください</div>'+picker+'</div></div>';
+}
+
+function rSetupCard(isSettings){
+  var u=currentUser;
+  var ready=setupSubjects.length>0&&setupBranches.length>0&&setupGrades.length>0;
+  var sp=SBJ.map(function(s){var a=setupSubjects.indexOf(s)>=0;return'<button class="spx'+(a?' s-act':'')+'" onclick="tgSetupSubj(\''+s+'\')">'+s+'</button>';}).join('');
+  var bp=BR.map(function(b){var a=setupBranches.indexOf(b)>=0;return'<button class="spx'+(a?' b-act':'')+'" onclick="tgSetupBr(\''+b+'\')">'+b+'</button>';}).join('');
+  var gp=GRADES.map(function(g){var a=setupGrades.indexOf(g)>=0;return'<button class="spx'+(a?' g-act':'')+'" onclick="tgSetupGr(\''+g+'\')">'+g+'</button>';}).join('');
+  var btnLabel=ready?(isSettings?'✔ 変更を保存':'✔ 設定完了（'+setupSubjects.join('・')+'／'+setupBranches.join('・')+'／'+setupGrades.join('・')+'）'):(isSettings?'教科・教場・学年を選択':'教科・教場・学年を選択してください');
+  return'<div class="center-page"><div class="setup-card">'
+    +'<div class="setup-user">'
+    +'<div class="ap-av" style="background:'+u.color+';width:40px;height:40px;font-size:15px">'+av(u.name)+'</div>'
+    +'<div><div style="font-size:15px;font-weight:700;color:#111827">'+u.name+'</div>'
+    +'<div style="font-size:11px;color:#6b7280">'+(isSettings?'設定変更':'初回ログイン設定')+'</div></div>'
+    +'</div>'
+    +'<div class="setup-section"><div class="setup-sec-label">担当教科<span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:5px">（複数可）</span></div><div class="setup-pills">'+sp+'</div></div>'
+    +'<div class="setup-section"><div class="setup-sec-label">担当教場<span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:5px">（複数可）</span></div><div class="setup-pills">'+bp+'</div></div>'
+    +'<div class="setup-section"><div class="setup-sec-label">担当学年<span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:5px">（複数可）</span></div><div class="setup-pills">'+gp+'</div></div>'
+    +'<button class="setup-confirm'+(ready?' ready':'')+'" onclick="'+(isSettings?'saveSettings':'confirmSetup')+'()">'+btnLabel+'</button>'
+    +(isSettings?'<button class="back-tiny" onclick="cancelSettings()">← キャンセル</button>':'<button class="back-tiny" onclick="logout()">← 別のアカウントで入り直す</button>')
+    +'</div></div>';
+}
+
+function rSch(){
+  var dates=wkd(),wEnd=dates[6];
+  var thds=dates.map(function(d){var tod=isTd(d);return'<th class="'+(tod?'thT':'')+'">'+(tod?'<div class="tp">今日</div><br>':'')+DY[d.getDay()]+'<br><span style="font-size:10px;font-weight:400">'+fs(d)+'</span></th>';}).join('');
+  var rows=BR.map(function(br){
+    var cells=dates.map(function(d){
+      var dt=fd(d),tod=isTd(d)?'tcol':'';
+      var ss=S.filter(function(s){return s.br===br&&s.dt===dt});
+      var cards=ss.map(function(s){var col=SCOL[s.sj]||'#6B7280';return'<div class="sc" style="background:'+col+'" onclick="editSession('+s.id+')" title="タップして編集"><button class="delbtn" onclick="delS('+s.id+',event)">×</button><div class="sct">'+s.s+'〜'+s.e+'</div><div class="scd">'+s.gr+' '+s.sj+' - '+s.stu+' ('+s.ins+')</div><span class="eh">✎編集</span></div>';}).join('');
+      return'<td class="dyt '+tod+'"><div class="cin"><button class="adc" onclick="oForm(\''+br+'\',\''+dt+'\')">+</button>'+cards+'</div></td>';
+    }).join('');
+    return'<tr><td class="brn">'+br+'</td>'+cells+'</tr>';
+  }).join('');
+  return'<div class="sch-page">'+rAppHdr()
+    +'<div class="sch-scroll">'
+    +'<div class="wnav"><button class="nbtn" onclick="pWk()">← 前週</button><span class="wrange">'+fd(wk)+' 〜 '+fd(wEnd)+'</span><input type="date" class="dinput" value="'+fd(wk)+'" onchange="sWD(this.value)"><button class="nbtn" onclick="nWk()">次週 →</button></div>'
+    +'<div style="font-size:11px;color:#6b7280;padding:5px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb">📌 色のコマをタップ→編集　／　＋→新規追加</div>'
+    +'<div class="gwrap"><table class="stbl"><thead><tr><th style="min-width:56px;font-size:11px">校舎</th>'+thds+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
+    +'</div></div>';
+}
+
+function rForm(){
+  var dates=wkd(),isEdit=editId!==null,uName=currentUser?currentUser.name:'';
+  var ms=mySbj(),mb=myBr(),mg=myGr();
+  var canSave=!!(fSj&&fGr&&tR&&tS!==null&&dur);
+  // 教場変更ピル
+  var brPills=mb.map(function(b){return'<button class="brpill-sm '+(b===fBr?'act':'')+'" onclick="sBr(\''+b+'\')">'+b+'</button>';}).join('');
+  // 教科
+  var subjRow='';
+  if(ms.length===1){
+    subjRow='<div class="fix-row"><span class="fix-lab">教科</span><span style="font-size:13px;font-weight:600;color:#111827">'+ms[0]+'</span><span class="auto-tag">自動設定</span></div>';
+  } else {
+    var sp=ms.map(function(s){return'<button class="spill-sm '+(s===fSj?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
+    subjRow='<div class="fix-row"><span class="fix-lab">教科</span><div class="h-pills">'+sp+'</div></div>';
+  }
+  // 学年（担当学年のみ表示）
+  var grPills=mg.map(function(g){return'<button class="gpill-sm '+(g===fGr?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
+  // 更新バー
+  var ubContent='';
+  if(tR&&tS!==null&&!dur){
+    var ds=getDurs(fGr);
+    var dBtns=ds.map(function(d){return'<button class="dur-btn" onclick="selectDur('+d+')">'+d+'分</button>';}).join('');
+    ubContent='<div class="dur-inline"><span class="dur-lab">⏰ '+m2s(slot2min(tS))+'　→</span>'+dBtns+'</div><button class="ub-clr" onclick="clearTime()">✕</button>';
+  } else if(tR&&tS!==null&&dur){
+    var sMin=slot2min(tS);
+    ubContent='<div class="ub-info"><div class="ub-time'+(isEdit?' em':'')+'">⏰ '+m2s(sMin)+'〜'+m2s(sMin+dur)+'（'+dur+'分）</div>'+(fStu?'<div class="ub-stu">生徒：'+fStu+'</div>':'')+'</div>'
+      +'<button class="ub-clr" onclick="clearTime()">✕</button>'
+      +(canSave?'<button class="ub-save'+(isEdit?' em':'')+'" onclick="saveF()">更新</button>':'<span style="font-size:11px;color:#9ca3af">学年'+(ms.length>1&&!fSj?'・教科':'')+'を選択</span>');
+  } else {
+    ubContent='<span class="ub-hint">↓ タイムテーブルで開始時刻をタップ</span>';
+  }
+  // タイムグリッドヘッダ
+  var hrHdr='';for(var h=8;h<22;h++){hrHdr+='<th class="th-hr" colspan="6">'+h+'</th>';}
+  var subHdr='';for(var j=0;j<TSN;j++){var mm=slot2min(j)%60;subHdr+='<th class="th-30'+(mm===30?' at30':'')+'">'+( mm===0?'':mm===30?'30':'')+'</th>';}
+  // 確認パネル（タイムテーブル上部に表示）
+  var confirmPanel='';
+  if(confirmOpen&&tR&&tS!==null&&dur&&fSj&&fGr){
+    var sMin2=slot2min(tS);
+    var bpC=mb.map(function(b){return'<button class="cpill'+(b===fBr?' act':'')+'" onclick="cBr(\''+b+'\')">'+b+'</button>';}).join('');
+    var sjSec='';
+    if(ms.length>1){var sjP=ms.map(function(s){return'<button class="cpill'+(s===fSj?' act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');sjSec='<div class="cp-row"><div class="cp-lab">教科</div><div class="cp-pills">'+sjP+'</div></div>';}
+    var grP=mg.map(function(g){return'<button class="cpill'+(g===fGr?' act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
+    confirmPanel='<div class="confirm-panel'+(isEdit?' em':'')+'">'
+      +'<div class="cp-title">内容を確認・編集</div>'
+      +'<div class="cp-row"><div class="cp-lab">教場名</div><div class="cp-pills">'+bpC+'</div></div>'
+      +sjSec
+      +'<div class="cp-row"><div class="cp-lab">学年</div><div class="cp-pills">'+grP+'</div></div>'
+      +'<div class="cp-row"><div class="cp-lab">日時</div>'
+      +'<div><div style="font-size:13px;font-weight:600;color:#111827">'+tR+'</div>'
+      +'<div style="font-size:13px;color:#374151;margin-top:2px">'+m2s(sMin2)+'〜'+m2s(sMin2+dur)+'（'+dur+'分）</div>'
+      +'<button class="cedit-time-btn" onclick="editTime()">← 時間を変更する</button></div></div>'
+      +(fStu?'<div class="cp-row"><div class="cp-lab">生徒名</div><div class="cp-val">'+fStu+'</div></div>':'')
+      +'<div class="cp-row"><div class="cp-lab">担当</div><div class="cp-val">'+fIns+'</div></div>'
+      +'<div class="cp-btns">'
+      +'<button class="cp-cancel" onclick="cancelConfirm()">キャンセル</button>'
+      +'<button class="cp-ok'+(isEdit?' em':'')+'" onclick="doSave()">更新する</button>'
+      +'</div></div>';
+  }
+  var instOpts=ACCOUNTS.map(function(a){return'<option '+(a.name===fIns?'selected':'')+'>'+a.name+'</option>';}).join('');
+  var legend='<div class="legend"><div class="leg-box" style="background:#2563EB"></div><span>新規入力中</span><div class="leg-box" style="background:#888;margin-left:6px"></div><span>'+uName+'の全予定</span></div>';
+
+  return'<div class="form-page">'+rAppHdr(true)
+    +'<div class="form-fixed">'
+    +'<div class="fhdr-row"><button class="bbtn" onclick="gBack()">← 戻る</button><span class="kj-val">'+fBr+'</span>'+(isEdit?'<span class="ebadge">✎ 編集中</span>':'<span class="nbadge">＋ 新規</span>')+(isEdit?'<button class="delbf" onclick="delFromForm()">🗑</button>':'')+'</div>'
+    +'<div class="fix-row"><span class="fix-lab" style="color:#92400E;font-weight:600;min-width:36px">変更：</span><div class="h-pills">'+brPills+'</div></div>'
+    +subjRow
+    +'<div class="fix-row"><span class="fix-lab">学年</span><div class="h-pills">'+grPills+'</div></div>'
+    +'<div class="update-bar">'+ubContent+'</div>'
+    +'</div>'
+    +'<div class="form-scroll"><div id="form-scroll-inner">'
+    +confirmPanel
+    +'<div class="fbody">'
+    +legend
+    +'<div class="tgwrap"><table class="tg"><thead><tr><th class="tg-hdr" rowspan="2"></th>'+hrHdr+'</tr><tr>'+subHdr+'</tr></thead>'
+    +'<tbody>'+tgRows(dates)+'</tbody></table></div>'
+    +'<div style="margin-top:12px"><span style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">生徒名<span style="color:#9ca3af;font-size:11px;margin-left:4px">（任意）</span></span><input class="tinp" type="text" value="'+fStu+'" placeholder="例：山田、鈴木、田中" oninput="fStu=this.value"></div>'
+    +'<div style="margin-top:10px;margin-bottom:16px"><span style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">担当講師</span><select class="tinp" style="width:auto" onchange="fIns=this.value">'+instOpts+'</select></div>'
+    +'</div></div></div>'
+    +'</div>';
+}
+
+// タイムグリッド水平スクロール同期（ヘッダー↔ボディ）
+window.onTgScroll=function(){
+  var b=document.getElementById('tgBody');
+  var h=document.getElementById('tgHead');
+  if(b&&h)h.scrollLeft=b.scrollLeft;
+};
+
+function R(){
+  document.getElementById('app').innerHTML=
+    !currentUser?rLogin():
+    view==='setup'?rSetupCard(false):
+    view==='settings'?rSetupCard(true):
+    view==='sch'?rSch():rForm();
+}
+R();
+</script>
+</body>
+</html>
