@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>個別指導スクエア 補習管理</title>
-<style>
-/* 以前の全スタイルをここに維持してください */
-.dur-container { display: flex; align-items: center; gap: 5px; padding: 5px; }
-.durbtn { padding: 7px 12px; border-radius: 8px; font-size: 12px; border: 1.5px solid #d1d5db; cursor: pointer; background: #fff; color: #374151; font-weight: 600; }
-.camera-btn { padding: 7px 12px; border-radius: 8px; font-size: 12px; border: 1.5px solid #3B82F6; cursor: pointer; background: #EFF6FF; color: #1E40AF; font-weight: 600; }
-</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個別指導スクエア 補習管理</title>
+    <style>
+        /* 強制的な横並び設定 */
+        .controls-row { display: flex; align-items: center; gap: 8px; padding: 10px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+        .durbtn { padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; }
+        .camera-btn { padding: 8px 16px; border: 1px solid #3B82F6; border-radius: 8px; background: #EFF6FF; color: #1E40AF; cursor: pointer; font-size: 14px; font-weight: bold; }
+    </style>
 </head>
-<body><div id="app"></div>
-<script>
-// 【重要】ここに以前のプログラム（配列や各関数）をすべてそのまま貼ってください
+<body>
+    <div id="app">
+        <div class="controls-row">
+            <button class="durbtn" onclick="showCustomDur()">時間設定</button>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+            <button class="camera-btn" onclick="document.getElementById('cameraInput').click()">📷 撮影</button>
+        </div>
+        <div id="main-content"></div>
+    </div>
 
-// rForm関数の中の「durBar」の記述を、以下の形式に書き換えてください
-function rForm(){
-  var durBar = '<div class="dur-container">' +
-    '<button class="durbtn" onclick="showCustomDur()">時間設定</button>' +
-    '<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">' +
-    '<button class="camera-btn" onclick="document.getElementById(\'cameraInput\').click()">📷 撮影</button>' +
-    '</div>';
-  
-  // 以降、以前のフォーム表示ロジックを続けてください
-  return durBar + '...以前のフォーム内容...';
-}
-</script>
+    <script>
+        // --- 以前のプログラムをここに記述してください ---
+        function showCustomDur() {
+            alert("時間設定メニューが開きます");
+        }
+    </script>
 </body>
 </html>
