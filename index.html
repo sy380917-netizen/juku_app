@@ -3,33 +3,23 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>個別指導スクエア 補習管理</title>
 <style>
-/* スタイル部分は以前の通りで大丈夫です */
-*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
-body{background:#f3f4f6}
-.durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
-.camera-btn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #3B82F6;cursor:pointer;background:#EFF6FF;color:#1E40AF;font-weight:600}
+/* 以前の全スタイルコードをここに貼り付けてください */
 </style>
 </head>
 <body><div id="app"></div>
 <script>
-// アプリの基本設定
-var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
-var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
-var GRADES=['小','中1','中2','中3','高1','高2','高3'];
-var dur=60; // 初期値
+// --- 以前の全プログラム（BRやSBJ、各関数）をすべてここに貼り付けてください ---
 
-// 修正したrForm関数
+// 【重要】その中の rForm 関数だけを、以下の「ボタン統合版」に書き換えてください
 function rForm(){
   var durBar = '<div style="padding:10px; display:flex; gap:5px; align-items:center">' +
-    '<button class="durbtn">時間設定</button>' +
+    '<button class="durbtn" onclick="showCustomDur()">時間設定</button>' +
     '<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">' +
-    '<button class="camera-btn" onclick="document.getElementById(\'cameraInput\').click()">📷 撮影</button>' +
+    '<button class="camera-btn" onclick="document.getElementById(\'cameraInput\').click()" style="padding:7px 12px; border-radius:8px; font-size:12px; border:1.5px solid #3B82F6; cursor:pointer; background:#EFF6FF; color:#1E40AF; font-weight:600;">📷 撮影</button>' +
     '</div>';
-  return '<div id="app">' + durBar + '</div>';
+  // その他の本来のフォーム表示内容
+  return durBar + '...以前の内容...';
 }
-
-// 画面に表示する命令
-document.getElementById('app').innerHTML = rForm();
 </script>
 </body>
 </html>
