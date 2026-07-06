@@ -3,70 +3,31 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>個別指導スクエア 補習管理</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
-html,body{height:100%}#app{height:100%;overflow-y:auto}
-body{background:#f3f4f6}
-.cp{min-height:100%;display:flex;align-items:center;justify-content:center;background:#f3f4f6}
-.lcard{background:#fff;border-radius:14px;padding:36px;width:340px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.1)}
-.llogo{font-size:20px;font-weight:700;color:#111827;margin-bottom:4px}.llogo span{color:#B91C1C}
-.lsub{font-size:13px;color:#6b7280;margin-bottom:26px}
-.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px 16px;border:1.5px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;font-weight:500;color:#374151;margin-bottom:12px}
-.apick{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;text-align:left;margin-top:12px}
-.aphd{font-size:12px;color:#6b7280;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb}
-.apitem{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid #f3f4f6}
-.apav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
-.sucard{background:#fff;border-radius:14px;padding:24px;width:360px;max-width:95vw;box-shadow:0 2px 16px rgba(0,0,0,.1);overflow-y:auto;max-height:90vh}
-.suuser{display:flex;align-items:center;gap:10px;margin-bottom:18px}
-.susec{margin-bottom:14px}.suseclab{font-size:13px;font-weight:700;color:#111827;margin-bottom:7px}
-.supills{display:flex;flex-wrap:wrap;gap:6px}
-.spx{padding:7px 14px;border-radius:22px;font-size:13px;font-weight:500;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;white-space:nowrap}
-.spx.sa{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
-.spx.ba{background:#B91C1C;color:#fff;border-color:#B91C1C;font-weight:700}
-.spx.ga{background:#3B82F6;color:#fff;border-color:#3B82F6;font-weight:700}
-.suconfirm{width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:600;border:none;background:#e5e7eb;color:#9ca3af;cursor:default;margin-top:4px}
-.suconfirm.rdy{background:#22C55E;color:#fff;cursor:pointer}
-.btiny{font-size:12px;color:#9ca3af;border:none;background:none;cursor:pointer;width:100%;text-align:center;margin-top:10px;display:block}
-.ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb}
-.atitle{font-size:13px;font-weight:700;color:#111827}.atitle span{color:#B91C1C}
-.uchip{display:flex;align-items:center;gap:6px}.uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
-.hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
-.schp{display:flex;flex-direction:column;height:100%;overflow:hidden}
-.schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
-.stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap;min-width:88px}
-.stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;min-width:88px;overflow:visible}
-.adc{width:22px;height:22px;border-radius:50%;background:#22C55E;color:#fff;border:none;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
-.sc{border-radius:6px;padding:5px 7px;font-size:10px;color:#fff;line-height:1.35;position:relative;cursor:pointer;transition:filter .12s}
-.fpage{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.ffixed{position:relative;top:auto;z-index:20;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible}
-.frow{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
-.hpills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x}
-.flab{font-size:11px;color:#6b7280;white-space:nowrap;flex-shrink:0;min-width:28px}
-.ubar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:46px}
-.ubsave{padding:9px 20px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap}
-.durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
-.tinp{width:100%;font-size:13px;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff}
-.cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15)}
+/* ここには以前のスタイルコードが全て入ります（中略） */
+/* ※以下のCSSを末尾に追加するとより綺麗になります */
+.photo-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+.camera-btn { padding: 7px 12px; border-radius: 8px; font-size: 12px; border: 1.5px solid #3B82F6; cursor: pointer; background: #EFF6FF; color: #1E40AF; font-weight: 600; }
 </style>
 </head>
 <body><div id="app"></div>
 <script>
-// var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
-var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
-var GRADES=['小','中1','中2','中3','高1','高2','高3'];
-var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
-var S=[]; var nid=1; var cu=null,view='sch',tR=null,tS=null,dur=null,cfOpen=false,fSj=null,fGr=null,fStu='',fNote='',fBrList=[],savedCount=0,_customDur=false;
-// この下からが修正版です
+/* 以前のJavaScript本体をここに貼ってください */
+
+// rForm 関数内を以下のように書き換えることで横並びが確定します
 function rForm(){
-  var ms=SBJ,mb=BR,mg=GRADES;
-  var durBar='<div style="padding:4px 12px 2px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">'+
-    '<button class="durbtn" onclick="showCustomDur()">時間設定</button>'+
-    '<input type="file" accept="image/*" capture="environment" onchange="console.log(\'撮影完了:\', event.target.files[0])" style="font-size: 11px; width: 120px; margin-left: 8px; cursor: pointer; border: 1px solid #3B82F6; padding: 4px; border-radius: 6px;">'+
-    '</div>';
-  return '<div class="fpage"><div class="ffixed"><div class="frow">時間設定と撮影：</div>'+durBar+'</div></div>';
+  /* ...（他のコード）... */
+  // durBarの定義部分だけを以下に差し替えてください
+  var durBar = '<div style="padding:4px 12px 2px; display:flex; flex-wrap:wrap; gap:5px; align-items:center">' +
+    grDurs.map(function(d){var sel=dur===d; return '<button class="durbtn" onclick="applyCustomDur('+d+')" style="'+(sel?'background:#2563EB;color:#fff;border-color:#2563EB':'')+'">'+d+'分</button>';}).join('') +
+    '<button class="durbtn" onclick="showCustomDur()">時間設定</button>' +
+    '<input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="console.log(\'撮影完了:\', event.target.files[0])" style="display:none">' +
+    '<button class="camera-btn" onclick="document.getElementById(\'cameraInput\').click()">📷 撮影</button>' +
+    '<div id="customDurWrap" style="display:none;flex-wrap:wrap;gap:4px;width:100%;margin-top:2px">' +
+    [80,90,100,110,120,130,140,150,160].map(function(m){var sel=dur===m; return '<button class="durbtn" onclick="applyCustomDur('+m+')" style="font-size:11px;'+(sel?'background:#2563EB;color:#fff;border-color:#2563EB':'border-color:#3B82F6;color:#1E40AF')+'">'+m+'分</button>';}).join('') +
+    '</div></div>';
+  /* ...（他のコード）... */
 }
-// 以前の他の関数やR()関数はそのまま下に続けてください
-// ※GitHubには、このコードの全量（以前のもの＋今回のボタン修正分）を貼ってください
+/* ...（R()関数など）... */
 </script>
 </body>
 </html>
