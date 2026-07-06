@@ -51,7 +51,21 @@ body{background:#f3f4f6}
 </head>
 <body><div id="app"></div>
 <script>
-// (中略：以前と同じJSコード)
+// var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
+var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
+var GRADES=['小','中1','中2','中3','高1','高2','高3'];
+var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
+var S=[]; var nid=1; var cu=null,view='sch',tR=null,tS=null,dur=null,cfOpen=false,fSj=null,fGr=null,fStu='',fNote='',fBrList=[],savedCount=0,_customDur=false;
+// この下からが修正版です
+function rForm(){
+  var ms=SBJ,mb=BR,mg=GRADES;
+  var durBar='<div style="padding:4px 12px 2px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">'+
+    '<button class="durbtn" onclick="showCustomDur()">時間設定</button>'+
+    '<input type="file" accept="image/*" capture="environment" onchange="console.log(\'撮影完了:\', event.target.files[0])" style="font-size: 11px; width: 120px; margin-left: 8px; cursor: pointer; border: 1px solid #3B82F6; padding: 4px; border-radius: 6px;">'+
+    '</div>';
+  return '<div class="fpage"><div class="ffixed"><div class="frow">時間設定と撮影：</div>'+durBar+'</div></div>';
+}
+// 以前の他の関数やR()関数はそのまま下に続けてください
 // ※GitHubには、このコードの全量（以前のもの＋今回のボタン修正分）を貼ってください
 </script>
 </body>
