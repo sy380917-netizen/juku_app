@@ -3,22 +3,26 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>個別指導スクエア 補習管理</title>
 <style>
-/* 以前の全スタイルコードをここに貼り付けてください */
+/* 以前の全スタイルをここに維持してください */
+.dur-container { display: flex; align-items: center; gap: 5px; padding: 5px; }
+.durbtn { padding: 7px 12px; border-radius: 8px; font-size: 12px; border: 1.5px solid #d1d5db; cursor: pointer; background: #fff; color: #374151; font-weight: 600; }
+.camera-btn { padding: 7px 12px; border-radius: 8px; font-size: 12px; border: 1.5px solid #3B82F6; cursor: pointer; background: #EFF6FF; color: #1E40AF; font-weight: 600; }
 </style>
 </head>
 <body><div id="app"></div>
 <script>
-// --- 以前の全プログラム（BRやSBJ、各関数）をすべてここに貼り付けてください ---
+// 【重要】ここに以前のプログラム（配列や各関数）をすべてそのまま貼ってください
 
-// 【重要】その中の rForm 関数だけを、以下の「ボタン統合版」に書き換えてください
+// rForm関数の中の「durBar」の記述を、以下の形式に書き換えてください
 function rForm(){
-  var durBar = '<div style="padding:10px; display:flex; gap:5px; align-items:center">' +
+  var durBar = '<div class="dur-container">' +
     '<button class="durbtn" onclick="showCustomDur()">時間設定</button>' +
     '<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">' +
-    '<button class="camera-btn" onclick="document.getElementById(\'cameraInput\').click()" style="padding:7px 12px; border-radius:8px; font-size:12px; border:1.5px solid #3B82F6; cursor:pointer; background:#EFF6FF; color:#1E40AF; font-weight:600;">📷 撮影</button>' +
+    '<button class="camera-btn" onclick="document.getElementById(\'cameraInput\').click()">📷 撮影</button>' +
     '</div>';
-  // その他の本来のフォーム表示内容
-  return durBar + '...以前の内容...';
+  
+  // 以降、以前のフォーム表示ロジックを続けてください
+  return durBar + '...以前のフォーム内容...';
 }
 </script>
 </body>
