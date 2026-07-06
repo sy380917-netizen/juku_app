@@ -3,31 +3,33 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>個別指導スクエア 補習管理</title>
 <style>
-/* ここには以前のスタイルコードが全て入ります（中略） */
-/* ※以下のCSSを末尾に追加するとより綺麗になります */
-.photo-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
-.camera-btn { padding: 7px 12px; border-radius: 8px; font-size: 12px; border: 1.5px solid #3B82F6; cursor: pointer; background: #EFF6FF; color: #1E40AF; font-weight: 600; }
+/* スタイル部分は以前の通りで大丈夫です */
+*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
+body{background:#f3f4f6}
+.durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
+.camera-btn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #3B82F6;cursor:pointer;background:#EFF6FF;color:#1E40AF;font-weight:600}
 </style>
 </head>
 <body><div id="app"></div>
 <script>
-/* 以前のJavaScript本体をここに貼ってください */
+// アプリの基本設定
+var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
+var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
+var GRADES=['小','中1','中2','中3','高1','高2','高3'];
+var dur=60; // 初期値
 
-// rForm 関数内を以下のように書き換えることで横並びが確定します
+// 修正したrForm関数
 function rForm(){
-  /* ...（他のコード）... */
-  // durBarの定義部分だけを以下に差し替えてください
-  var durBar = '<div style="padding:4px 12px 2px; display:flex; flex-wrap:wrap; gap:5px; align-items:center">' +
-    grDurs.map(function(d){var sel=dur===d; return '<button class="durbtn" onclick="applyCustomDur('+d+')" style="'+(sel?'background:#2563EB;color:#fff;border-color:#2563EB':'')+'">'+d+'分</button>';}).join('') +
-    '<button class="durbtn" onclick="showCustomDur()">時間設定</button>' +
-    '<input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="console.log(\'撮影完了:\', event.target.files[0])" style="display:none">' +
+  var durBar = '<div style="padding:10px; display:flex; gap:5px; align-items:center">' +
+    '<button class="durbtn">時間設定</button>' +
+    '<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">' +
     '<button class="camera-btn" onclick="document.getElementById(\'cameraInput\').click()">📷 撮影</button>' +
-    '<div id="customDurWrap" style="display:none;flex-wrap:wrap;gap:4px;width:100%;margin-top:2px">' +
-    [80,90,100,110,120,130,140,150,160].map(function(m){var sel=dur===m; return '<button class="durbtn" onclick="applyCustomDur('+m+')" style="font-size:11px;'+(sel?'background:#2563EB;color:#fff;border-color:#2563EB':'border-color:#3B82F6;color:#1E40AF')+'">'+m+'分</button>';}).join('') +
-    '</div></div>';
-  /* ...（他のコード）... */
+    '</div>';
+  return '<div id="app">' + durBar + '</div>';
 }
-/* ...（R()関数など）... */
+
+// 画面に表示する命令
+document.getElementById('app').innerHTML = rForm();
 </script>
 </body>
 </html>
