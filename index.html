@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.0  2026-06-19  初期リリース
+  v1.1  写真撮影ボタン追加版
 ==========================================================
 -->
 <html lang="ja">
@@ -41,8 +41,12 @@ body{background:#f3f4f6}
 .btiny{font-size:12px;color:#9ca3af;border:none;background:none;cursor:pointer;width:100%;text-align:center;margin-top:10px;display:block}
 /* APP HEADER */
 .ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb}
-.atitle{font-size:13px;font-weight:700;color:#111827}
+.atitle{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px}
 .atitle span{color:#B91C1C}
+/* ★ 追加：ヘッダー用撮影ボタンのスタイル */
+.hdr-camera-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border:1px solid #3B82F6;border-radius:6px;background:#EFF6FF;color:#1E40AF;cursor:pointer;font-weight:600;white-space:nowrap}
+.hdr-camera-btn:hover{background:#DBEAFE}
+
 .uchip{display:flex;align-items:center;gap:6px}
 .uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
 .hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
@@ -58,7 +62,6 @@ table.stbl{border-collapse:collapse}
 .stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap;min-width:88px}
 .stbl th.thT{background:#991B1B}
 .tp{display:inline-block;background:#EF4444;font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:2px}
-/* .brn は sticky CSS で定義済み */
 .stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;min-width:88px;overflow:visible}
 .stbl td.dyt.tcol{background:#fffbeb}
 .cin{display:flex;flex-direction:column;gap:3px;overflow:visible}
@@ -112,65 +115,17 @@ table.stbl{border-collapse:collapse}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
 .autotag{background:#DCFCE7;color:#166534;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap}
 /* ===== タイムグリッド ===== */
-/* ★ 時刻ヘッダー：縦スクロールで上部固定、横スクロールはJS同期 */
-.tgsh{
-  position:sticky;
-  top:0;
-  z-index:5;
-  display:flex;
-  align-items:stretch;
-  background:#f9fafb;
-  border:1px solid #e5e7eb;
-  border-bottom:none;
-  border-radius:8px 8px 0 0
-}
-/* 左上コーナーセル（日付欄の見出し）：常に左端に固定 */
-.tgcorner{
-  width:50px;min-width:50px;flex-shrink:0;
-  border-right:1px solid #d1d5db;
-  background:#f9fafb;
-  display:flex;align-items:center;justify-content:center;
-  font-size:9px;color:#9ca3af;
-  padding:0 2px
-}
-/* ヘッダーのクリップ領域 */
+.tgsh{position:sticky;top:0;z-index:5;display:flex;align-items:stretch;background:#f9fafb;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0}
+.tgcorner{width:50px;min-width:50px;flex-shrink:0;border-right:1px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#9ca3af;padding:0 2px}
 .tghc{flex:1;overflow:hidden}
-/* ヘッダーテーブル（JS で横移動） */
 .tght{border-collapse:collapse;table-layout:fixed;will-change:transform}
-/* 1時間単位ヘッダー：6列×21px=126px ← タイムテーブルの1時間幅に揃える（8:00〜24:00）*/
-.thhour{
-  font-size:10px;font-weight:700;color:#374151;
-  padding:4px 4px;text-align:left;
-  border-right:1px solid #d1d5db;
-  border-bottom:1px solid #e5e7eb;
-  white-space:nowrap;
-  /* 幅は colspan=6 × 21px = 126px で自動決定 */
-}
-/* 10分刻みサブヘッダー */
-.th10{
-  font-size:7px;color:#c4c9d4;
-  padding:1px 0;text-align:center;
-  border-right:1px solid #f0f0f0;
-  border-bottom:1px solid #e5e7eb;
-  width:21px;min-width:21px
-}
+.thhour{font-size:10px;font-weight:700;color:#374151;padding:4px 4px;text-align:left;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.th10{font-size:7px;color:#c4c9d4;padding:1px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:21px;min-width:21px}
 .th10.h30{color:#6b7280;font-weight:700;font-size:8px;border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-/* ボディ */
-.tgwrap{
-  overflow-x:auto;
-  border:1px solid #e5e7eb;
-  border-top:none;
-  border-radius:0 0 8px 8px
-}
+.tgwrap{overflow-x:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px}
 .tgbody{border-collapse:collapse}
-/* ★ 日付列：横スクロールでも左端に固定 */
-.tdd{
-  font-size:11px;padding:4px 5px;text-align:center;
-  background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;
-  vertical-align:middle;white-space:nowrap;width:50px;min-width:50px;line-height:1.4;
-  position:sticky;left:0;z-index:2
-}
+.tdd{font-size:11px;padding:4px 5px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:50px;min-width:50px;line-height:1.4;position:sticky;left:0;z-index:2}
 .tdd.tdt{color:#3B82F6;font-weight:700}
 .tdd.psel{background:#FFF1F2;color:#B91C1C;font-weight:700;border-right:2px solid #B91C1C}
 .tds{width:21px;min-width:21px;max-width:21px;height:46px;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
@@ -209,57 +164,22 @@ table.stbl{border-collapse:collapse}
 .cpok.em{background:#F59E0B}
 .cpcancel{flex:1;padding:11px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
 .cpcancel:hover{background:#f9fafb}
-
-/* ===== スケジュール画面 sticky ヘッダー・列 ===== */
-/* wnav + 日付ヘッダーをまとめて上部固定 */
 .sch-sticky{position:sticky;top:0;z-index:9;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-/* 日付ヘッダー行（校舎コーナー + 日付セル） */
 .sch-hdr-row{display:flex;background:#1F2937}
-/* 校舎コーナー（左上固定セル） */
-.sch-corner{
-  flex-shrink:0;
-  background:#1F2937;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:600;color:#fff;
-  border-right:1px solid #374151;
-  padding:6px 4px
-}
-/* ヘッダーのクリップ領域（overflow:hidden でテーブルをクリップ） */
+.sch-corner{flex-shrink:0;background:#1F2937;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;border-right:1px solid #374151;padding:6px 4px}
 .sch-hdr-clip{flex:1;overflow:hidden}
-/* ヘッダーテーブル（JS で translateX） */
 .sch-ht{border-collapse:collapse;table-layout:fixed;will-change:transform}
-/* 日付セル */
-.sch-th{
-  width:88px;min-width:88px;
-  padding:6px 4px;text-align:center;
-  border-right:1px solid #374151;
-  background:#1F2937;color:#fff;
-  vertical-align:middle
-}
+.sch-th{width:88px;min-width:88px;padding:6px 4px;text-align:center;border-right:1px solid #374151;background:#1F2937;color:#fff;vertical-align:middle}
 .sch-th.tod{background:#991B1B}
-/* 日付（上段・大きく） */
 .sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
-/* 曜日（下段・小さく） */
 .sch-dow{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
 .sch-today-tag{display:inline-block;background:#EF4444;font-size:9px;padding:1px 4px;border-radius:3px;vertical-align:middle}
-/* ★ 校舎名列：横スクロールしても左端に固定 */
-.brn{
-  background:#B91C1C;color:#fff;font-size:16px;font-weight:700;
-  padding:6px 4px;text-align:center;
-  border:1px solid #991B1B;min-width:58px;
-  position:sticky;left:0;z-index:2;  /* ← 左固定 */
-  height:60px;vertical-align:middle
-}
-
-/* スケジュール画面フィルター */
+.brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;min-width:58px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
 .sch-th-sel{background:#7F1D1D !important}
 .sch-th-sel .sch-date,.sch-th-sel .sch-dow{color:#fff}
 .sch-fsel-dot{display:inline-block;width:5px;height:5px;background:#FCD34D;border-radius:50%;margin-left:3px;vertical-align:middle}
 .noclick{cursor:default}
-
-
 .flt-badge{font-size:10px;padding:1px 5px;border-radius:8px;color:#fff;margin-left:4px}
-
 .del-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .del-modal{background:#fff;border-radius:14px;padding:22px 20px;width:100%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
 .del-modal-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:10px;text-align:center}
@@ -269,140 +189,61 @@ table.stbl{border-collapse:collapse}
 .del-modal-ok:hover{background:#B91C1C}
 .del-modal-cancel{flex:1;padding:11px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
 .del-modal-cancel:hover{background:#f9fafb}
-
-.undo-toast{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  background:#1F2937;color:#fff;
-  border-radius:10px;padding:10px 16px;
-  display:flex;align-items:center;gap:12px;
-  font-size:13px;z-index:200;
-  box-shadow:0 4px 16px rgba(0,0,0,.3);
-  white-space:nowrap;
-  animation:slideUp .2s ease
-}
-.undo-btn{
-  padding:5px 12px;border:1.5px solid #fff;border-radius:6px;
-  background:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700
-}
+.undo-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:12px;font-size:13px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;animation:slideUp .2s ease}
+.undo-btn{padding:5px 12px;border:1.5px solid #fff;border-radius:6px;background:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700}
 .undo-btn:hover{background:rgba(255,255,255,.15)}
 @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-
-/* ツールチップ */
 .sc{position:relative;overflow:visible;width:max-content;min-width:100%}
-.sc-tip{
-  display:none;
-  position:fixed;
-  background:#1F2937;color:#fff;
-  padding:10px 12px;border-radius:10px;
-  font-size:12px;line-height:1.7;
-  white-space:normal;
-  min-width:160px;max-width:240px;
-  box-shadow:0 6px 20px rgba(0,0,0,.4);
-  pointer-events:none;
-  z-index:9999;
-  transform:translateY(-100%) translateY(-8px)
-}
-
-
-/* ===== 横向き対応 ===== */
+.sc-tip{display:none;position:fixed;background:#1F2937;color:#fff;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.7;white-space:normal;min-width:160px;max-width:240px;box-shadow:0 6px 20px rgba(0,0,0,.4);pointer-events:none;z-index:9999;transform:translateY(-100%) translateY(-8px)}
 @media (orientation: landscape) and (max-height: 500px) {
   .ahdr{padding:4px 10px}
   .atitle{font-size:13px}
   .hdrbtn{padding:3px 7px;font-size:10px}
   .uchip{gap:4px}
-  /* フィルター行を細く */
-  .sch-sticky button[onclick*="togNav"],
-  .sch-sticky button[onclick*="togBr"],
-  .sch-sticky button[onclick*="togIns"]{padding:4px 12px !important}
-  /* 日付ヘッダーを細く */
+  .sch-sticky button[onclick*="togNav"],.sch-sticky button[onclick*="togBr"],.sch-sticky button[onclick*="togIns"]{padding:4px 12px !important}
   .sch-hdr-row .sch-th{padding:4px 0 !important;font-size:12px !important}
   .sch-corner{font-size:11px}
-  /* スクロールエリアを最大化 */
   .schscr{overflow-y:auto !important}
-  /* フォーム固定ヘッダーを細く */
   .fhrow{padding:4px 10px}
   .bbtn,.gnbtn{padding:4px 8px;font-size:12px}
   .brow{padding:4px 10px}
   .fubar{padding:4px 10px}
   .ubar{padding:4px 10px}
 }
-
-
-
-/* ===== PC・大画面対応 ===== */
 @media (min-width: 768px) {
   html,body,#app{font-size:14px}
   .ahdr{padding:10px 20px}
   .atitle{font-size:17px}
   .hdrbtn{padding:7px 14px;font-size:13px}
-  /* スケジュール画面 */
   .sch-hdr-row .sch-corner{font-size:13px}
   .sch-hdr-row .sch-th{font-size:13px !important}
   .dyt{padding:6px !important}
   .sc{border-radius:6px}
   .sc .sct{font-size:12px}
   .sc .scd{font-size:11px}
-  /* スティッキーフィルター */
-  .sch-sticky button[onclick*="togNav"],
-  .sch-sticky button[onclick*="togBr"],
-  .sch-sticky button[onclick*="togIns"]{padding:9px 16px !important;font-size:13px !important}
-  /* 校舎ラベル */
+  .sch-sticky button[onclick*="togNav"],.sch-sticky button[onclick*="togBr"],.sch-sticky button[onclick*="togIns"]{padding:9px 16px !important;font-size:13px !important}
   .sbrlab{font-size:13px;min-width:90px}
-  /* フォーム画面 */
   .fhrow{padding:10px 20px}
   .brow,.fubar,.ubar{padding:8px 20px}
   .fbody{padding:14px 20px}
   .tinp{font-size:14px;padding:9px 12px}
 }
-
-/* 詳細ポップアップモーダル */
-#sc-tip-modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.5);
-  z-index:10002;
-  display:flex;align-items:center;justify-content:center;
-  padding:16px
-}
-#sc-tip-modal .tip-box{
-  background:#1F2937;color:#fff;
-  padding:16px 18px;
-  border-radius:14px;
-  font-size:13px;line-height:1.8;
-  min-width:200px;max-width:280px;width:100%;
-  box-shadow:0 8px 32px rgba(0,0,0,.5);
-  position:relative
-}
-#sc-tip-modal .tip-close{
-  position:absolute;top:10px;right:12px;
-  background:none;border:none;
-  color:#9ca3af;font-size:18px;
-  cursor:pointer;padding:0;line-height:1
-}
-
-/* 確認パネル表示中は全体スクロール */
-.fpage.cf-open .ffixed{
-  position:relative !important;
-  top:auto !important;
-  box-shadow:none;
-  border-bottom:2px solid #22C55E;
-}
-/* 確認パネル時：時刻ヘッダーを画面上部に固定 */
-.fpage.cf-open .tgsh{
-  top:0 !important;
-  z-index:25 !important;
-}
+#sc-tip-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px}
+#sc-tip-modal .tip-box{background:#1F2937;color:#fff;padding:16px 18px;border-radius:14px;font-size:13px;line-height:1.8;min-width:200px;max-width:280px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5);position:relative}
+#sc-tip-modal .tip-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#9ca3af;font-size:18px;cursor:pointer;padding:0;line-height:1}
+.fpage.cf-open .ffixed{position:relative !important;top:auto !important;box-shadow:none;border-bottom:2px solid #22C55E}
+.fpage.cf-open .tgsh{top:0 !important;z-index:25 !important}
 </style>
 </head>
 <body><div id="app"></div>
 <div id="sc-tooltip" style="display:none;position:fixed;background:#1F2937;color:#fff;padding:10px 13px;border-radius:10px;font-size:12px;line-height:1.8;min-width:160px;max-width:240px;white-space:normal;box-shadow:0 6px 20px rgba(0,0,0,.45);z-index:9999;pointer-events:auto"></div>
 <script>
-
 var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
 var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
 var GRADES=['小','中1','中2','中3','高1','高2','高3'];
 var SCOL={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
 var DY=['日','月','火','水','木','金','土'];
-var TS0=480,TSD=10,TSN=93; // 8:00〜23:30、93スロット
+var TS0=480,TSD=10,TSN=93;
 function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
 var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
@@ -412,29 +253,27 @@ var ACCOUNTS=[
   {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
   {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
   {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
-  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
+  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:#6B7280}
 ];
-// ★ 管理者アカウント ID（複数可）
 function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
-// ★ Google OAuth Client ID（Google Cloud Console で取得したIDに書き換え）
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
 var APP_VERSION='v1.0';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
-var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote=''; // fBrList: 選択中校舎（複数可）
+var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
 var _skipAutoScroll=false;
-var _schFirstLoad=true; // ログイン直後の初回のみフィルタースクロールを適用
-var W_SLOT=21; // タイムテーブル1スロット幅（ピンチズームで変化）
+var _schFirstLoad=true;
+var W_SLOT=21;
 window.tgZoomIn=function(){var sc=getSc();W_SLOT=Math.min(42,W_SLOT+3);R();restSc(sc);};
 window.tgZoomOut=function(){var sc=getSc();W_SLOT=Math.max(10,W_SLOT-3);R();restSc(sc);};
-var _customDur=false; // 任意時間設定フラグ
+var _customDur=false;
 var schFBr=[],schFDt=[],schFIns=[],schPickerOpen=false;
-var delConfId=null,delAccId=null; // delAccId: ログイン画面でのアカウント削除確認
+var delConfId=null,delAccId=null;
 var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
-var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth(); // スケジュール画面フィルター
+var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
 var S=[];
 var nid=1;
@@ -457,7 +296,6 @@ function restSc(sc){requestAnimationFrame(function(){
   var h=document.getElementById('tgHT');if(h)h.style.transform='translateX(-'+sc+'px)';
 });}
 
-// ===== ログイン =====
 window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});fIns=cu.name;showPick=false;_schFirstLoad=true;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();};
 window.loginWithEmail=function(){
   var email=(loginEmail||'').trim().toLowerCase();
@@ -477,7 +315,6 @@ window.cancelRegister=function(){view=cu?'sch':'login';showPick=false;R();};
 window.confirmRegister=function(){
   var n=regName.trim();
   var e=(regEmail||'').trim().toLowerCase();
-  // 検証
   if(!e){regErrMsg='Gmailアドレスを入力してください';R();return;}
   if(e.indexOf('@')<0||e.indexOf('.')<0){regErrMsg='正しいメールアドレスを入力してください';R();return;}
   if(ACCOUNTS.find(function(a){return a.email.toLowerCase()===e;})){regErrMsg='このメールアドレスは既に登録されています';R();return;}
@@ -489,7 +326,6 @@ window.confirmRegister=function(){
   var palette=['#3B82F6','#10B981','#7C3AED','#D97706','#0891B2','#059669','#DC2626','#6B7280','#F59E0B','#EF4444','#8B5CF6','#EC4899'];
   var autoColor=palette.find(function(c){return usedColors.indexOf(c)<0;})||palette[newId%palette.length];
   ACCOUNTS.push({id:newId,name:n,email:e,color:autoColor});
-  // 登録後すぐにログインして検証できるようにする
   cu=ACCOUNTS[ACCOUNTS.length-1];
   fIns=cu.name;
   suSubj=[];suBr=[];suGr=[];
@@ -512,11 +348,7 @@ window.saveSettings=function(){
   aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();view='sch';R();
 };
 window.cancelSettings=function(){view='sch';R()};
-// ===== スケジュール =====
-// スケジュール画面フィルター
-window.openCal=function(){
-  var today=new Date();calY=today.getFullYear();calM=today.getMonth();calOpen=true;R();
-};
+window.openCal=function(){var today=new Date();calY=today.getFullYear();calM=today.getMonth();calOpen=true;R();};
 window.closeCal=function(){calOpen=false;R();};
 window.calPrev=function(){if(calM===0){calM=11;calY--;}else calM--;R();};
 window.calNext=function(){if(calM===11){calM=0;calY++;}else calM++;R();};
@@ -548,7 +380,7 @@ window.pWk=function(){var d=new Date(wk);d.setDate(d.getDate()-7);wk=d;R()};
 window.nWk=function(){var d=new Date(wk);d.setDate(d.getDate()+7);wk=d;R()};
 window.sWD=function(v){
   if(!v)return;
-  var dt=v; // YYYY-MM-DD
+  var dt=v;
   var mb=myBr();
   var br=mb.length===1?mb[0]:(fBrList.length&&fBrList[0]?fBrList[0]:mb[0]||'');
   view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
@@ -557,27 +389,22 @@ window.sWD=function(v){
   var d=new Date(v+'T12:00:00');d.setDate(d.getDate()-d.getDay());wk=d;
   R();
 };
-// ===== フォーム =====
 window.oForm=function(br,dt){
   view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
   tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
-
-
-
 };
 window.editSession=function(id){
   var m=document.getElementById('day-modal');if(m)m.remove();
   var m2=document.getElementById('sc-tip-modal');if(m2)m2.remove();
   var s=S.find(function(x){return x.id===id});if(!s)return;
-  if(!canEdit(s.ins)){return;} // 権限なし
+  if(!canEdit(s.ins)){return;}
   view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
   tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);cfOpen=true;R();
   var _initScroll=function(){
     var tw=document.getElementById('tgW');if(!tw)return;
     var pos=tS!==null?Math.max(0,tS*W_SLOT-80):(48*W_SLOT);
     tw.scrollLeft=pos;
-    // iOS対策：少し遅らせて再セット
     if('ontouchstart' in window){setTimeout(function(){var tw2=document.getElementById('tgW');if(tw2)tw2.scrollLeft=pos;},150);}
   };
   requestAnimationFrame(_initScroll);
@@ -585,7 +412,7 @@ window.editSession=function(id){
 window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;R();setTimeout(function(){var scr=document.querySelector('.schscr');var st=document.querySelector('.sch-sticky');if(scr&&st)scr.scrollTop=st.offsetTop;},80);};
 window.sBr=function(b){
   var sc=getSc();
-  fBrList=[b]; // 常に1校舎のみ
+  fBrList=[b];
   R();restSc(sc);
 };
 window.sSj=function(s){var sc=getSc();fSj=s;R();restSc(sc)};
@@ -627,7 +454,7 @@ window.showTipModal=function(id,ev){
   if(ev)ev.stopPropagation();
   var s=S.find(function(x){return x.id===id;});
   if(!s)return;
-  var content=[s.br,s.gr+'　'+s.sj,s.s+'〜'+s.e,(s.stu?'生徒：'+s.stu:''),(s.note?'📝 '+s.note:''),'担当：'+s.ins].filter(Boolean).join('<br>');
+  var content=[s.br,s.gr+' '+s.sj,s.s+'〜'+s.e,(s.stu?'生徒：'+s.stu:''),(s.note?'📝 '+s.note:''),'担当：'+s.ins].filter(Boolean).join('<br>');
   var canEd=canEdit(s.ins);
   var old=document.getElementById('sc-tip-modal');if(old)old.remove();
   var modal=document.createElement('div');
@@ -642,7 +469,6 @@ window.showTipModal=function(id,ev){
 window.showDelConfInModal=function(id){
   var box=document.getElementById('tip-box-inner');if(!box)return;
   var s=S.find(function(x){return x.id===id;});if(!s)return;
-  // 削除ボタンを確認UIに差し替え
   var delBtn=box.querySelector('button:last-child');if(delBtn)delBtn.remove();
   var conf=document.createElement('div');
   conf.style.cssText='margin-top:10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px';
@@ -683,7 +509,7 @@ window.showDayModal=function(dt){
       +'<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">'
       +'<span style="font-size:15px;font-weight:700;color:#111827">'+s.s+' - '+s.e+'</span>'
       +'<span style="font-size:14px;font-weight:700;color:#B91C1C">'+s.br+'</span>'
-      +'<span style="font-size:13px;color:#374151">'+s.gr+'　'+s.sj+(s.stu?' ('+s.stu+')':'')+'</span>'
+      +'<span style="font-size:13px;color:#374151">'+s.gr+' '+s.sj+(s.stu?' ('+s.stu+')':'')+'</span>'
       +'<span style="font-size:12px;color:#9ca3af;margin-left:auto">担当: '+s.ins+'</span>'
       +'</div></div>';
   }
@@ -695,7 +521,7 @@ window.showDayModal=function(dt){
     var groups=[],seen={};
     all.forEach(function(s){var key=s.br+'__'+s.ins;if(!seen[key]){seen[key]=true;groups.push({br:s.br,ins:s.ins,items:[]});}groups.find(function(g){return g.br===s.br&&g.ins===s.ins;}).items.push(s);});
     if(!groups.length){rows='<div style="color:#9ca3af;text-align:center;padding:20px">予定なし</div>';}
-    else{rows=groups.map(function(g){return'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:#374151;padding:4px 0;border-bottom:1.5px solid #e5e7eb;margin-bottom:6px"><span style="color:#B91C1C">'+g.br+'</span>　<span>担当: '+g.ins+'</span></div>'+g.items.map(cardHTML).join('')+'</div>';}).join('');}
+    else{rows=groups.map(function(g){return'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:#374151;padding:4px 0;border-bottom:1.5px solid #e5e7eb;margin-bottom:6px"><span style="color:#B91C1C">'+g.br+'</span> <span>担当: '+g.ins+'</span></div>'+g.items.map(cardHTML).join('')+'</div>';}).join('');}
   }
   var old=document.getElementById('day-modal');if(old)old.remove();
   var modal=document.createElement('div');
@@ -716,7 +542,7 @@ window.showDayModal=function(dt){
 window.applyCustomDur=function(m){
   if(tS!==null&&tS+m/TSD>TSN){alert('終了時刻が23:30を超えます');return;}
   dur=m;_customDur=true;
-  cfOpen=false; // タイムテーブルで確認してから更新
+  cfOpen=false;
   var sc=getSc();R();restSc(sc);
 };
 window.showCustomDur=function(){
@@ -727,14 +553,12 @@ window.showCustomDur=function(){
 };
 window.saveF=function(){
   if(!fSj||!fGr||!tR||tS===null||!dur){alert('教科・学年・時間帯をすべて選択してください');return;}
-  // 画面幅に合わせてスロット幅を自動計算（3時間分が見える幅）
-  var availW=window.innerWidth-60; // 日付列50px＋余白
-  var visibleSlots=18; // 3時間=18スロット
+  var availW=window.innerWidth-60;
+  var visibleSlots=18;
   var autoSlot=Math.floor(availW/visibleSlots);
   W_SLOT=Math.max(14,Math.min(42,autoSlot));
   _skipAutoScroll=true;
   cfOpen=true;R();
-  // 選択時刻を中央に
   requestAnimationFrame(function(){
     var fs=document.querySelector('.fpage');if(fs)fs.scrollTop=0;
     var tw=document.getElementById('tgW');
@@ -746,12 +570,11 @@ window.cBr=function(b){
   if(editId!==null){fBrList=[b];}
   else{var i=fBrList.indexOf(b);if(i>=0)fBrList.splice(i,1);else fBrList.push(b);if(!fBrList.length)fBrList=[b];}
   R();
-};window.cSj=function(s){fSj=s;R()};
+};
+window.cSj=function(s){fSj=s;R()};
 window.cGr=function(g){fGr=g;if(!_customDur){var ds=getDurs(g);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
 window.editTime=function(){cfOpen=false;R()};
-window.doSave=function(){
-  doSaveExec();
-};
+window.doSave=function(){doSaveExec();};
 window.doSaveExec=function(){
   var sT=m2s(sl2m(tS)),eT=m2s(sl2m(tS)+dur);
   var sc=getSc();_skipAutoScroll=true;
@@ -770,13 +593,11 @@ window.doSaveExec=function(){
   }
 };
 
-// ===== タイムグリッド用スクロール同期 =====
 function setupWeekSwipe(){
   var THRESH=50,LOCK=8;
   var wrap=document.getElementById('tgW');
   if(!wrap)return;
   var sx=null,sy=null,dir=null;
-  // タッチ：日付ラベル列（.tdd）上でのみ縦スワイプを検出（グリッドの操作と干渉しない）
   wrap.addEventListener('touchstart',function(e){
     var t=e.target.closest?e.target.closest('.tdd'):null;
     if(!t){sx=null;return;}
@@ -798,7 +619,6 @@ function setupWeekSwipe(){
   },{passive:true});
   wrap.addEventListener('touchcancel',function(){sx=null;dir=null;});
 
-  // ピンチズーム（スマホ）
   var pinchDist0=null;
   var slot0=W_SLOT;
   wrap.addEventListener('touchstart',function(e){
@@ -823,7 +643,6 @@ function setupWeekSwipe(){
   },{passive:false});
   wrap.addEventListener('touchend',function(){pinchDist0=null;});
 
-  // Ctrl+ホイール / Macトラックパッドピンチズーム（PC）
   function _tgWheel(e){
     var tgw=document.getElementById('tgW');
     if(!tgw||!tgw.contains(e.target))return;
@@ -843,7 +662,6 @@ function setupWeekSwipe(){
     if(newSlot!==W_SLOT){var sc=getSc();W_SLOT=newSlot;R();restSc(sc);}
   },{passive:false});
 
-  // PC：日付ラベル列上でのドラッグでも週移動
   var msy=null;
   wrap.addEventListener('mousedown',function(e){
     var t=e.target.closest?e.target.closest('.tdd'):null;
@@ -864,7 +682,6 @@ function setupTGSync(){
     hdrTbl.style.transform='translateX(-'+this.scrollLeft+'px)';
   },{passive:true});
 
-  // ★ ドラッグで開始時刻を変更（PC:クリックドラッグ / スマホ:長押し後ドラッグ）
   var dragging=false,dragTimer=null,dragReady=false;
   var touchStartX=0,touchStartY=0;
   var W_DD=50;
@@ -894,10 +711,8 @@ function setupTGSync(){
     R();restSc(sc);
   }
 
-  // === PC（マウス）: クリックしたままドラッグ ===
   wrap.addEventListener('mousedown',function(e){
     if(e.button!==0)return;
-    // data-tip要素（予定バー）・日付ラベル列はドラッグ対象外
     var _el=e.target;while(_el&&_el!==wrap){if(_el.getAttribute&&(_el.getAttribute('data-tip')||_el.classList.contains('tdd')))return;_el=_el.parentElement;}
     dragging=true;applySlot(e);
   });
@@ -908,25 +723,20 @@ function setupTGSync(){
   wrap.addEventListener('mouseup',function(){dragging=false;});
   wrap.addEventListener('mouseleave',function(){dragging=false;});
 
-  // === スマホ（タッチ）: 長押し後ドラッグ ===
   wrap.addEventListener('touchstart',function(e){
     if(cfOpen)return;
-    // data-tip要素（予定バー）・日付ラベル列はドラッグ対象外
     var _el=e.target;while(_el&&_el!==wrap){if(_el.getAttribute&&(_el.getAttribute('data-tip')||_el.classList.contains('tdd')))return;_el=_el.parentElement;}
     touchStartX=e.touches[0].clientX;
     touchStartY=e.touches[0].clientY;
     dragReady=false;dragging=false;
-    // 400ms長押しでドラッグモード開始
     dragTimer=setTimeout(function(){
       dragReady=true;
-      // 長押し開始位置で時刻を設定
       applySlot({touches:[{clientX:touchStartX,clientY:touchStartY}]});
     },400);
   },{passive:true});
   wrap.addEventListener('touchmove',function(e){
     var dx=Math.abs(e.touches[0].clientX-touchStartX);
     var dy=Math.abs(e.touches[0].clientY-touchStartY);
-    // 少し動いたらタイマーキャンセル（長押し判定を防ぐ）
     if(!dragReady&&(dx>8||dy>8)){
       clearTimeout(dragTimer);dragTimer=null;
     }
@@ -938,7 +748,7 @@ function setupTGSync(){
     clearTimeout(dragTimer);dragTimer=null;
     dragReady=false;dragging=false;
   });
-  wrap.addEventListener('touchcancel',function(){dragging=false;lockDir=null;});
+  wrap.addEventListener('touchcancel',function(){dragging=false;});
 }
 
 function buildRanges(dt){
@@ -947,7 +757,7 @@ function buildRanges(dt){
     if(s.ins!==uName||s.dt!==dt||s.id===editId)return false;
     var st=Math.round(t2sl(s.s)),len=Math.round((t2m(s.e)-t2m(s.s))/TSD);
     if(st<0||st+len>TSN)return false;
-    return true; // 選択中でも自分の予定を常に表示
+    return true;
   }).map(function(s){return{start:Math.round(t2sl(s.s)),len:Math.round((t2m(s.e)-t2m(s.s))/TSD),s:s};})
   .sort(function(a,b){return a.start-b.start;});
 }
@@ -961,7 +771,7 @@ function tgRows(dates){
       if(hasSel&&i===tS){
         var parts=[];if(fBrList.length)parts.push(fBrList.length===1?fBrList[0]:fBrList.length+'校舎');if(fGr)parts.push(fGr);if(fSj)parts.push(fSj);
         cells+='<td colspan="'+dur/TSD+'" class="selm" onclick="clickSlot(\''+dt+'\','+tS+')">'
-          +'<div class="selbar"><div class="sbi">'+(parts.length?parts.join('　'):'設定中')+'</div>'
+          +'<div class="selbar"><div class="sbi">'+(parts.length?parts.join(' '):'設定中')+'</div>'
           +'<div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
         i+=dur/TSD;continue;
       }
@@ -969,10 +779,10 @@ function tgRows(dates){
       if(found){
         var s=found.s,col=SCOLD[s.sj]||'#6B7280';
         cells+='<td colspan="'+found.len+'" class="exm" onclick="clickSlot(\''+dt+'\','+i+')" style="cursor:pointer">'
-          +'<div class="exbar" style="background:'+col+'" data-tip="'+[s.br,s.gr+'　'+s.sj,s.s+'〜'+s.e,(s.stu?'生徒：'+s.stu:''),(s.note?'📝 '+s.note:''),'担当：'+s.ins].filter(Boolean).join('|').replace(/"/g,'&quot;')+'" data-sid="'+s.id+'"'+(canEdit(s.ins)?' data-edit="1"':'')+'">'
+          +'<div class="exbar" style="background:'+col+'" data-tip="'+[s.br,s.gr+' '+s.sj,s.s+'〜'+s.e,(s.stu?'生徒：'+s.stu:''),(s.note?'📝 '+s.note:''),'担当：'+s.ins].filter(Boolean).join('|').replace(/"/g,'&quot;')+'" data-sid="'+s.id+'"'+(canEdit(s.ins)?' data-edit="1"':'')+'">'
           +'<button onclick="event.stopPropagation();showTipModal('+s.id+',event)" style="position:absolute;inset:0;width:100%;height:100%;background:none;border:none;cursor:pointer;z-index:1;padding:0;text-align:left;color:inherit">'
           +'<div class="exbr" style="pointer-events:none">'+s.br+'</div>'
-          +'<div class="exmain" style="pointer-events:none">'+s.gr+'　'+s.sj+'</div>'
+          +'<div class="exmain" style="pointer-events:none">'+s.gr+' '+s.sj+'</div>'
           +'<div class="extime" style="pointer-events:none">'+s.s+'〜'+s.e+'</div>'
           +'</button>'
           +(canEdit(s.ins)?'<button onclick="(function(e){e.stopPropagation();delS('+s.id+',e);})(event)" style="position:absolute;top:50%;right:3px;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.35);border:none;color:#fff;cursor:pointer;font-size:10px;line-height:22px;text-align:center;padding:0;z-index:2">×</button>':'')
@@ -991,17 +801,20 @@ function tgRows(dates){
   }).join('');
 }
 
-function gsvg(){return'<svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57C21.36 18.09 22.56 15.27 22.56 12.25z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>';}
-
 function rAH(bk){
   if(!cu)return'';
-  return'<div class="ahdr"><div class="atitle"><span>■</span> 個別指導スクエア <span style="font-size:10px;font-weight:400;color:#9ca3af">'+APP_VERSION+'</span></div>'
-    +'<div style="display:flex;align-items:center;gap:6px">'
-    +(bk?'':'<button class="hdrbtn" onclick="openSettings()">⚙ 設定変更</button><button class="hdrbtn" onclick="openRegister()" style="background:#22C55E;color:#fff;border-color:#22C55E">＋ 講師登録</button>')
-    +'<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div>'
-    +'<span style="font-size:11px;font-weight:500;color:#374151">'+cu.name+'</span>'
-    +'<button class="hdrbtn" onclick="logout()">ログアウト</button></div>'
-    +'</div></div>';
+  // ★ ヘッダータイトルの横にファイル選択インプット（非表示）と撮影ボタンを配置
+  var cameraBtnHtml = '<input type="file" id="globalCameraInput" accept="image/*" capture="environment" style="display:none" onchange="alert(\'写真が選択されました\')">' +
+                      '<button class="hdr-camera-btn" onclick="document.getElementById(\'globalCameraInput\').click()">📷 撮影</button>';
+
+  return'<div class="ahdr">' +
+    '<div class="atitle"><span>■</span> 個別指導スクエア <span style="font-size:10px;font-weight:400;color:#9ca3af">'+APP_VERSION+'</span>' + cameraBtnHtml + '</div>' +
+    '<div style="display:flex;align-items:center;gap:6px">' +
+    (bk?'':'<button class="hdrbtn" onclick="openSettings()">⚙ 設定変更</button><button class="hdrbtn" onclick="openRegister()" style="background:#22C55E;color:#fff;border-color:#22C55E">＋ 講師登録</button>') +
+    '<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div>' +
+    '<span style="font-size:11px;font-weight:500;color:#374151">'+cu.name+'</span>' +
+    '<button class="hdrbtn" onclick="logout()">ログアウト</button></div>' +
+    '</div></div>';
 }
 
 function rLogin(){
@@ -1041,8 +854,7 @@ function rSuCard(isSt){
     +'<div class="susec"><div class="suseclab">担当教科<span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:5px">（複数可）</span></div><div class="supills">'+sp+'</div></div>'
     +'<div class="susec"><div class="suseclab">担当教場<span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:5px">（複数可）</span></div><div class="supills">'+bp+'</div></div>'
     +'<div class="susec"><div class="suseclab">担当学年<span style="font-size:11px;font-weight:400;color:#6b7280;margin-left:5px">（複数可）</span></div><div class="supills">'+gp+'</div></div>'
-        +'<button class="suconfirm'+(ready?' rdy':'')+'" onclick="'+(isSt?'saveSettings':'confSetup')+'()">'+lbl+'</button>'
-    
+    +'<button class="suconfirm'+(ready?' rdy':'')+'" onclick="'+(isSt?'saveSettings':'confSetup')+'()">'+lbl+'</button>'
     +(isSt?'<button class="btiny" onclick="cancelSettings()">← キャンセル</button>':'<button class="btiny" onclick="logout()">← 別のアカウントで入り直す</button>')
     +'</div></div>';
 }
@@ -1068,10 +880,9 @@ function rRegister(){
 function rCalModal(){
   var DAYS=['日','月','火','水','木','金','土'];
   var MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  var first=new Date(calY,calM,1).getDay(); // 月初の曜日
-  var last=new Date(calY,calM+1,0).getDate(); // 月末日
+  var first=new Date(calY,calM,1).getDay();
+  var last=new Date(calY,calM+1,0).getDate();
   var today=new Date(),ty=today.getFullYear(),tm=today.getMonth(),td=today.getDate();
-  // 現在週の日付
   var wkDates={};var dates=wkd();for(var i=0;i<dates.length;i++){wkDates[fd(dates[i])]=true;}
   var cells='';var day=1;
   for(var row=0;row<6;row++){
@@ -1095,7 +906,6 @@ function rCalModal(){
     cells+='</tr>';
     if(day>last)break;
   }
-
   return'<div class="del-modal-overlay" onclick="closeCal()" style="z-index:150">'
     +'<div class="del-modal" onclick="event.stopPropagation()" style="max-width:300px;padding:16px">'+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
     +'<button onclick="calPrev()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#374151;padding:4px 8px">‹</button>'
@@ -1114,17 +924,15 @@ function rSch(){
   var dispDates=schFDt.length?dates.filter(function(d){return schFDt.indexOf(fd(d))>=0;}):dates;
   var dispBr=schFBr.length?BR.filter(function(br){return schFBr.indexOf(br)>=0;}):BR;
 
-  // PC時はカラム幅をウィンドウサイズに合わせて拡張
   var isPC=window.innerWidth>=768;
   var W_BR=isPC?90:60;
   var W_DT=isPC?Math.max(96,Math.floor((window.innerWidth-W_BR-(isPC?20:0))/dispDates.length)):96;
-  W_DT=Math.min(W_DT,200); // 最大200px
+  W_DT=Math.min(W_DT,200);
   var W_HDR=dispDates.length*W_DT;
   var W_BODY=W_BR+dispDates.length*W_DT;
   var hdrCols='<colgroup>'+dispDates.map(function(){return'<col style="width:'+W_DT+'px">';}).join('')+'</colgroup>';
   var bodyCols='<colgroup><col style="width:'+W_BR+'px">'+dispDates.map(function(){return'<col style="width:'+W_DT+'px">';}).join('')+'</colgroup>';
 
-  // 日付ヘッダー
   var schThd=dispDates.map(function(d){
     var dt=fd(d),tod=isTd(d);
     var sel=schFDt.indexOf(dt)>=0;
@@ -1134,7 +942,6 @@ function rSch(){
       +'</th>';
   }).join('');
 
-  // 校舎選択バー
   var brBar='<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#fff;border-bottom:1px solid #e5e7eb;overflow-x:auto;scrollbar-width:none">'
     +'<span style="font-size:10px;color:#9ca3af;white-space:nowrap;flex-shrink:0">校舎：</span>'
     +BR.map(function(br){
@@ -1144,7 +951,6 @@ function rSch(){
     +(schFBr.length?'<button onclick="clrSchBr()" style="padding:4px 8px;border-radius:20px;font-size:11px;border:1px solid #e5e7eb;background:#f9fafb;color:#6b7280;cursor:pointer;white-space:nowrap;flex-shrink:0">✕</button>':'')
     +'</div>';
 
-  // ★ 講師フィルターバー
   var insBar='<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#fff;border-bottom:1px solid #e5e7eb;overflow-x:auto;scrollbar-width:none">'
     +'<span style="font-size:10px;color:#9ca3af;white-space:nowrap;flex-shrink:0">講師：</span>'
     +ACCOUNTS.map(function(a){
@@ -1154,22 +960,20 @@ function rSch(){
     +(schFIns.length?'<button onclick="clrSchIns()" style="padding:4px 8px;border-radius:20px;font-size:11px;border:1px solid #e5e7eb;background:#f9fafb;color:#6b7280;cursor:pointer;white-space:nowrap;flex-shrink:0">✕</button>':'')
     +'</div>';
 
-  // ボディ行（講師フィルター適用）
   var rows=dispBr.map(function(br){
     var cells=dispDates.map(function(d){
       var dt=fd(d),tod=isTd(d)?'tcol':'';
       var ss=S.filter(function(s){
         if(s.br!==br||s.dt!==dt)return false;
-        // ★ 講師フィルター
         if(schFIns.length&&schFIns.indexOf(s.ins)<0)return false;
         return true;
       }).sort(function(a,b){if(a.ins!==b.ins)return a.ins<b.ins?-1:1;return t2m(a.s)-t2m(b.s);});
       var cards=ss.map(function(s){
         var col=SCOLD[s.sj]||'#6B7280',ed=canEdit(s.ins);
-        var tipArr=[s.sj+'　'+s.gr,s.s+'〜'+s.e,s.br,(s.stu?'生徒：'+s.stu:''),(s.note?'📝 '+s.note:''),'担当：'+s.ins].filter(Boolean);
+        var tipArr=[s.sj+' '+s.gr,s.s+'〜'+s.e,s.br,(s.stu?'生徒：'+s.stu:''),(s.note?'📝 '+s.note:''),'担当：'+s.ins].filter(Boolean);
         return'<div class="sc" style="background:'+col+';'+(ed?'':'cursor:default;opacity:.85')+'" onclick="showTipModal('+s.id+',event)" data-tip="'+tipArr.join('|').replace(/"/g,"&quot;")+'" data-sid="'+s.id+'"'+(ed?' data-edit="1"':'')+'>'
           +(ed?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
-          +'<div class="sct">'+s.sj+'　'+s.gr+'　'+s.ins+'</div>'
+          +'<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
           +'<div class="scd" style="white-space:nowrap">'+s.s+'〜'+s.e+'</div>'
           +(ed?'<span class="eh">✎編集</span>':'')
           +'</div>';
@@ -1186,7 +990,6 @@ function rSch(){
       +'</div>'
     :'';
 
-  // 折りたたみヘッダー（3セクション独立）
   var navSection=''
     +'<div style="display:flex;align-items:center;background:#fff;border-bottom:1px solid #e5e7eb">'
     +'<button onclick="togNav()" style="flex:1;display:flex;align-items:center;gap:6px;padding:7px 12px;background:none;border:none;cursor:pointer;text-align:left">'
@@ -1229,7 +1032,7 @@ function rSch(){
     +'<table class="sch-ht" id="schHT" style="width:'+W_HDR+'px;table-layout:fixed;border-left:1px solid #374151">'
     +hdrCols+'<tr>'+schThd+'</tr></table></div></div></div>'
     +dtBar
-    +'<div style="font-size:11px;color:#6b7280;padding:4px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb">📌 校舎・講師ピルで絞り込み・日付タップでフィルター　／　＋→新規</div>'
+    +'<div style="font-size:11px;color:#6b7280;padding:4px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb">📌 校舎・講師ピルで絞り込み・日付タップでフィルター ／ ＋→新規</div>'
     +'<div class="gwrap" id="schW">'
     +'<table class="stbl" style="width:'+W_BODY+'px;table-layout:fixed">'
     +bodyCols+'<tbody>'+rows+'</tbody></table></div>'
@@ -1238,20 +1041,13 @@ function rSch(){
 
 function rForm(){
   var dates=wkd(),isEdit=editId!==null,uName=cu?cu.name:'';
-  // 指定日付の行を先頭にスクロール（全日付表示）
-
   var ms=mySbj(),mb=myBr(),mg=myGr();
   var canSave=!!(fBrList.length&&fSj&&fGr&&tR&&tS!==null&&dur);
-  // 教場変更
   var bpills=mb.map(function(b){return'<button class="bpsm '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="sBr(\''+b+'\')">'+b+'</button>';}).join('');
-  // 教科
   var subjRow=ms.length===1
     ?'<div class="frow"><span class="flab">教科</span><span style="font-size:13px;font-weight:600;color:#111827">'+ms[0]+'</span><span class="autotag">自動設定</span></div>'
     :'<div class="frow"><span class="flab">教科</span><div class="hpills">'+ms.map(function(s){return'<button class="spisms '+(s===fSj?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('')+'</div></div>';
-  // 学年
   var grpills=mg.map(function(g){return'<button class="gpsm '+(g===fGr?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
-  // 更新バー
-  // 時間ボタン：常に表示（高校生は90・120分デフォルトも表示）
   var grDurs=fGr&&fGr[0]==='高'?[90,120]:[];
   var durBar='<div style="padding:4px 12px 2px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">'
     +grDurs.map(function(d){var sel=dur===d;return'<button class="durbtn" onclick="applyCustomDur('+d+')" style="'+(sel?'background:#2563EB;color:#fff;border-color:#2563EB':'')+'">'+d+'分</button>';}).join('')
@@ -1267,7 +1063,6 @@ function rForm(){
       +'<button class="ubclr" onclick="clearTime()">✕</button>'
       +(canSave?'<button class="ubsave'+(isEdit?' em':'')+'" onclick="saveF()">更新</button>':'<span style="font-size:11px;color:#9ca3af">学年'+(ms.length>1&&!fSj?'・教科':'')+'を選択</span>');
   } else if(savedCount>0){
-    // 保存済み件数を表示し、続けて追加できることを示す
     ubC='<div style="display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap">'
       +'<span style="color:#22C55E;font-size:13px;font-weight:700">✓ '+savedCount+'件追加済み</span>'
       +'<span class="ubhint">↓ 続けてタップで追加</span>'
@@ -1276,12 +1071,8 @@ function rForm(){
   } else {
     ubC='<span class="ubhint">↓ タイムテーブルで開始時刻をタップ</span>';
   }
-  // タイムグリッドヘッダ（10分刻み表示）
-  // ★ 1時間 = 6スロット × 14px = 84px のセルを 14個（8〜21時）
-  // ★ colspan=6 → 1時間=6列×14px=84px でサブヘッダーの10分刻みに揃える
   var hrHdr='';
   for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
-  // 10分刻みサブヘッダー（84セル、各14px）
   var subHdr='';
   for(var j=0;j<TSN;j++){
     var mm=sl2m(j)%60;
@@ -1289,7 +1080,6 @@ function rForm(){
     var cls='th10'+(mm===30?' h30':mm===0?' h00':'');
     subHdr+='<th class="'+cls+'">'+lbl+'</th>';
   }
-  // 確認パネル
   var cfPanel='';
   if(cfOpen&&tR&&tS!==null&&dur&&fSj&&fGr){
     var sMin2=sl2m(tS);
@@ -1307,13 +1097,11 @@ function rForm(){
       +'<div class="cprow"><div class="cplab">備考</div><div style="flex:1"><textarea class="tinp" rows="2" placeholder="連絡事項・メモなど" oninput="fNote=this.value" style="font-size:12px;padding:5px 8px;resize:vertical;line-height:1.5">'+fNote+'</textarea></div></div>'
       +'</div>'
       +'<div class="cpbtns"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok'+(isEdit?' em':'')+'" onclick="doSave()">更新する</button></div></div>';
-
   }
   var ownCount=S.filter(function(s){return s.ins===uName;}).length;
   var legend='<div class="legend"><div class="legbox" style="background:#2563EB"></div><span>新規入力中</span><div class="legbox" style="background:#888;margin-left:6px"></div><span>'+uName+'の全予定('+ownCount+'件)</span></div>';
 
   return'<div class="fpage'+(cfOpen?' cf-open':'')+'">'+rAH(true)
-    // ★ 上部固定エリア（縦スクロールしても常に見える）
     +'<div class="ffixed">'
     +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← 戻る</button><span class="kjval">'+fBrList.join('・')+'</span>'+(isEdit?'<span class="ebadge">✎ 編集中</span>':'<span class="nbadge">＋ 新規</span>')+(isEdit?'<button class="delbf" onclick="delFF()">🗑</button>':'')+'</div>'
     +'<div class="frow"><span class="flab" style="color:#92400E;font-weight:600;min-width:36px">変更：</span><div class="hpills">'+bpills+'</div></div>'
@@ -1324,21 +1112,16 @@ function rForm(){
     +(cfOpen?cfPanel:'')
     +'<div style="padding:4px 12px;background:#f9fafb;border-top:1px solid #e5e7eb">'+legend+'</div>'
     +'</div>'
-    // ★ スクロールエリア
     +'<div class="fscr"><div class="fbody">'
-    // ★★ タイムグリッド：ヘッダーを分離して sticky 固定
-    // tgsh（sticky top:0）：コーナー + ヘッダーテーブル
     +'<div class="tgsh">'
     +'<div class="tgcorner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:2px">'
     +'<button onclick="pWk()" style="width:100%;background:#2563EB;border:none;color:#fff;border-radius:4px;font-size:11px;font-weight:700;padding:5px 0;cursor:pointer">▲ 前週</button>'
     +'<button onclick="nWk()" style="width:100%;background:#2563EB;border:none;color:#fff;border-radius:4px;font-size:11px;font-weight:700;padding:5px 0;cursor:pointer">次週 ▼</button>'
     +'</div>'
     +'<div class="tghc"><table class="tght" id="tgHT">'
-    // colgroup で 84列 × 21px を明示 → colspan=6 の時間ヘッダーと自動整合
     +'<colgroup>'+Array(TSN).fill(0).map(function(){return'<col style="width:'+W_SLOT+'px">';}).join('')+'</colgroup>'
     +'<thead><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></thead>'
     +'</table></div></div>'
-    // tgwrap：ボディ（tbody のみ）
     +'<div class="tgwrap" id="tgW"><table class="tgbody">'
     +'<colgroup><col style="width:50px">'
     +Array(TSN).fill(0).map(function(){return'<col style="width:'+W_SLOT+'px">';}).join('')+'</colgroup>'
@@ -1353,11 +1136,9 @@ function setupSchSync(){
   var wrap=document.getElementById('schW');
   var hdrTbl=document.getElementById('schHT');
   if(!wrap||!hdrTbl)return;
-  // ボディスクロール → ヘッダー同期
   wrap.addEventListener('scroll',function(){
     hdrTbl.style.transform='translateX(-'+this.scrollLeft+'px)';
   },{passive:true});
-  // 今日の列を中央に
   var dates=wkd();
   var isPC=window.innerWidth>=768;
   var W_BR=isPC?90:60;
@@ -1372,18 +1153,13 @@ function setupSchSync(){
     hdrTbl.style.transform='translateX(-'+wrap.scrollLeft+'px)';
   }
 }
-// ★ スワイプ・ドラッグで週移動（日付ヘッダーのみ）
 function setupSchGesture(){
   var THRESH=60;
   var LOCK=8;
-
-  // PC・スマホ共通：日付ヘッダー行のみでスワイプ検出
-  // （グリッド本体の横スクロールと干渉しない）
   var hdr=document.querySelector('.sch-hdr-row');
   if(!hdr)return;
   hdr.style.userSelect='none';
 
-  // ---- スマホ：日付ヘッダー上でスワイプ ----
   var sx=null,sy=null,dir=null;
   hdr.addEventListener('touchstart',function(e){
     sx=e.touches[0].clientX;sy=e.touches[0].clientY;dir=null;
@@ -1405,7 +1181,6 @@ function setupSchGesture(){
     }
   },{passive:true});
 
-  // ---- PC：日付ヘッダー上でドラッグ ----
   hdr.style.cursor='ew-resize';
   var msx=null,msy=null;
   hdr.addEventListener('mousedown',function(e){
@@ -1420,14 +1195,12 @@ function setupSchGesture(){
     }
   });
 }
-// ツールチップ：PC=ホバー、スマホ=タップ
 function setupTooltips(){
   var t=document.getElementById('sc-tooltip');
   var els=document.querySelectorAll('[data-tip]');
   var hasMouse=window.matchMedia&&window.matchMedia('(pointer:fine)').matches;
   for(var i=0;i<els.length;i++){
     (function(el){
-      // PC（マウスあり）：ホバーでツールチップ
       if(hasMouse&&t){
         el.addEventListener('mouseenter',function(){
           t.innerHTML=(el.getAttribute('data-tip')||'').replace(/\|/g,'<br>');
@@ -1470,8 +1243,8 @@ function rDelModal(){
     +'<div class="del-modal" onclick="event.stopPropagation()">'
     +'<div class="del-modal-title">🗑 予定を削除しますか？</div>'
     +'<div class="del-modal-info">'
-    +'<b>'+s.dt+'</b>　'+s.s+'〜'+s.e+'<br>'
-    +s.br+'　'+s.gr+'　'+s.sj
+    +'<b>'+s.dt+'</b> '+s.s+'〜'+s.e+'<br>'
+    +s.br+' '+s.gr+' '+s.sj
     +(s.stu?'<br>生徒：'+s.stu:'')
     +'</div>'
     +'<div class="del-modal-btns">'
@@ -1492,14 +1265,12 @@ function R(){
   if(view==='form'){
     requestAnimationFrame(setupTGSync);
     requestAnimationFrame(setupWeekSwipe);
-    // セル幅をW_SLOTに動的更新
     requestAnimationFrame(function(){
       var style=document.getElementById('tgSlotStyle');
       if(!style){style=document.createElement('style');style.id='tgSlotStyle';document.head.appendChild(style);}
       style.textContent='.th10,.th30{width:'+W_SLOT+'px;min-width:'+W_SLOT+'px}.tds{width:'+W_SLOT+'px;min-width:'+W_SLOT+'px;max-width:'+W_SLOT+'px}';
     });
     if(!_skipAutoScroll){
-      // 初期スクロール：時刻選択済みならその位置、未選択なら16:00を左端に
       var _scPos=tS!==null?Math.max(0,Math.round(tS)*W_SLOT-80):48*W_SLOT;
       requestAnimationFrame(function(){
         var tw=document.getElementById('tgW');if(!tw)return;
@@ -1524,7 +1295,6 @@ function R(){
         var tgsh=document.querySelector('.tgsh');
         var row=document.querySelector('tr[data-dt="'+_sd+'"]');
         if(!scr||!row)return;
-        // offsetParent チェーンで row の fpage からの絶対オフセットを計算
         var top=0,el=row;
         while(el&&el!==scr){top+=el.offsetTop;el=el.offsetParent;}
         var headerH=(ffixed?ffixed.offsetHeight:0)+(tgsh?tgsh.offsetHeight:0);
@@ -1533,7 +1303,6 @@ function R(){
     },100);}
   }
   if(view==='sch'){requestAnimationFrame(setupSchSync);requestAnimationFrame(setupSchGesture);
-    // ログイン直後の初回のみ：フィルター未指定時にスクロールで隠す
     if(_schFirstLoad){
       _schFirstLoad=false;
       setTimeout(function(){
@@ -1551,14 +1320,12 @@ function R(){
 }
 
 R();
-// モーダル外タップ/クリックで閉じる（グローバル、一度だけ登録）
 document.addEventListener('touchstart',function(e){
   try{
     var m=document.getElementById('sc-tip-modal');
     if(m&&e.target&&!m.contains(e.target))m.remove();
   }catch(ex){}
 },{passive:true});
-// モーダルは✕ボタンと背景タップで閉じる（グローバルclickハンドラ削除）
 </script>
 </body>
 </html>
