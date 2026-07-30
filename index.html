@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.1  写真撮影ボタン追加版
+  v1.2 安全版・写真撮影ボタン追加
 ==========================================================
 -->
 <html lang="ja">
@@ -43,7 +43,7 @@ body{background:#f3f4f6}
 .ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb}
 .atitle{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px}
 .atitle span{color:#B91C1C}
-/* ★ 追加：ヘッダー用撮影ボタンのスタイル */
+/* 撮影ボタンのスタイル */
 .hdr-camera-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border:1px solid #3B82F6;border-radius:6px;background:#EFF6FF;color:#1E40AF;cursor:pointer;font-weight:600;white-space:nowrap}
 .hdr-camera-btn:hover{background:#DBEAFE}
 
@@ -114,7 +114,7 @@ table.stbl{border-collapse:collapse}
 .bpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
 .autotag{background:#DCFCE7;color:#166534;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap}
-/* ===== タイムグリッド ===== */
+/* タイムグリッド */
 .tgsh{position:sticky;top:0;z-index:5;display:flex;align-items:stretch;background:#f9fafb;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0}
 .tgcorner{width:50px;min-width:50px;flex-shrink:0;border-right:1px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#9ca3af;padding:0 2px}
 .tghc{flex:1;overflow:hidden}
@@ -253,7 +253,7 @@ var ACCOUNTS=[
   {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
   {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
   {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
-  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:#6B7280}
+  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
 ];
 function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
@@ -803,7 +803,6 @@ function tgRows(dates){
 
 function rAH(bk){
   if(!cu)return'';
-  // ★ ヘッダータイトルの横にファイル選択インプット（非表示）と撮影ボタンを配置
   var cameraBtnHtml = '<input type="file" id="globalCameraInput" accept="image/*" capture="environment" style="display:none" onchange="alert(\'写真が選択されました\')">' +
                       '<button class="hdr-camera-btn" onclick="document.getElementById(\'globalCameraInput\').click()">📷 撮影</button>';
 
