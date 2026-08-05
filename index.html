@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.3 撮影ボタン・スケジュール表共存版
+  v1.4 撮影ボタン・スケジュール表共存完了版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.3';
+var APP_VERSION='v1.4';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -269,18 +269,8 @@ window.calSel=function(y,m,d){
   tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
-window.togNav=function(){schNavOpen=!schNavOpen;R();};
-window.togBr=function(){schBrOpen=!schBrOpen;R();};
-window.togIns=function(){schInsOpen=!schInsOpen;R();};
-window.tgSchBr=function(br){var i=schFBr.indexOf(br);if(i>=0)schFBr.splice(i,1);else schFBr.push(br);R();};
-window.tgSchDt=function(dt){var i=schFDt.indexOf(dt);if(i>=0)schFDt.splice(i,1);else schFDt.push(dt);R();};
-window.clrSchBr=function(){schFBr=[];R();};
-window.clrSchIns=function(){schFIns=[];R();};
-window.clrSchDt=function(){schFDt=[];R();};
-window.tgSchIns=function(n){var i=schFIns.indexOf(n);if(i>=0)schFIns.splice(i,1);else schFIns.push(n);R();};
 window.pWk=function(){var d=new Date(wk);d.setDate(d.getDate()-7);wk=d;R()};
 window.nWk=function(){var d=new Date(wk);d.setDate(d.getDate()+7);wk=d;R()};
-window.sWD=function(v){if(!v)return;window.calSel(parseInt(v.slice(0,4)),parseInt(v.slice(5,7))-1,parseInt(v.slice(8,10)));};
 window.oForm=function(br,dt){
   view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
   tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
@@ -408,10 +398,6 @@ function rRegister(){
     +'<button onclick="confirmRegister()" style="width:100%;padding:10px;background:#22C55E;color:#fff;border:none;border-radius:8px;margin-top:8px">登録</button>'
     +'<button class="btiny" onclick="cancelRegister()">キャンセル</button>'
     +'</div></div>';
-}
-
-function rCalModal(){
-  return'<div class="del-modal-overlay" onclick="closeCal()"><div class="del-modal" onclick="event.stopPropagation()">カレンダー</div></div>';
 }
 
 function rSch(){
