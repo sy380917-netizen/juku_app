@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.4 撮影ボタン・スケジュール表共存完了版
+  v1.5 ディスプレイ幅フィット修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -47,11 +47,11 @@ body{background:#f3f4f6}
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
-.gwrap{overflow-x:auto}
-table.stbl{border-collapse:collapse}
-.stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap;min-width:88px}
+.gwrap{width:100%;overflow-x:auto}
+table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap}
 .stbl th.thT{background:#991B1B}
-.stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;min-width:88px;overflow:visible}
+.stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;overflow:visible}
 .stbl td.dyt.tcol{background:#fffbeb}
 .cin{display:flex;flex-direction:column;gap:3px;overflow:visible}
 .adc{width:22px;height:22px;border-radius:50%;background:#22C55E;color:#fff;border:none;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -157,7 +157,7 @@ table.stbl{border-collapse:collapse}
 .sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
 .sch-dow{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
 .sch-today-tag{display:inline-block;background:#EF4444;font-size:9px;padding:1px 4px;border-radius:3px;vertical-align:middle}
-.brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;min-width:58px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
+.brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;width:70px;min-width:70px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
 .sch-th-sel{background:#7F1D1D !important}
 .sch-th-sel .sch-date,.sch-th-sel .sch-dow{color:#fff}
 .sch-fsel-dot{display:inline-block;width:5px;height:5px;background:#FCD34D;border-radius:50%;margin-left:3px;vertical-align:middle}
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.4';
+var APP_VERSION='v1.5';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -235,7 +235,7 @@ window.loginWithEmail=function(){
   if(!email){alert('Gmailアドレスを入力してください');return;}
   var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
   if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
-  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
+  else{regName='';regEmail=email;regColor='#3B82F6';view='register';Rතික();
 };
 window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
 window.cancelRegister=function(){view=cu?'sch':'login';showPick=false;R();};
@@ -404,7 +404,6 @@ function rSch(){
   var dates=wkd();
   var dispDates=schFDt.length?dates.filter(function(d){return schFDt.indexOf(fd(d))>=0;}):dates;
   var dispBr=schFBr.length?BR.filter(function(br){return schFBr.indexOf(br)>=0;}):BR;
-  var W_BR=60,W_DT=96,W_HDR=dispDates.length*W_DT,W_BODY=W_BR+W_HDR;
 
   var schThd=dispDates.map(function(d){
     var dt=fd(d),tod=isTd(d),sel=schFDt.indexOf(dt)>=0;
@@ -433,7 +432,7 @@ function rSch(){
     +'<button onclick="pWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">◀ 前週</button>'
     +'<button onclick="nWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">次週 ▶</button>'
     +'</div>'
-    +'<div class="gwrap"><table class="stbl" style="width:'+W_BODY+'px"><tr><th style="width:'+W_BR+'px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div>'
+    +'<div class="gwrap"><table class="stbl"><tr><th style="width:70px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div>'
     +'</div></div>';
 }
 
