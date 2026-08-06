@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.15 詳細ポップアップ削除ボタン修復版
+  v1.16 削除機能完全修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.15';
+var APP_VERSION='v1.16';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -353,6 +353,15 @@ window.showDayModal=function(dt){
     +'</div>';
   document.body.appendChild(modal);
 };
+
+// 予定詳細ポップアップの削除ボタン専用処理
+window.tipDel=function(id){
+  var old=document.getElementById('sc-tip-modal');
+  if(old) old.remove();
+  delConfId=id;
+  R();
+};
+
 window.showTipModal=function(id,ev){
   if(ev)ev.stopPropagation();
   var s=S.find(function(x){return x.id===id;});if(!s)return;
@@ -360,73 +369,14 @@ window.showTipModal=function(id,ev){
   var old=document.getElementById('sc-tip-modal');if(old)old.remove();
   var modal=document.createElement('div');modal.id='sc-tip-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
-  modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:260px;font-size:13px;line-height:1.6">'
+  modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:280px;font-size:13px;line-height:1.6">'
     +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
     +(s.note?'<br>備考: '+s.note:'')
-    +(canEd?'<div style="display:flex;gap:6px;margin-top:10px"><button onclick="document.getElementById(\'sc-tip-modal\').remove();editSession('+id+')" style="flex:1;padding:6px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer">編集</button><button onclick="document.getElementById(\'sc-tip-modal\').remove();delS('+id+')" style="flex:1;padding:6px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer">削除</button></div>':'')
-    +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:6px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
+    +(canEd?'<div style="display:flex;gap:6px;margin-top:12px"><button onclick="document.getElementById(\'sc-tip-modal\').remove();editSession('+id+')" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button><button onclick="tipDel('+id+')" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button></div>':'')
+    +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:7px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
     +'</div>';
   document.body.appendChild(modal);
 };
-
-function rAH(bk){
-  if(!cu)return'';
-  var cameraBtnHtml = '<input type="file" id="globalCameraInput" accept="image/*" capture="environment" style="display:none" onchange="alert(\'写真が選択されました\')">' +
-                      '<button class="hdr-camera-btn" onclick="document.getElementById(\'globalCameraInput\').click()">📷 撮影</button>';
-
-  return'<div class="ahdr">' +
-    '<div class="atitle"><span>■</span> 個別指導スクエア <span style="font-size:10px;font-weight:400;color:#9ca3af">'+APP_VERSION+'</span>' + cameraBtnHtml + '</div>' +
-    '<div style="display:flex;align-items:center;gap:6px">' +
-    (bk?'':'<button class="hdrbtn" onclick="openSettings()">⚙ 設定変更</button><button class="hdrbtn" onclick="openRegister()" style="background:#22C55E;color:#fff;border-color:#22C55E">＋ 講師登録</button>') +
-    '<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div>' +
-    '<span style="font-size:11px;font-weight:500;color:#374151">'+cu.name+'</span>' +
-    '<button class="hdrbtn" onclick="logout()">ログアウト</button></div>' +
-    '</div></div>';
-}
-
-function rLogin(){
-  return'<div class="cp"><div class="lcard">'
-    +'<div class="llogo"><span>■</span> 個別指導スクエア</div>'
-    +'<div class="lsub">補習管理システム</div>'
-    +'<div style="text-align:left;margin-bottom:16px">'
-    +'<div style="font-size:12px;color:#6b7280;margin-bottom:6px">Gmailアドレス</div>'
-    +'<input id="loginEmailInput" type="email" value="'+loginEmail+'" placeholder="example@gmail.com" oninput="loginEmail=this.value" style="width:100%;font-size:15px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px">'
-    +'</div>'
-    +'<button onclick="loginWithEmail()" style="width:100%;padding:11px;border:none;border-radius:8px;background:#4285F4;color:#fff;cursor:pointer;font-size:14px;font-weight:600;margin-bottom:12px">ログイン</button>'
-    +'<div style="font-size:11px;color:#9ca3af;margin-bottom:8px">── テスト用アカウント ──</div>'
-    +ACCOUNTS.map(function(a){
-      return'<button onclick="loginAs('+a.id+')" style="display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:4px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;width:100%;text-align:left">'
-        +'<div style="width:24px;height:24px;border-radius:50%;background:'+a.color+';color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center">'+av(a.name)+'</div>'
-        +'<span style="font-size:12px">'+a.name+'</span></button>';
-    }).join('')
-    +'</div></div>';
-}
-
-function rSuCard(isSt){
-  var ready=suSubj.length>0&&suBr.length>0&&suGr.length>0;
-  var sp=SBJ.map(function(s){return'<button class="spx'+(suSubj.indexOf(s)>=0?' sa':'')+'" onclick="tgSuSubj(\''+s+'\')">'+s+'</button>';}).join('');
-  var bp=BR.map(function(b){return'<button class="spx'+(suBr.indexOf(b)>=0?' ba':'')+'" onclick="tgSuBr(\''+b+'\')">'+b+'</button>';}).join('');
-  var gp=GRADES.map(function(g){return'<button class="spx'+(suGr.indexOf(g)>=0?' ga':'')+'" onclick="tgSuGr(\''+g+'\')">'+g+'</button>';}).join('');
-  return'<div class="cp"><div class="sucard">'
-    +'<div style="font-size:15px;font-weight:700;margin-bottom:12px">'+(isSt?'設定変更':'初期設定')+'</div>'
-    +'<div class="susec"><div class="suseclab">担当教科</div><div class="supills">'+sp+'</div></div>'
-    +'<div class="susec"><div class="suseclab">担当教場</div><div class="supills">'+bp+'</div></div>'
-    +'<div class="susec"><div class="suseclab">担当学年</div><div class="supills">'+gp+'</div></div>'
-    +'<button class="suconfirm'+(ready?' rdy':'')+'" onclick="'+(isSt?'saveSettings':'confSetup')+'()">保存する</button>'
-    +(isSt?'<button class="btiny" onclick="cancelSettings()">キャンセル</button>':'')
-    +'</div></div>';
-}
-
-function rRegister(){
-  return'<div class="cp"><div class="sucard">'
-    +'<div style="font-size:15px;font-weight:700;margin-bottom:12px">新規講師登録</div>'
-    +'<div class="susec"><div class="suseclab">Gmail</div><input type="email" value="'+regEmail+'" oninput="regEmail=this.value" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px"></div>'
-    +'<div class="susec"><div class="suseclab">名前</div><input type="text" value="'+regName+'" oninput="regName=this.value" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px"></div>'
-    +(regErrMsg?'<div style="color:red;font-size:12px">'+regErrMsg+'</div>':'')
-    +'<button onclick="confirmRegister()" style="width:100%;padding:10px;background:#22C55E;color:#fff;border:none;border-radius:8px;margin-top:8px">登録</button>'
-    +'<button class="btiny" onclick="cancelRegister()">キャンセル</button>'
-    +'</div></div>';
-}
 
 function rSch(){
   var dates=wkd();
@@ -454,6 +404,23 @@ function rSch(){
     return'<tr><td class="brn">'+br+'</td>'+cells+'</tr>';
   }).join('');
 
+  var delModalStr='';
+  if(delConfId!==null){
+    var targetS=S.find(function(x){return x.id===delConfId;});
+    if(targetS){
+      delModalStr='<div class="del-modal-overlay"><div class="del-modal">'
+        +'<div class="del-modal-title">🗑️ 予定を削除しますか？</div>'
+        +'<div class="del-modal-info"><b>'+targetS.br+'</b> '+targetS.dt+' '+targetS.s+'〜'+targetS.e+'<br>'+targetS.gr+' '+targetS.sj+(targetS.stu?'<br>生徒: '+targetS.stu:'')+'</div>'
+        +'<div class="del-modal-btns"><button class="del-modal-cancel" onclick="delConfCancel()">キャンセル</button><button class="del-modal-ok" onclick="delConfOk()">削除する</button></div>'
+        +'</div></div>';
+    }
+  }
+
+  var undoToastStr='';
+  if(undoMsg){
+    undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
+  }
+
   return'<div class="schp">'+rAH()
     +'<div class="schscr">'
     +'<div style="padding:6px 12px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;gap:6px">'
@@ -461,7 +428,7 @@ function rSch(){
     +'<button onclick="nWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">次週 ▶</button>'
     +'</div>'
     +'<div class="gwrap"><table class="stbl"><tr><th style="width:70px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div>'
-    +'</div></div>';
+    +'</div></div>'+delModalStr+undoToastStr;
 }
 
 function rForm(){
@@ -562,29 +529,6 @@ function rForm(){
     +'<div class="tgwrap" id="tgW"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
     +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
-
-// 予定詳細ポップアップ内の削除ボタン用関数
-window.tipDel=function(id){
-  var old=document.getElementById('sc-tip-modal');
-  if(old) old.remove();
-  delS(id);
-};
-
-window.showTipModal=function(id,ev){
-  if(ev)ev.stopPropagation();
-  var s=S.find(function(x){return x.id===id;});if(!s)return;
-  var canEd=canEdit(s.ins);
-  var old=document.getElementById('sc-tip-modal');if(old)old.remove();
-  var modal=document.createElement('div');modal.id='sc-tip-modal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
-  modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:280px;font-size:13px;line-height:1.6">'
-    +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
-    +(s.note?'<br>備考: '+s.note:'')
-    +(canEd?'<div style="display:flex;gap:6px;margin-top:12px"><button onclick="document.getElementById(\'sc-tip-modal\').remove();editSession('+id+')" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button><button onclick="tipDel('+id+')" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button></div>':'')
-    +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:7px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
-    +'</div>';
-  document.body.appendChild(modal);
-};
 
 function R(){
   var main=!cu?rLogin():view==='setup'?rSuCard(false):view==='settings'?rSuCard(true):view==='register'?rRegister():view==='sch'?rSch():rForm();
