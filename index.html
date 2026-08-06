@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.8 確認画面修正項目完全復元版
+  v1.9 最終修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.8';
+var APP_VERSION='v1.9';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -438,9 +438,9 @@ function rSch(){
 
 function rForm(){
   var dates=wkd(),isEdit=editId!==null,ms=mySbj(),mb=myBr(),mg=myGr();
-  var bpills=mb.map(function(b){return'<button class="bpsm '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="cBr(\''+b+'\')">'+b+'</button>';}).join('');
-  var gpills=mg.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
-  var spills=ms.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');
+  var bpills=mb.map(function(b){return'<button class="bpsm '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="sBr(\''+b+'\')">'+b+'</button>';}).join('');
+  var gpills=mg.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
+  var spills=ms.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
 
   var hrHdr='';for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
   var subHdr='';for(var j=0;j<TSN;j++){
@@ -464,15 +464,15 @@ function rForm(){
 
   var cfPanel='';
   if(cfOpen&&tR&&tS!==null&&dur&&fSj&&fGr){
-    var b PillsC=mb.map(function(b){return'<button class="cpill '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="cBr(\''+b+'\')">'+b+'</button>';}).join('');
-    var sPillsC=ms.map(function(s){return'<button class="cpill '+(fSj===s?'act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');
-    var gPillsC=mg.map(function(g){return'<button class="cpill '+(fGr===g?'act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
+    var bpillsC=mb.map(function(b){return'<button class="cpill '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="cBr(\''+b+'\')">'+b+'</button>';}).join('');
+    var spillsC=ms.map(function(s){return'<button class="cpill '+(fSj===s?'act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');
+    var gpillsC=mg.map(function(g){return'<button class="cpill '+(fGr===g?'act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
 
     cfPanel='<div class="cpanel"><div style="padding:16px"><div class="cptitle">内容確認</div>'
       +'<div class="cprow"><div class="cplab">日時</div><div style="font-size:13px;font-weight:700;color:#1E40AF;padding-top:4px">'+tR+' '+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div><button class="cetbtn" onclick="editTime()">時間変更</button></div>'
-      +'<div class="cprow"><div class="cplab">校舎</div><div class="cppills">'+bPillsC+'</div></div>'
-      +'<div class="cprow"><div class="cplab">教科</div><div class="cppills">'+sPillsC+'</div></div>'
-      +'<div class="cprow"><div class="cplab">学年</div><div class="cppills">'+gPillsC+'</div></div>'
+      +'<div class="cprow"><div class="cplab">校舎</div><div class="cppills">'+bpillsC+'</div></div>'
+      +'<div class="cprow"><div class="cplab">教科</div><div class="cppills">'+spillsC+'</div></div>'
+      +'<div class="cprow"><div class="cplab">学年</div><div class="cppills">'+gpillsC+'</div></div>'
       +'<div style="margin-top:10px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
       +'<div style="display:flex;gap:8px;margin-top:12px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
       +'</div></div>';
