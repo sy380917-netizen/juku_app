@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.20 安定・完全版（タイムテーブル、備考欄、連続入力対応）
+  v1.21 ログイン画面・アカウント選択対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -14,11 +14,21 @@
 html,body{height:100%}.app-root{display:flex;flex-direction:column;height:100%;overflow:hidden}
 #app{height:100%;display:flex;flex-direction:column;overflow:hidden}
 body{background:#f3f4f6}
+
+/* LOGIN */
+.cp{min-height:100%;display:flex;align-items:center;justify-content:center;background:#f3f4f6}
+.lcard{background:#fff;border-radius:14px;padding:36px;width:340px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.1)}
+.llogo{font-size:20px;font-weight:700;color:#111827;margin-bottom:4px}
+.llogo span{color:#B91C1C}
+.lsub{font-size:13px;color:#6b7280;margin-bottom:26px}
+
 .ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb}
 .atitle{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px}
 .atitle span{color:#B91C1C}
 .uchip{display:flex;align-items:center;gap:6px}
 .uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
+.hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
+
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .gwrap{width:100%;overflow-x:auto}
@@ -46,8 +56,6 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .gpsm.act{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
 .ubar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:46px}
-.ubhint{font-size:12px;color:#9ca3af;flex:1}
-.ubsave{padding:9px 20px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap}
 .durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
 
@@ -78,7 +86,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .exmain{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .extime{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap}
 
-/* CONFIRM & MODAL */
+/* CONFIRM */
 .cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:12px;box-shadow:0 4px 16px rgba(34,197,94,.15)}
 .cptitle{font-size:14px;font-weight:700;color:#111827;margin-bottom:8px;text-align:center}
 .cprow{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f3f4f6}
@@ -99,8 +107,11 @@ var GRADES=['小','中1','中2','中3','高1','高2','高3'];
 var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
 var DY=['日','月','火','水','木','金','土'];
 var TS0=480,TSD=10,TSN=93;
-var ACCOUNTS=[{id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},{id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'}];
-var cu=ACCOUNTS[0],wk=new Date();wk.setDate(wk.getDate()-wk.getDay());
+var ACCOUNTS=[
+  {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
+  {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'}
+];
+var cu=null,loginEmail='';
 var view='sch';
 var fBrList=[],fDate=null,fSj='数学',fGr='中3',fStu='',fNote='';
 var tR=null,tS=null,dur=null,cfOpen=false;
@@ -109,11 +120,15 @@ var nid=1;
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
+var wk=new Date();wk.setDate(wk.getDate()-wk.getDay());
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
 function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
 function sl2m(i){return TS0+i*TSD}
 function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
 function t2m(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
+
+window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});view='sch';R();};
+window.logout=function(){cu=null;R();};
 
 window.oForm=function(br,dt){
   view='form';fBrList=[br];fDate=dt;tR=null;tS=null;dur=null;cfOpen=false;fStu='';fNote='';
@@ -136,6 +151,19 @@ window.doSave=function(){
   R();
 };
 
+function rLogin(){
+  return '<div class="cp"><div class="lcard">'
+    +'<div class="llogo"><span>■</span> 個別指導スクエア</div>'
+    +'<div class="lsub">補習管理システム</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-bottom:12px">アカウントを選択してください</div>'
+    +ACCOUNTS.map(function(a){
+      return '<button onclick="loginAs('+a.id+')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:8px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;width:100%;text-align:left">'
+        +'<div style="width:28px;height:28px;border-radius:50%;background:'+a.color+';color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center">'+av(a.name)+'</div>'
+        +'<span style="font-size:13px;font-weight:600">'+a.name+'</span></button>';
+    }).join('')
+    +'</div></div>';
+}
+
 function rSch(){
   var dates=wkd();
   var schThd=dates.map(function(d){
@@ -156,7 +184,10 @@ function rSch(){
 
   return '<div class="schp">'
     +'<div class="ahdr"><div class="atitle"><span>■</span> 個別指導スクエア</div>'
-    +'<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div><span style="font-size:11px">'+cu.name+'</span></div></div>'
+    +'<div style="display:flex;align-items:center;gap:8px">'
+    +'<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div><span style="font-size:11px">'+cu.name+'</span></div>'
+    +'<button class="hdrbtn" onclick="logout()">ログアウト</button>'
+    +'</div></div>'
     +'<div class="schscr"><div class="gwrap"><table class="stbl"><tr><th style="width:70px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div></div></div>';
 }
 
@@ -228,7 +259,8 @@ function rForm(){
 }
 
 function R(){
-  document.getElementById('app').innerHTML = view==='sch'?rSch():rForm();
+  var content = !cu ? rLogin() : (view === 'sch' ? rSch() : rForm());
+  document.getElementById('app').innerHTML = content;
 }
 R();
 </script>
