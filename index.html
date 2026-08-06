@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.9 最終修復版
+  v1.10 登録後即時反映・自動画面戻り修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.9';
+var APP_VERSION='v1.10';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -312,7 +312,9 @@ window.doSave=function(){
     fBrList.forEach(function(br){S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});});
     savedCount+=(fBrList.length||1);
   }
-  cfOpen=false;tR=null;tS=null;dur=null;fStu='';_customDur=false;R();
+  cfOpen=false;tR=null;tS=null;dur=null;fStu='';_customDur=false;
+  view='sch';
+  R();
 };
 window.showDayModal=function(dt){
   var all=S.filter(function(s){return s.dt===dt;});
