@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.6 完全修復版
+  v1.7 選択中バー表示修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.6';
+var APP_VERSION='v1.7';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -452,7 +452,8 @@ function rForm(){
     var dt=fd(d),isPre=dt===fDate,cells='',i=0;
     while(i<TSN){
       if(tR===dt&&i===tS&&dur){
-        cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">選択中</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
+        var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
+        cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
         i+=dur/TSD;continue;
       }
       cells+='<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
