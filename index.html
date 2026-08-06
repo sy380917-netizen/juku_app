@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.13 タイムテーブル直接表示・連続入力対応版
+  v1.14 削除ポップアップ表示修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -47,7 +47,7 @@ body{background:#f3f4f6}
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
-.gwrap{width:100%;overflow-x:auto}
+.gwrap{width:100%/*;overflow-x:auto*/}
 table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap}
 .stbl th.thT{background:#991B1B}
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.13';
+var APP_VERSION='v1.14';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -285,9 +285,34 @@ window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList
 window.sBr=function(b){fBrList=[b];R();};
 window.sSj=function(s){fSj=s;R();};
 window.sGr=function(g){fGr=fGr===g?null:g;if(fGr&&!_customDur){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
-window.delS=function(id,ev){if(ev)ev.stopPropagation();delConfId=id;R();};
-window.delConfOk=function(){if(delConfId===null)return;S=S.filter(function(x){return x.id!==delConfId;});delConfId=null;R();};
+window.delS=function(id,ev){
+  if(ev)ev.stopPropagation();
+  delConfId=id;
+  R();
+};
+window.delConfOk=function(){
+  if(delConfId===null)return;
+  var target=S.find(function(x){return x.id===delConfId;});
+  if(target){
+    undoPrevS=target;
+    undoMsg=target.br+' '+target.s+'〜'+target.e+' '+target.sj+' を削除しました';
+  }
+  S=S.filter(function(x){return x.id!==delConfId;});
+  delConfId=null;
+  R();
+  if(undoTimer)clearTimeout(undoTimer);
+  undoTimer=setTimeout(function(){undoPrevS=null;undoMsg='';R();},6000);
+};
 window.delConfCancel=function(){delConfId=null;R();};
+window.undoDel=function(){
+  if(undoPrevS){
+    S.push(undoPrevS);
+    undoPrevS=null;
+    undoMsg='';
+    if(undoTimer)clearTimeout(undoTimer);
+    R();
+  }
+};
 window.delFF=function(){if(editId!==null)S=S.filter(function(s){return s.id!==editId});view='sch';editId=null;R()};
 window.clearTime=function(){tR=null;tS=null;dur=null;cfOpen=false;_customDur=false;R()};
 window.clickSlot=function(dt,i){tR=dt;tS=i;if(!_customDur){if(fGr){var ds=getDurs(fGr);dur=ds.length===1?ds[0]:null;}else dur=null;}R();};
@@ -312,7 +337,6 @@ window.doSave=function(){
   }else{
     fBrList.forEach(function(br){S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});});
     savedCount+=(fBrList.length||1);
-    // 新規登録時は画面を切り替えず、選択した時間と入力欄だけをクリアして連続入力を可能にする
     cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
   }
   R();
@@ -460,7 +484,6 @@ function rForm(){
         cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
         i+=dur/TSD;continue;
       }
-      // 既に登録されている予定をタイムテーブル上に直接青い帯等で表示
       var foundS=S.filter(function(x){return x.dt===dt;});
       var matchedS=foundS.find(function(x){
         var stSlot=t2sl(x.s);
@@ -472,7 +495,8 @@ function rForm(){
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
           var col=SCOLD[matchedS.sj]||'#2563EB';
-          cells+='<td colspan="'+len+'" class="exm" onclick="showTipModal('+matchedS.id+',event)"><div class="exbar" style="background:'+col+'"><div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
+          var ed=canEdit(matchedS.ins);
+          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'+(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')+'<div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
           i+=len;
           continue;
         } else {
@@ -504,6 +528,23 @@ function rForm(){
       +'</div></div>';
   }
 
+  var delModalStr='';
+  if(delConfId!==null){
+    var targetS=S.find(function(x){return x.id===delConfId;});
+    if(targetS){
+      delModalStr='<div class="del-modal-overlay"><div class="del-modal">'
+        +'<div class="del-modal-title">🗑️ 予定を削除しますか？</div>'
+        +'<div class="del-modal-info"><b>'+targetS.br+'</b> '+targetS.dt+' '+targetS.s+'〜'+targetS.e+'<br>'+targetS.gr+' '+targetS.sj+(targetS.stu?'<br>生徒: '+targetS.stu:'')+'</div>'
+        +'<div class="del-modal-btns"><button class="del-modal-cancel" onclick="delConfCancel()">キャンセル</button><button class="del-modal-ok" onclick="delConfOk()">削除する</button></div>'
+        +'</div></div>';
+    }
+  }
+
+  var undoToastStr='';
+  if(undoMsg){
+    undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
+  }
+
   return'<div class="fpage">'+rAH(true)
     +'<div class="ffixed">'
     +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← スケジュール画面へ</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
@@ -519,7 +560,7 @@ function rForm(){
     +'<div class="fscr"><div class="fbody">'
     +'<div class="tgsh"><div class="tgcorner">時間</div><div class="tghc"><table class="tght"><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></table></div></div>'
     +'<div class="tgwrap" id="tgW"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
-    +'</div></div></div>';
+    +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
 
 function R(){
