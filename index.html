@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.10 登録後即時反映・自動画面戻り修復版
+  v1.11 備考欄追加版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.10';
+var APP_VERSION='v1.11';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -279,9 +279,9 @@ window.oForm=function(br,dt){
 window.editSession=function(id){
   var s=S.find(function(x){return x.id===id});if(!s||!canEdit(s.ins))return;
   view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
-  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);cfOpen=true;R();
+  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;R();
 };
-window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;R();};
+window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;fNote='';R();};
 window.sBr=function(b){fBrList=[b];R();};
 window.sSj=function(s){fSj=s;R();};
 window.sGr=function(g){fGr=fGr===g?null:g;if(fGr&&!_customDur){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
@@ -312,7 +312,7 @@ window.doSave=function(){
     fBrList.forEach(function(br){S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});});
     savedCount+=(fBrList.length||1);
   }
-  cfOpen=false;tR=null;tS=null;dur=null;fStu='';_customDur=false;
+  cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
   view='sch';
   R();
 };
@@ -323,7 +323,7 @@ window.showDayModal=function(dt){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:flex;align-items:center;justify-content:center;padding:16px';
   modal.innerHTML='<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;max-height:80vh;padding:18px;overflow-y:auto">'
     +'<div style="font-size:18px;font-weight:700;margin-bottom:10px">'+dt+' の予定</div>'
-    +(all.length?all.map(function(s){return'<div style="padding:8px;border-bottom:1px solid #eee"><b>'+s.br+'</b> '+s.s+'-'+s.e+' '+s.sj+' ('+s.stu+')</div>';}).join(''):'<div style="color:#888">予定なし</div>')
+    +(all.length?all.map(function(s){return'<div style="padding:8px;border-bottom:1px solid #eee"><b>'+s.br+'</b> '+s.s+'-'+s.e+' '+s.sj+' ('+s.stu+')'+(s.note?'<br><span style="color:#666;font-size:11px">備考: '+s.note+'</span>':'')+'</div>';}).join(''):'<div style="color:#888">予定なし</div>')
     +'<button onclick="document.getElementById(\'day-modal\').remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
     +'</div>';
   document.body.appendChild(modal);
@@ -337,6 +337,7 @@ window.showTipModal=function(id,ev){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
   modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:260px;font-size:13px;line-height:1.6">'
     +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
+    +(s.note?'<br>備考: '+s.note:'')
     +(canEd?'<div style="display:flex;gap:6px;margin-top:10px"><button onclick="document.getElementById(\'sc-tip-modal\').remove();editSession('+id+')" style="flex:1;padding:6px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer">編集</button><button onclick="document.getElementById(\'sc-tip-modal\').remove();delS('+id+')" style="flex:1;padding:6px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer">削除</button></div>':'')
     +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:6px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
     +'</div>';
@@ -475,7 +476,8 @@ function rForm(){
       +'<div class="cprow"><div class="cplab">校舎</div><div class="cppills">'+bpillsC+'</div></div>'
       +'<div class="cprow"><div class="cplab">教科</div><div class="cppills">'+spillsC+'</div></div>'
       +'<div class="cprow"><div class="cplab">学年</div><div class="cppills">'+gpillsC+'</div></div>'
-      +'<div style="margin-top:10px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
+      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
+      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="備考欄 (任意)" value="'+fNote+'" oninput="fNote=this.value"></div>'
       +'<div style="display:flex;gap:8px;margin-top:12px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
       +'</div></div>';
   }
