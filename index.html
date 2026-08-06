@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.19 プラスボタン・予定入力対応版
+  v1.20 安定・完全版（タイムテーブル、備考欄、連続入力対応）
 ==========================================================
 -->
 <html lang="ja">
@@ -20,31 +20,74 @@ body{background:#f3f4f6}
 .uchip{display:flex;align-items:center;gap:6px}
 .uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
-.schscr{flex:1;min-height:0;overflow-y:auto}
-.gwrap{width:100%}
+.schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.gwrap{width:100%;overflow-x:auto}
 table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap}
-.stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff}
-.cin{display:flex;flex-direction:column;gap:3px}
-.adc{width:22px;height:22px;border-radius:50%;background:#22C55E;color:#fff;border:none;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+.stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;overflow:visible}
+.cin{display:flex;flex-direction:column;gap:3px;overflow:visible}
+.adc{width:22px;height:22px;border-radius:50%;background:#22C55E;color:#fff;border:none;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;width:70px;min-width:70px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
 .sch-th{width:88px;min-width:88px;padding:6px 4px;text-align:center;border-right:1px solid #374151;background:#1F2937;color:#fff;vertical-align:middle}
 .sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
 .sch-dow{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
-/* FORM */
-.fpage{height:100%;overflow-y:auto;background:#fff}
+
+/* FORM & TIMETABLE */
+.fpage{height:100%;display:flex;flex-direction:column;overflow:hidden;background:#fff}
+.ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:20}
 .fhrow{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid #f3f4f6}
 .bbtn{font-size:13px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
 .kjval{font-size:15px;font-weight:700;color:#B91C1C}
 .frow{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
 .flab{font-size:11px;color:#6b7280;white-space:nowrap;min-width:28px}
 .hpills{display:flex;gap:5px;overflow-x:auto}
-.spisms{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap}
+.spisms,.gpsm,.bpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap}
 .spisms.act{background:#22C55E;color:#fff;border-color:#22C55E}
-.gpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#111827;font-weight:500;white-space:nowrap}
 .gpsm.act{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
-.bpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
+.ubar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:46px}
+.ubhint{font-size:12px;color:#9ca3af;flex:1}
+.ubsave{padding:9px 20px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap}
+.durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
+.durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
+
+.fscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff}
+.fbody{padding:10px 12px}
+.tinp{width:100%;font-size:13px;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff}
+
+/* TIMETABLE GRID */
+.tgsh{position:sticky;top:0;z-index:5;display:flex;align-items:stretch;background:#f9fafb;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0}
+.tgcorner{width:50px;min-width:50px;flex-shrink:0;border-right:1px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#9ca3af}
+.tghc{flex:1;overflow:hidden}
+.tght{border-collapse:collapse;table-layout:fixed}
+.thhour{font-size:10px;font-weight:700;color:#374151;padding:4px;text-align:left;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.th10{font-size:7px;color:#c4c9d4;padding:1px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:21px;min-width:21px}
+.th10.h30{border-left:1.5px solid #d1d5db}
+.th10.h00{border-left:1.5px solid #d1d5db}
+.tgwrap{overflow-x:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px}
+.tgbody{border-collapse:collapse}
+.tdd{font-size:11px;padding:4px 5px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:50px;min-width:50px;position:sticky;left:0;z-index:2}
+.tds{width:21px;min-width:21px;max-width:21px;height:46px;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer}
+.tds:hover{background:#DBEAFE}
+.selm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid #2563EB;background:transparent;cursor:pointer;vertical-align:middle}
+.selbar{background:#2563EB;height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 8px;overflow:hidden;gap:2px}
+.sbi{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sbt{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap}
+.exm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;cursor:pointer;vertical-align:middle}
+.exbar{height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:3px 7px;overflow:hidden;gap:1px;position:relative}
+.exmain{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.extime{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap}
+
+/* CONFIRM & MODAL */
+.cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:12px;box-shadow:0 4px 16px rgba(34,197,94,.15)}
+.cptitle{font-size:14px;font-weight:700;color:#111827;margin-bottom:8px;text-align:center}
+.cprow{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f3f4f6}
+.cplab{font-size:11px;color:#6b7280;width:46px;flex-shrink:0;padding-top:5px}
+.cppills{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.cpill{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500}
+.cpill.act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
+.cpok{flex:1;padding:11px;border:none;border-radius:10px;background:#22C55E;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.cpcancel{flex:1;padding:11px;border:1.5px solid #d1d5db;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
 </style>
 </head>
 <body>
@@ -53,34 +96,45 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
 var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
 var GRADES=['小','中1','中2','中3','高1','高2','高3'];
+var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
 var DY=['日','月','火','水','木','金','土'];
+var TS0=480,TSD=10,TSN=93;
 var ACCOUNTS=[{id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},{id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'}];
 var cu=ACCOUNTS[0],wk=new Date();wk.setDate(wk.getDate()-wk.getDay());
 var view='sch';
-var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='';
+var fBrList=[],fDate=null,fSj='数学',fGr='中3',fStu='',fNote='';
+var tR=null,tS=null,dur=null,cfOpen=false;
 var S=[];
+var nid=1;
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
+function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
+function sl2m(i){return TS0+i*TSD}
+function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
+function t2m(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
 
 window.oForm=function(br,dt){
-  view='form';
-  fBrList=[br];
-  fDate=dt;
-  fGr=null;
-  fSj=SBJ[0];
+  view='form';fBrList=[br];fDate=dt;tR=null;tS=null;dur=null;cfOpen=false;fStu='';fNote='';
   R();
 };
-
-window.gBack=function(){
-  view='sch';
-  R();
-};
-
+window.gBack=function(){view='sch';R();};
 window.sBr=function(b){fBrList=[b];R();};
 window.sSj=function(s){fSj=s;R();};
-window.sGr=function(g){fGr=fGr===g?null:g;R();};
+window.sGr=function(g){fGr=g;R();};
+window.clickSlot=function(dt,i){tR=dt;tS=i;dur=80;cfOpen=true;R();};
+window.applyCustomDur=function(m){dur=m;cfOpen=true;R();};
+window.cancelCf=function(){cfOpen=false;R();};
+window.doSave=function(){
+  if(!tR||tS===null||!dur)return;
+  var sT=m2s(sl2m(tS)),eT=m2s(sl2m(tS)+dur);
+  fBrList.forEach(function(br){
+    S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:cu.name,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});
+  });
+  cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';
+  R();
+};
 
 function rSch(){
   var dates=wkd();
@@ -90,7 +144,12 @@ function rSch(){
   var rows=BR.map(function(br){
     var cells=dates.map(function(d){
       var dt=fd(d);
-      return '<td class="dyt"><div class="cin"><button class="adc" onclick="oForm(\''+br+'\',\''+dt+'\')">+</button></div></td>';
+      var ss=S.filter(function(x){return x.br===br&&x.dt===dt;});
+      var cards=ss.map(function(s){
+        var col=SCOLD[s.sj]||'#6B7280';
+        return '<div class="sc" style="background:'+col+'"><div class="sct">'+s.sj+' '+s.gr+'</div><div class="scd">'+s.s+'〜'+s.e+'</div></div>';
+      }).join('');
+      return '<td class="dyt"><div class="cin"><button class="adc" onclick="oForm(\''+br+'\',\''+dt+'\')">+</button>'+cards+'</div></td>';
     }).join('');
     return '<tr><td class="brn">'+br+'</td>'+cells+'</tr>';
   }).join('');
@@ -102,16 +161,70 @@ function rSch(){
 }
 
 function rForm(){
+  var dates=wkd();
   var bpills=BR.map(function(b){return'<button class="bpsm '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="sBr(\''+b+'\')">'+b+'</button>';}).join('');
   var gpills=GRADES.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
   var spills=SBJ.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
 
+  var hrHdr='';for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
+  var subHdr='';for(var j=0;j<TSN;j++){
+    var mm=sl2m(j)%60,cls='th10'+(mm===30?' h30':mm===0?' h00':'');
+    subHdr+='<th class="'+cls+'"></th>';
+  }
+
+  var tgRowsStr=dates.map(function(d){
+    var dt=fd(d),cells='',i=0;
+    while(i<TSN){
+      if(tR===dt&&i===tS&&dur){
+        var selLabel=fBrList.join('・')+' '+fGr+' '+fSj;
+        cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
+        i+=dur/TSD;continue;
+      }
+      var foundS=S.filter(function(x){return x.dt===dt;});
+      var matchedS=foundS.find(function(x){
+        var stSlot=t2sl(x.s),len=(t2m(x.e)-t2m(x.s))/TSD;
+        return i>=stSlot&&i<stSlot+len;
+      });
+      if(matchedS){
+        var stSlot=t2sl(matchedS.s);
+        if(i===stSlot){
+          var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
+          var col=SCOLD[matchedS.sj]||'#2563EB';
+          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'"><div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
+          i+=len;continue;
+        }else{i++;continue;}
+      }
+      cells+='<td class="tds" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
+      i++;
+    }
+    return'<tr><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
+  }).join('');
+
+  var cfPanel='';
+  if(cfOpen&&tR&&tS!==null&&dur){
+    cfPanel='<div class="cpanel"><div class="cptitle">内容確認</div>'
+      +'<div class="cprow"><div class="cplab">日時</div><div style="font-size:13px;font-weight:700;color:#1E40AF;padding-top:4px">'+tR+' '+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div>'
+      +'<div style="margin-top:6px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
+      +'<div style="margin-top:6px"><input class="tinp" type="text" placeholder="備考欄 (任意)" value="'+fNote+'" oninput="fNote=this.value"></div>'
+      +'<div style="display:flex;gap:8px;margin-top:10px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
+      +'</div>';
+  }
+
   return '<div class="fpage">'
-    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← 戻る</button><span class="kjval">'+fBrList.join('・')+' ('+fDate+')</span></div>'
+    +'<div class="ffixed">'
+    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← スケジュール画面へ</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
     +'<div class="frow"><span class="flab">校舎</span><div class="hpills">'+bpills+'</div></div>'
     +'<div class="frow"><span class="flab">教科</span><div class="hpills">'+spills+'</div></div>'
     +'<div class="frow"><span class="flab">学年</span><div class="hpills">'+gpills+'</div></div>'
-    +'</div>';
+    +'<div style="padding:6px 12px;display:flex;gap:6px">'
+    +[50,80,90,120].map(function(m){return'<button class="durbtn" onclick="applyCustomDur('+m+')">'+m+'分</button>';}).join('')
+    +'</div>'
+    +cfPanel
+    +'</div>'
+    +'<div class="fscr"><div class="fbody">'
+    +'<div class="tgsh"><div class="tgcorner">時間</div><div class="tghc"><table class="tght"><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></table></div></div>'
+    +'<div class="tgwrap"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
+    +'</div></div></div>';
 }
 
 function R(){
