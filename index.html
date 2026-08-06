@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.11 備考欄追加版
+  v1.12 連続登録・タイムテーブル継続入力版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.11';
+var APP_VERSION='v1.12';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -308,12 +308,13 @@ window.doSave=function(){
     var br1=fBrList[0]||'';
     S=S.map(function(s){return s.id===editId?{id:s.id,br:br1,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT}:s;});
     savedCount++;editId=null;
+    view='sch'; // 編集時は元のスケジュール画面に戻る
   }else{
     fBrList.forEach(function(br){S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});});
     savedCount+=(fBrList.length||1);
+    // 新規登録時は画面を戻さず、時間選択だけリセットして連続入力を可能にする
+    cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
   }
-  cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
-  view='sch';
   R();
 };
 window.showDayModal=function(dt){
@@ -484,7 +485,7 @@ function rForm(){
 
   return'<div class="fpage">'+rAH(true)
     +'<div class="ffixed">'
-    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← 戻る</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
+    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← スケジュール画面へ</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
     +'<div class="frow"><span class="flab">校舎</span><div class="hpills">'+bpills+'</div></div>'
     +'<div class="frow"><span class="flab">教科</span><div class="hpills">'+spills+'</div></div>'
     +'<div class="frow"><span class="flab">学年</span><div class="hpills">'+gpills+'</div></div>'
