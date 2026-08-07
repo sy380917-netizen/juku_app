@@ -3,15 +3,18 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.21 ログイン画面・アカウント選択対応版
+  v1.22 完全安定・デプロイ成功対応版
 ==========================================================
 -->
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>個別指導スクエア 補習管理</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
-html,body{height:100%}.app-root{display:flex;flex-direction:column;height:100%;overflow:hidden}
+html,body{height:100%}
+.app-root{display:flex;flex-direction:column;height:100%;overflow:hidden}
 #app{height:100%;display:flex;flex-direction:column;overflow:hidden}
 body{background:#f3f4f6}
 
@@ -22,6 +25,7 @@ body{background:#f3f4f6}
 .llogo span{color:#B91C1C}
 .lsub{font-size:13px;color:#6b7280;margin-bottom:26px}
 
+/* HEADER */
 .ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb}
 .atitle{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px}
 .atitle span{color:#B91C1C}
@@ -29,6 +33,7 @@ body{background:#f3f4f6}
 .uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
 .hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
 
+/* SCHEDULE */
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .gwrap{width:100%;overflow-x:auto}
@@ -42,7 +47,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
 .sch-dow{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
 
-/* FORM & TIMETABLE */
+/* FORM */
 .fpage{height:100%;display:flex;flex-direction:column;overflow:hidden;background:#fff}
 .ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:20}
 .fhrow{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid #f3f4f6}
@@ -55,7 +60,6 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .spisms.act{background:#22C55E;color:#fff;border-color:#22C55E}
 .gpsm.act{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
-.ubar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:46px}
 .durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
 
@@ -96,6 +100,11 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .cpill.act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
 .cpok{flex:1;padding:11px;border:none;border-radius:10px;background:#22C55E;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .cpcancel{flex:1;padding:11px;border:1.5px solid #d1d5db;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
+
+/* SCHEDULE CARDS */
+.sc{border-radius:6px;padding:5px 7px;font-size:10px;color:#fff;line-height:1.35;position:relative}
+.sct{font-weight:600;font-size:10px;white-space:nowrap}
+.scd{margin-top:2px;font-size:10px;opacity:.92}
 </style>
 </head>
 <body>
@@ -111,7 +120,7 @@ var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
   {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'}
 ];
-var cu=null,loginEmail='';
+var cu=null;
 var view='sch';
 var fBrList=[],fDate=null,fSj='数学',fGr='中3',fStu='',fNote='';
 var tR=null,tS=null,dur=null,cfOpen=false;
