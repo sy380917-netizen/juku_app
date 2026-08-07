@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.24 全操作ボタン完全復元版
+  v1.25 日付・校舎フィルター完全復元版
 ==========================================================
 -->
 <html lang="ja">
@@ -129,6 +129,7 @@ var tR=null,tS=null,dur=null,cfOpen=false;
 var S=[];
 var nid=1;
 var wk=new Date();wk.setDate(wk.getDate()-wk.getDay());
+var schFBr=[], schFDt=[];
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
@@ -142,6 +143,18 @@ window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});view
 window.logout=function(){cu=null;R();};
 window.pWk=function(){wk.setDate(wk.getDate()-7);R();};
 window.nWk=function(){wk.setDate(wk.getDate()+7);R();};
+
+window.toggleSchBr=function(b){
+  var idx=schFBr.indexOf(b);
+  if(idx>=0) schFBr.splice(idx,1); else schFBr.push(b);
+  R();
+};
+
+window.toggleSchDt=function(dt){
+  var idx=schFDt.indexOf(dt);
+  if(idx>=0) schFDt.splice(idx,1); else schFDt.push(dt);
+  R();
+};
 
 window.oForm=function(br,dt){
   view='form';fBrList=[br];fDate=dt;tR=null;tS=null;dur=null;cfOpen=false;fStu='';fNote='';
@@ -179,11 +192,16 @@ function rLogin(){
 
 function rSch(){
   var dates=wkd();
-  var schThd=dates.map(function(d){
-    return '<th class="sch-th"><span class="sch-date">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="sch-dow">('+DY[d.getDay()]+')</span></th>';
+  var dispDates = schFDt.length ? dates.filter(function(d){ return schFDt.indexOf(fd(d))>=0; }) : dates;
+  var dispBr = schFBr.length ? BR.filter(function(b){ return schFBr.indexOf(b)>=0; }) : BR;
+
+  var schThd=dispDates.map(function(d){
+    var dt=fd(d), sel=schFDt.indexOf(dt)>=0;
+    return '<th class="sch-th" onclick="toggleSchDt(\''+dt+'\')" style="cursor:pointer"><span class="sch-date">'+(d.getMonth()+1)+'/'+d.getDate()+(sel?' ✓':'')+'</span><span class="sch-dow">('+DY[d.getDay()]+')</span></th>';
   }).join('');
-  var rows=BR.map(function(br){
-    var cells=dates.map(function(d){
+
+  var rows=dispBr.map(function(br){
+    var cells=dispDates.map(function(d){
       var dt=fd(d);
       var ss=S.filter(function(x){return x.br===br&&x.dt===dt;});
       var cards=ss.map(function(s){
@@ -192,7 +210,7 @@ function rSch(){
       }).join('');
       return '<td class="dyt"><div class="cin"><button class="adc" onclick="oForm(\''+br+'\',\''+dt+'\')">+</button>'+cards+'</div></td>';
     }).join('');
-    return '<tr><td class="brn">'+br+'</td>'+cells+'</tr>';
+    return '<tr><td class="brn" onclick="toggleSchBr(\''+br+'\')" style="cursor:pointer">'+br+(schFBr.indexOf(br)>=0?' ✓':'')+'</td>'+cells+'</tr>';
   }).join('');
 
   var cameraBtnHtml = '<input type="file" id="globalCameraInput" accept="image/*" capture="environment" style="display:none" onchange="alert(\'写真が選択されました\')">' +
@@ -204,6 +222,7 @@ function rSch(){
     +'<div style="display:flex;align-items:center;gap:6px">'
     +'<button class="hdrbtn" onclick="pWk()">◀ 前週</button>'
     +'<button class="hdrbtn" onclick="nWk()">次週 ▶</button>'
+    +'<button class="hdrbtn" onclick="alert(\'校舎・日付フィルター機能です。校舎名や日付をクリックして絞り込みができます\')">🔍 フィルター</button>'
     +'<button class="hdrbtn" onclick="alert(\'設定変更画面です\')">⚙ 設定変更</button>'
     +'<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div><span style="font-size:11px">'+cu.name+'</span></div>'
     +'<button class="hdrbtn" onclick="logout()">ログアウト</button>'
