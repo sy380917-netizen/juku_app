@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.23 全機能完全搭載版
+  v1.24 全操作ボタン完全復元版
 ==========================================================
 -->
 <html lang="ja">
@@ -128,10 +128,10 @@ var fBrList=[],fDate=null,fSj='数学',fGr='中3',fStu='',fNote='';
 var tR=null,tS=null,dur=null,cfOpen=false;
 var S=[];
 var nid=1;
+var wk=new Date();wk.setDate(wk.getDate()-wk.getDay());
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
-var wk=new Date();wk.setDate(wk.getDate()-wk.getDay());
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
 function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
 function sl2m(i){return TS0+i*TSD}
@@ -140,6 +140,8 @@ function t2m(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
 
 window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});view='sch';R();};
 window.logout=function(){cu=null;R();};
+window.pWk=function(){wk.setDate(wk.getDate()-7);R();};
+window.nWk=function(){wk.setDate(wk.getDate()+7);R();};
 
 window.oForm=function(br,dt){
   view='form';fBrList=[br];fDate=dt;tR=null;tS=null;dur=null;cfOpen=false;fStu='';fNote='';
@@ -200,6 +202,8 @@ function rSch(){
     +'<div class="ahdr">'
     +'<div class="atitle"><span>■</span> 個別指導スクエア ' + cameraBtnHtml + '</div>'
     +'<div style="display:flex;align-items:center;gap:6px">'
+    +'<button class="hdrbtn" onclick="pWk()">◀ 前週</button>'
+    +'<button class="hdrbtn" onclick="nWk()">次週 ▶</button>'
     +'<button class="hdrbtn" onclick="alert(\'設定変更画面です\')">⚙ 設定変更</button>'
     +'<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div><span style="font-size:11px">'+cu.name+'</span></div>'
     +'<button class="hdrbtn" onclick="logout()">ログアウト</button>'
