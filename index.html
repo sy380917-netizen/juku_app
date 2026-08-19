@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.15 削除ボタン・権限処理完全修復版
+  v1.15 詳細ポップアップ完全安定版（ダイレクトイベント制御）
 ==========================================================
 -->
 <html lang="ja">
@@ -196,7 +196,7 @@ var ACCOUNTS=[
   {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
   {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
 ];
-function canEdit(ins){return true; /* 誰でも削除・編集できるように緩和 */}
+function canEdit(ins){return true;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
@@ -564,27 +564,37 @@ function rForm(){
     +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
 
-// 予定詳細ポップアップ内の削除ボタン用関数
-window.tipDel=function(id){
-  var old=document.getElementById('sc-tip-modal');
-  if(old) old.remove();
-  delConfId = id; // 削除確認モーダルのIDをセット
-  R();            // 再描画して削除確認画面を表示
-};
-
+// 予定詳細ポップアップ（ダイレクトイベント紐付けによる確実な動作）
 window.showTipModal=function(id,ev){
   if(ev)ev.stopPropagation();
   var s=S.find(function(x){return x.id===id;});if(!s)return;
   var old=document.getElementById('sc-tip-modal');if(old)old.remove();
+
   var modal=document.createElement('div');modal.id='sc-tip-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
   modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:280px;font-size:13px;line-height:1.6">'
     +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
     +(s.note?'<br>備考: '+s.note:'')
-    +'<div style="display:flex;gap:6px;margin-top:12px"><button onclick="document.getElementById(\'sc-tip-modal\'].remove();editSession('+id+')" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button><button onclick="tipDel('+id+')" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button></div>'
-    +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:7px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
+    +'<div style="display:flex;gap:6px;margin-top:12px">'
+    +'<button id="tipEditBtn" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button>'
+    +'<button id="tipDelBtn" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button>'
+    +'</div>'
+    +'<button id="tipCloseBtn" style="margin-top:8px;width:100%;padding:7px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
     +'</div>';
   document.body.appendChild(modal);
+
+  document.getElementById('tipEditBtn').onclick = function(){
+    modal.remove();
+    editSession(id);
+  };
+  document.getElementById('tipDelBtn').onclick = function(){
+    modal.remove();
+    delConfId = id;
+    R();
+  };
+  document.getElementById('tipCloseBtn').onclick = function(){
+    modal.remove();
+  };
 };
 
 function R(){
