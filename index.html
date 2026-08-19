@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.15 詳細ポップアップ削除ボタン修正完了版
+  v1.15 詳細・スケジュール画面共通 削除確認対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -44,7 +44,7 @@ body{background:#f3f4f6}
 .uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
 .hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
 /* SCHEDULE */
-.schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;position:relative}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
 .gwrap{width:100%}
@@ -63,7 +63,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .delbtn{position:absolute;top:50%;right:3px;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:10px;line-height:22px;text-align:center;padding:0;z-index:2;touch-action:manipulation;flex-shrink:0}
 .delbtn:hover{background:rgba(0,0,0,.55)}
 /* FORM */
-.fpage{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.fpage{height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative}
 .ffixed{position:relative;top:auto;z-index:20;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible}
 .frow{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
 .hpills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x}
@@ -235,7 +235,7 @@ window.loginWithEmail=function(){
   if(!email){alert('Gmailアドレスを入力してください');return;}
   var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
   if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
-  else{regName='';regEmail=email;regColor='#3B82F6';view='register';Rතික();
+  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
 };
 window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
 window.cancelRegister=function(){view=cu?'sch':'login';showPick=false;R();};
@@ -439,6 +439,23 @@ function rSch(){
     return'<tr><td class="brn">'+br+'</td>'+cells+'</tr>';
   }).join('');
 
+  var delModalStr='';
+  if(delConfId!==null){
+    var targetS=S.find(function(x){return x.id===delConfId;});
+    if(targetS){
+      delModalStr='<div class="del-modal-overlay"><div class="del-modal">'
+        +'<div class="del-modal-title">🗑️ 予定を削除しますか？</div>'
+        +'<div class="del-modal-info"><b>'+targetS.br+'</b> '+targetS.dt+' '+targetS.s+'〜'+targetS.e+'<br>'+targetS.gr+' '+targetS.sj+(targetS.stu?'<br>生徒: '+targetS.stu:'')+'</div>'
+        +'<div class="del-modal-btns"><button class="del-modal-cancel" onclick="delConfCancel()">キャンセル</button><button class="del-modal-ok" onclick="delConfOk()">削除する</button></div>'
+        +'</div></div>';
+    }
+  }
+
+  var undoToastStr='';
+  if(undoMsg){
+    undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
+  }
+
   return'<div class="schp">'+rAH()
     +'<div class="schscr">'
     +'<div style="padding:6px 12px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;gap:6px">'
@@ -446,7 +463,7 @@ function rSch(){
     +'<button onclick="nWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">次週 ▶</button>'
     +'</div>'
     +'<div class="gwrap"><table class="stbl"><tr><th style="width:70px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div>'
-    +'</div></div>';
+    +'</div>'+delModalStr+undoToastStr+'</div>';
 }
 
 function rForm(){
@@ -548,7 +565,7 @@ function rForm(){
     +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
 
-// 予定詳細ポップアップ内の削除ボタン用関数（確認モーダルが正しく開くように修正済み）
+// 予定詳細ポップアップ内の削除ボタン用関数
 window.tipDel=function(id){
   var old=document.getElementById('sc-tip-modal');
   if(old) old.remove();
