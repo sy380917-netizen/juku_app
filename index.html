@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!--
 ==========================================================
-  個別指導スクエア 補習管理アプリ
+  個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.15 詳細ポップアップ削除ボタン修復版（完全修正版）
+  v1.15 詳細ポップアップ削除ボタン修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -187,14 +187,14 @@ var DY=['日','月','火','水','木','金','土'];
 var TS0=480,TSD=10,TSN=93;
 function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
 var ACCOUNTS=[
-  {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
-  {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
-  {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
-  {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
-  {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
-  {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
-  {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
-  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
+  {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
+  {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
+  {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
+  {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
+  {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
+  {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
+  {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
+  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
 ];
 function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
@@ -231,28 +231,28 @@ function restSc(sc){requestAnimationFrame(function(){var t=document.getElementBy
 
 window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});fIns=cu.name;showPick=false;_schFirstLoad=true;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();};
 window.loginWithEmail=function(){
-  var email=(loginEmail||'').trim().toLowerCase();
-  if(!email){alert('Gmailアドレスを入力してください');return;}
-  var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
-  if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
-  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
+  var email=(loginEmail||'').trim().toLowerCase();
+  if(!email){alert('Gmailアドレスを入力してください');return;}
+  var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
+  if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
+  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
 };
 window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
 window.cancelRegister=function(){view=cu?'sch':'login';showPick=false;R();};
 window.confirmRegister=function(){
-  var n=regName.trim(),e=(regEmail||'').trim().toLowerCase();
-  if(!e||!n){regErrMsg='必要項目を入力してください';R();return;}
-  var newId=Math.max.apply(null,ACCOUNTS.map(function(a){return a.id;}))+1;
-  ACCOUNTS.push({id:newId,name:n,email:e,color:'#3B82F6'});
-  cu=ACCOUNTS[ACCOUNTS.length-1];fIns=cu.name;suSubj=[];suBr=[];suGr=[];view='setup';R();
+  var n=regName.trim(),e=(regEmail||'').trim().toLowerCase();
+  if(!e||!n){regErrMsg='必要項目を入力してください';R();return;}
+  var newId=Math.max.apply(null,ACCOUNTS.map(function(a){return a.id;}))+1;
+  ACCOUNTS.push({id:newId,name:n,email:e,color:'#3B82F6'});
+  cu=ACCOUNTS[ACCOUNTS.length-1];fIns=cu.name;suSubj=[];suBr=[];suGr=[];view='setup';R();
 };
 window.logout=function(){cu=null;showPick=false;view='sch';R()};
 window.tgSuSubj=function(s){var i=suSubj.indexOf(s);if(i>=0)suSubj.splice(i,1);else suSubj.push(s);R()};
 window.tgSuBr=function(b){var i=suBr.indexOf(b);if(i>=0)suBr.splice(i,1);else suBr.push(b);R()};
 window.tgSuGr=function(g){var i=suGr.indexOf(g);if(i>=0)suGr.splice(i,1);else suGr.push(g);R()};
 window.confSetup=function(){
-  if(!suSubj.length||!suBr.length||!suGr.length){alert('すべて選択してください');return;}
-  aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();fBrList=suBr.slice();view='sch';R();
+  if(!suSubj.length||!suBr.length||!suGr.length){alert('すべて選択してください');return;}
+  aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();fBrList=suBr.slice();view='sch';R();
 };
 window.openSettings=function(){suSubj=(aSubj[cu.id]||[]).slice();suBr=(aBr[cu.id]||[]).slice();suGr=(aGr[cu.id]||[]).slice();view='settings';R();};
 window.saveSettings=function(){aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();view='sch';R();};
@@ -262,56 +262,56 @@ window.closeCal=function(){calOpen=false;R();};
 window.calPrev=function(){if(calM===0){calM=11;calY--;}else calM--;R();};
 window.calNext=function(){if(calM===11){calM=0;calY++;}else calM++;R();};
 window.calSel=function(y,m,d){
-  var dt=new Date(y,m,d,12,0,0),dtStr=fd(dt);
-  dt.setDate(dt.getDate()-dt.getDay());wk=dt;calOpen=false;schNavOpen=false;
-  var mb=myBr(),br=mb.length===1?mb[0]:(fBrList[0]||mb[0]||'');
-  view='form';editId=null;fBrList=[br];fDate=dtStr;fGr=null;fStu='';fIns=cu?cu.name:'';
-  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
-  var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
+  var dt=new Date(y,m,d,12,0,0),dtStr=fd(dt);
+  dt.setDate(dt.getDate()-dt.getDay());wk=dt;calOpen=false;schNavOpen=false;
+  var mb=myBr(),br=mb.length===1?mb[0]:(fBrList[0]||mb[0]||'');
+  view='form';editId=null;fBrList=[br];fDate=dtStr;fGr=null;fStu='';fIns=cu?cu.name:'';
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
+  var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
 window.pWk=function(){var d=new Date(wk);d.setDate(d.getDate()-7);wk=d;R()};
 window.nWk=function(){var d=new Date(wk);d.setDate(d.getDate()+7);wk=d;R()};
 window.oForm=function(br,dt){
-  view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
-  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
-  var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
+  view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
+  var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
 window.editSession=function(id){
-  var s=S.find(function(x){return x.id===id});if(!s||!canEdit(s.ins))return;
-  view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
-  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;R();
+  var s=S.find(function(x){return x.id===id});if(!s||!canEdit(s.ins))return;
+  view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
+  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;R();
 };
 window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;fNote='';R();};
 window.sBr=function(b){fBrList=[b];R();};
 window.sSj=function(s){fSj=s;R();};
 window.sGr=function(g){fGr=fGr===g?null:g;if(fGr&&!_customDur){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
 window.delS=function(id,ev){
-  if(ev)ev.stopPropagation();
-  delConfId=id;
-  R();
+  if(ev)ev.stopPropagation();
+  delConfId=id;
+  R();
 };
 window.delConfOk=function(){
-  if(delConfId===null)return;
-  var target=S.find(function(x){return x.id===delConfId;});
-  if(target){
-    undoPrevS=target;
-    undoMsg=target.br+' '+target.s+'〜'+target.e+' '+target.sj+' を削除しました';
-  }
-  S=S.filter(function(x){return x.id!==delConfId;});
-  delConfId=null;
-  R();
-  if(undoTimer)clearTimeout(undoTimer);
-  undoTimer=setTimeout(function(){undoPrevS=null;undoMsg='';R();},6000);
+  if(delConfId===null)return;
+  var target=S.find(function(x){return x.id===delConfId;});
+  if(target){
+    undoPrevS=target;
+    undoMsg=target.br+' '+target.s+'〜'+target.e+' '+target.sj+' を削除しました';
+  }
+  S=S.filter(function(x){return x.id!==delConfId;});
+  delConfId=null;
+  R();
+  if(undoTimer)clearTimeout(undoTimer);
+  undoTimer=setTimeout(function(){undoPrevS=null;undoMsg='';R();},6000);
 };
 window.delConfCancel=function(){delConfId=null;R();};
 window.undoDel=function(){
-  if(undoPrevS){
-    S.push(undoPrevS);
-    undoPrevS=null;
-    undoMsg='';
-    if(undoTimer)clearTimeout(undoTimer);
-    R();
-  }
+  if(undoPrevS){
+    S.push(undoPrevS);
+    undoPrevS=null;
+    undoMsg='';
+    if(undoTimer)clearTimeout(undoTimer);
+    R();
+  }
 };
 window.delFF=function(){if(editId!==null)S=S.filter(function(s){return s.id!==editId});view='sch';editId=null;R()};
 window.clearTime=function(){tR=null;tS=null;dur=null;cfOpen=false;_customDur=false;R()};
@@ -320,260 +320,275 @@ window.applyCustomDur=function(m){dur=m;_customDur=true;cfOpen=false;R();};
 window.saveF=function(){cfOpen=true;R();};
 window.cancelCf=function(){cfOpen=false;R()};
 window.cBr=function(b){
-  if(editId!==null)fBrList=[b];
-  else{var i=fBrList.indexOf(b);if(i>=0)fBrList.splice(i,1);else fBrList.push(b);if(!fBrList.length)fBrList=[b];}
-  R();
+  if(editId!==null)fBrList=[b];
+  else{var i=fBrList.indexOf(b);if(i>=0)fBrList.splice(i,1);else fBrList.push(b);if(!fBrList.length)fBrList=[b];}
+  R();
 };
 window.cSj=function(s){fSj=s;R()};
 window.cGr=function(g){fGr=g;R();};
 window.editTime=function(){cfOpen=false;R()};
 window.doSave=function(){
-  var sT=m2s(sl2m(tS)),eT=m2s(sl2m(tS)+dur);
-  if(editId!==null){
-    var br1=fBrList[0]||'';
-    S=S.map(function(s){return s.id===editId?{id:s.id,br:br1,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT}:s;});
-    savedCount++;editId=null;
-    view='sch';
-  }else{
-    fBrList.forEach(function(br){S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});});
-    savedCount+=(fBrList.length||1);
-    cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
-  }
-  R();
+  var sT=m2s(sl2m(tS)),eT=m2s(sl2m(tS)+dur);
+  if(editId!==null){
+    var br1=fBrList[0]||'';
+    S=S.map(function(s){return s.id===editId?{id:s.id,br:br1,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT}:s;});
+    savedCount++;editId=null;
+    view='sch';
+  }else{
+    fBrList.forEach(function(br){S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});});
+    savedCount+=(fBrList.length||1);
+    cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
+  }
+  R();
 };
 window.showDayModal=function(dt){
-  var all=S.filter(function(s){return s.dt===dt;});
-  var old=document.getElementById('day-modal');if(old)old.remove();
-  var modal=document.createElement('div');modal.id='day-modal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:flex;align-items:center;justify-content:center;padding:16px';
-  modal.innerHTML='<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;max-height:80vh;padding:18px;overflow-y:auto">'
-    +'<div style="font-size:18px;font-weight:700;margin-bottom:10px">'+dt+' の予定</div>'
-    +(all.length?all.map(function(s){return'<div style="padding:8px;border-bottom:1px solid #eee"><b>'+s.br+'</b> '+s.s+'-'+s.e+' '+s.sj+' ('+s.stu+')'+(s.note?'<br><span style="color:#666;font-size:11px">備考: '+s.note+'</span>':'')+'</div>';}).join(''):'<div style="color:#888">予定なし</div>')
-    +'<button onclick="document.getElementById(\'day-modal\').remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
-    +'</div>';
-  document.body.appendChild(modal);
+  var all=S.filter(function(s){return s.dt===dt;});
+  var old=document.getElementById('day-modal');if(old)old.remove();
+  var modal=document.createElement('div');modal.id='day-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML='<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;max-height:80vh;padding:18px;overflow-y:auto">'
+    +'<div style="font-size:18px;font-weight:700;margin-bottom:10px">'+dt+' の予定</div>'
+    +(all.length?all.map(function(s){return'<div style="padding:8px;border-bottom:1px solid #eee"><b>'+s.br+'</b> '+s.s+'-'+s.e+' '+s.sj+' ('+s.stu+')'+(s.note?'<br><span style="color:#666;font-size:11px">備考: '+s.note+'</span>':'')+'</div>';}).join(''):'<div style="color:#888">予定なし</div>')
+    +'<button onclick="document.getElementById(\'day-modal\').remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
+    +'</div>';
+  document.body.appendChild(modal);
+};
+window.showTipModal=function(id,ev){
+  if(ev)ev.stopPropagation();
+  var s=S.find(function(x){return x.id===id;});if(!s)return;
+  var canEd=canEdit(s.ins);
+  var old=document.getElementById('sc-tip-modal');if(old)old.remove();
+  var modal=document.createElement('div');modal.id='sc-tip-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:260px;font-size:13px;line-height:1.6">'
+    +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
+    +(s.note?'<br>備考: '+s.note:'')
+    +(canEd?'<div style="display:flex;gap:6px;margin-top:10px"><button onclick="document.getElementById(\'sc-tip-modal\').remove();editSession('+id+')" style="flex:1;padding:6px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer">編集</button><button onclick="document.getElementById(\'sc-tip-modal\').remove();delS('+id+')" style="flex:1;padding:6px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer">削除</button></div>':'')
+    +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:6px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
+    +'</div>';
+  document.body.appendChild(modal);
 };
 
 function rAH(bk){
-  if(!cu)return'';
-  var cameraBtnHtml = '<input type="file" id="globalCameraInput" accept="image/*" capture="environment" style="display:none" onchange="alert(\'写真が選択されました\')">' +
-                      '<button class="hdr-camera-btn" onclick="document.getElementById(\'globalCameraInput\').click()">📷 撮影</button>';
+  if(!cu)return'';
+  var cameraBtnHtml = '<input type="file" id="globalCameraInput" accept="image/*" capture="environment" style="display:none" onchange="alert(\'写真が選択されました\')">' +
+                      '<button class="hdr-camera-btn" onclick="document.getElementById(\'globalCameraInput\').click()">📷 撮影</button>';
 
-  return'<div class="ahdr">' +
-    '<div class="atitle"><span>■</span> 個別指導スクエア <span style="font-size:10px;font-weight:400;color:#9ca3af">'+APP_VERSION+'</span>' + cameraBtnHtml + '</div>' +
-    '<div style="display:flex;align-items:center;gap:6px">' +
-    (bk?'':'<button class="hdrbtn" onclick="openSettings()">⚙ 設定変更</button><button class="hdrbtn" onclick="openRegister()" style="background:#22C55E;color:#fff;border-color:#22C55E">＋ 講師登録</button>') +
-    '<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div>' +
-    '<span style="font-size:11px;font-weight:500;color:#374151">'+cu.name+'</span>' +
-    '<button class="hdrbtn" onclick="logout()">ログアウト</button></div>' +
-    '</div></div>';
+  return'<div class="ahdr">' +
+    '<div class="atitle"><span>■</span> 個別指導スクエア <span style="font-size:10px;font-weight:400;color:#9ca3af">'+APP_VERSION+'</span>' + cameraBtnHtml + '</div>' +
+    '<div style="display:flex;align-items:center;gap:6px">' +
+    (bk?'':'<button class="hdrbtn" onclick="openSettings()">⚙ 設定変更</button><button class="hdrbtn" onclick="openRegister()" style="background:#22C55E;color:#fff;border-color:#22C55E">＋ 講師登録</button>') +
+    '<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div>' +
+    '<span style="font-size:11px;font-weight:500;color:#374151">'+cu.name+'</span>' +
+    '<button class="hdrbtn" onclick="logout()">ログアウト</button></div>' +
+    '</div></div>';
 }
 
 function rLogin(){
-  return'<div class="cp"><div class="lcard">'
-    +'<div class="llogo"><span>■</span> 個別指導スクエア</div>'
-    +'<div class="lsub">補習管理システム</div>'
-    +'<div style="text-align:left;margin-bottom:16px">'
-    +'<div style="font-size:12px;color:#6b7280;margin-bottom:6px">Gmailアドレス</div>'
-    +'<input id="loginEmailInput" type="email" value="'+loginEmail+'" placeholder="example@gmail.com" oninput="loginEmail=this.value" style="width:100%;font-size:15px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px">'
-    +'</div>'
-    +'<button onclick="loginWithEmail()" style="width:100%;padding:11px;border:none;border-radius:8px;background:#4285F4;color:#fff;cursor:pointer;font-size:14px;font-weight:600;margin-bottom:12px">ログイン</button>'
-    +'<div style="font-size:11px;color:#9ca3af;margin-bottom:8px">── テスト用アカウント ──</div>'
-    +ACCOUNTS.map(function(a){
-      return'<button onclick="loginAs('+a.id+')" style="display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:4px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;width:100%;text-align:left">'
-        +'<div style="width:24px;height:24px;border-radius:50%;background:'+a.color+';color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center">'+av(a.name)+'</div>'
-        +'<span style="font-size:12px">'+a.name+'</span></button>';
-    }).join('')
-    +'</div></div>';
+  return'<div class="cp"><div class="lcard">'
+    +'<div class="llogo"><span>■</span> 個別指導スクエア</div>'
+    +'<div class="lsub">補習管理システム</div>'
+    +'<div style="text-align:left;margin-bottom:16px">'
+    +'<div style="font-size:12px;color:#6b7280;margin-bottom:6px">Gmailアドレス</div>'
+    +'<input id="loginEmailInput" type="email" value="'+loginEmail+'" placeholder="example@gmail.com" oninput="loginEmail=this.value" style="width:100%;font-size:15px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px">'
+    +'</div>'
+    +'<button onclick="loginWithEmail()" style="width:100%;padding:11px;border:none;border-radius:8px;background:#4285F4;color:#fff;cursor:pointer;font-size:14px;font-weight:600;margin-bottom:12px">ログイン</button>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-bottom:8px">── テスト用アカウント ──</div>'
+    +ACCOUNTS.map(function(a){
+      return'<button onclick="loginAs('+a.id+')" style="display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:4px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;width:100%;text-align:left">'
+        +'<div style="width:24px;height:24px;border-radius:50%;background:'+a.color+';color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center">'+av(a.name)+'</div>'
+        +'<span style="font-size:12px">'+a.name+'</span></button>';
+    }).join('')
+    +'</div></div>';
 }
 
 function rSuCard(isSt){
-  var ready=suSubj.length>0&&suBr.length>0&&suGr.length>0;
-  var sp=SBJ.map(function(s){return'<button class="spx'+(suSubj.indexOf(s)>=0?' sa':'')+'" onclick="tgSuSubj(\''+s+'\')">'+s+'</button>';}).join('');
-  var bp=BR.map(function(b){return'<button class="spx'+(suBr.indexOf(b)>=0?' ba':'')+'" onclick="tgSuBr(\''+b+'\')">'+b+'</button>';}).join('');
-  var gp=GRADES.map(function(g){return'<button class="spx'+(suGr.indexOf(g)>=0?' ga':'')+'" onclick="tgSuGr(\''+g+'\')">'+g+'</button>';}).join('');
-  return'<div class="cp"><div class="sucard">'
-    +'<div style="font-size:15px;font-weight:700;margin-bottom:12px">'+(isSt?'設定変更':'初期設定')+'</div>'
-    +'<div class="susec"><div class="suseclab">担当教科</div><div class="supills">'+sp+'</div></div>'
-    +'<div class="susec"><div class="suseclab">担当教場</div><div class="supills">'+bp+'</div></div>'
-    +'<div class="susec"><div class="suseclab">担当学年</div><div class="supills">'+gp+'</div></div>'
-    +'<button class="suconfirm'+(ready?' rdy':'')+'" onclick="'+(isSt?'saveSettings':'confSetup')+'()">保存する</button>'
-    +(isSt?'<button class="btiny" onclick="cancelSettings()">キャンセル</button>':'')
-    +'</div></div>';
+  var ready=suSubj.length>0&&suBr.length>0&&suGr.length>0;
+  var sp=SBJ.map(function(s){return'<button class="spx'+(suSubj.indexOf(s)>=0?' sa':'')+'" onclick="tgSuSubj(\''+s+'\')">'+s+'</button>';}).join('');
+  var bp=BR.map(function(b){return'<button class="spx'+(suBr.indexOf(b)>=0?' ba':'')+'" onclick="tgSuBr(\''+b+'\')">'+b+'</button>';}).join('');
+  var gp=GRADES.map(function(g){return'<button class="spx'+(suGr.indexOf(g)>=0?' ga':'')+'" onclick="tgSuGr(\''+g+'\')">'+g+'</button>';}).join('');
+  return'<div class="cp"><div class="sucard">'
+    +'<div style="font-size:15px;font-weight:700;margin-bottom:12px">'+(isSt?'設定変更':'初期設定')+'</div>'
+    +'<div class="susec"><div class="suseclab">担当教科</div><div class="supills">'+sp+'</div></div>'
+    +'<div class="susec"><div class="suseclab">担当教場</div><div class="supills">'+bp+'</div></div>'
+    +'<div class="susec"><div class="suseclab">担当学年</div><div class="supills">'+gp+'</div></div>'
+    +'<button class="suconfirm'+(ready?' rdy':'')+'" onclick="'+(isSt?'saveSettings':'confSetup')+'()">保存する</button>'
+    +(isSt?'<button class="btiny" onclick="cancelSettings()">キャンセル</button>':'')
+    +'</div></div>';
 }
 
 function rRegister(){
-  return'<div class="cp"><div class="sucard">'
-    +'<div style="font-size:15px;font-weight:700;margin-bottom:12px">新規講師登録</div>'
-    +'<div class="susec"><div class="suseclab">Gmail</div><input type="email" value="'+regEmail+'" oninput="regEmail=this.value" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px"></div>'
-    +'<div class="susec"><div class="suseclab">名前</div><input type="text" value="'+regName+'" oninput="regName=this.value" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px"></div>'
-    +(regErrMsg?'<div style="color:red;font-size:12px">'+regErrMsg+'</div>':'')
-    +'<button onclick="confirmRegister()" style="width:100%;padding:10px;background:#22C55E;color:#fff;border:none;border-radius:8px;margin-top:8px">登録</button>'
-    +'<button class="btiny" onclick="cancelRegister()">キャンセル</button>'
-    +'</div></div>';
+  return'<div class="cp"><div class="sucard">'
+    +'<div style="font-size:15px;font-weight:700;margin-bottom:12px">新規講師登録</div>'
+    +'<div class="susec"><div class="suseclab">Gmail</div><input type="email" value="'+regEmail+'" oninput="regEmail=this.value" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px"></div>'
+    +'<div class="susec"><div class="suseclab">名前</div><input type="text" value="'+regName+'" oninput="regName=this.value" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px"></div>'
+    +(regErrMsg?'<div style="color:red;font-size:12px">'+regErrMsg+'</div>':'')
+    +'<button onclick="confirmRegister()" style="width:100%;padding:10px;background:#22C55E;color:#fff;border:none;border-radius:8px;margin-top:8px">登録</button>'
+    +'<button class="btiny" onclick="cancelRegister()">キャンセル</button>'
+    +'</div></div>';
 }
 
 function rSch(){
-  var dates=wkd();
-  var dispDates=schFDt.length?dates.filter(function(d){return schFDt.indexOf(fd(d))>=0;}):dates;
-  var dispBr=schFBr.length?BR.filter(function(br){return schFBr.indexOf(br)>=0;}):BR;
+  var dates=wkd();
+  var dispDates=schFDt.length?dates.filter(function(d){return schFDt.indexOf(fd(d))>=0;}):dates;
+  var dispBr=schFBr.length?BR.filter(function(br){return schFBr.indexOf(br)>=0;}):BR;
 
-  var schThd=dispDates.map(function(d){
-    var dt=fd(d),tod=isTd(d),sel=schFDt.indexOf(dt)>=0;
-    return'<th class="sch-th'+(tod?' tod':'')+(sel?' sch-th-sel':'')+'" onclick="showDayModal(\''+dt+'\')"><span class="sch-date">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="sch-dow">('+DY[d.getDay()]+')</span></th>';
-  }).join('');
+  var schThd=dispDates.map(function(d){
+    var dt=fd(d),tod=isTd(d),sel=schFDt.indexOf(dt)>=0;
+    return'<th class="sch-th'+(tod?' tod':'')+(sel?' sch-th-sel':'')+'" onclick="showDayModal(\''+dt+'\')"><span class="sch-date">'+(d.getMonth()+1)+'/'+d.getDate()+'</span><span class="sch-dow">('+DY[d.getDay()]+')</span></th>';
+  }).join('');
 
-  var rows=dispBr.map(function(br){
-    var cells=dispDates.map(function(d){
-      var dt=fd(d),tod=isTd(d)?'tcol':'';
-      var ss=S.filter(function(s){return s.br===br&&s.dt===dt;});
-      var cards=ss.map(function(s){
-        var col=SCOLD[s.sj]||'#6B7280',ed=canEdit(s.ins);
-        return'<div class="sc" style="background:'+col+'" onclick="showTipModal('+s.id+',event)">'
-          +(ed?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
-          +'<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
-          +'<div class="scd">'+s.s+'〜'+s.e+'</div></div>';
-      }).join('');
-      return'<td class="dyt '+tod+'"><div class="cin"><button class="adc" onclick="oForm(\''+br+'\',\''+dt+'\')">+</button>'+cards+'</div></td>';
-    }).join('');
-    return'<tr><td class="brn">'+br+'</td>'+cells+'</tr>';
-  }).join('');
+  var rows=dispBr.map(function(br){
+    var cells=dispDates.map(function(d){
+      var dt=fd(d),tod=isTd(d)?'tcol':'';
+      var ss=S.filter(function(s){return s.br===br&&s.dt===dt;});
+      var cards=ss.map(function(s){
+        var col=SCOLD[s.sj]||'#6B7280',ed=canEdit(s.ins);
+        return'<div class="sc" style="background:'+col+'" onclick="showTipModal('+s.id+',event)">'
+          +(ed?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
+          +'<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
+          +'<div class="scd">'+s.s+'〜'+s.e+'</div></div>';
+      }).join('');
+      return'<td class="dyt '+tod+'"><div class="cin"><button class="adc" onclick="oForm(\''+br+'\',\''+dt+'\')">+</button>'+cards+'</div></td>';
+    }).join('');
+    return'<tr><td class="brn">'+br+'</td>'+cells+'</tr>';
+  }).join('');
 
-  return'<div class="schp">'+rAH()
-    +'<div class="schscr">'
-    +'<div style="padding:6px 12px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;gap:6px">'
-    +'<button onclick="pWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">◀ 前週</button>'
-    +'<button onclick="nWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">次週 ▶</button>'
-    +'</div>'
-    +'<div class="gwrap"><table class="stbl"><tr><th style="width:70px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div>'
-    +'</div></div>';
+  return'<div class="schp">'+rAH()
+    +'<div class="schscr">'
+    +'<div style="padding:6px 12px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;gap:6px">'
+    +'<button onclick="pWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">◀ 前週</button>'
+    +'<button onclick="nWk()" style="padding:4px 8px;background:#2563EB;color:#fff;border:none;border-radius:4px">次週 ▶</button>'
+    +'</div>'
+    +'<div class="gwrap"><table class="stbl"><tr><th style="width:70px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div>'
+    +'</div></div>';
 }
 
 function rForm(){
-  var dates=wkd(),isEdit=editId!==null,ms=mySbj(),mb=myBr(),mg=myGr();
-  var bpills=mb.map(function(b){return'<button class="bpsm '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="sBr(\''+b+'\')">'+b+'</button>';}).join('');
-  var gpills=mg.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
-  var spills=ms.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
+  var dates=wkd(),isEdit=editId!==null,ms=mySbj(),mb=myBr(),mg=myGr();
+  var bpills=mb.map(function(b){return'<button class="bpsm '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="sBr(\''+b+'\')">'+b+'</button>';}).join('');
+  var gpills=mg.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
+  var spills=ms.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
 
-  var hrHdr='';for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
-  var subHdr='';for(var j=0;j<TSN;j++){
-    var mm=sl2m(j)%60,cls='th10'+(mm===30?' h30':mm===0?' h00':'');
-    subHdr+='<th class="'+cls+'">'+(mm===0?'' : '')+'</th>';
-  }
+  var hrHdr='';for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
+  var subHdr='';for(var j=0;j<TSN;j++){
+    var mm=sl2m(j)%60,cls='th10'+(mm===30?' h30':mm===0?' h00':'');
+    subHdr+='<th class="'+cls+'">'+(mm===0?'' : '')+'</th>';
+  }
 
-  var tgRowsStr=dates.map(function(d){
-    var dt=fd(d),isPre=dt===fDate,cells='',i=0;
-    while(i<TSN){
-      if(tR===dt&&i===tS&&dur){
-        var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
-        cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
-        i+=dur/TSD;continue;
-      }
-      var foundS=S.filter(function(x){return x.dt===dt;});
-      var matchedS=foundS.find(function(x){
-        var stSlot=t2sl(x.s);
-        var len=(t2m(x.e)-t2m(x.s))/TSD;
-        return i>=stSlot&&i<stSlot+len;
-      });
-      if(matchedS){
-        var stSlot=t2sl(matchedS.s);
-        if(i===stSlot){
-          var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          var col=SCOLD[matchedS.sj]||'#2563EB';
-          var ed=canEdit(matchedS.ins);
-          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'+(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')+'<div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
-          i+=len;
-          continue;
-        } else {
-          i++;
-          continue;
-        }
-      }
+  var tgRowsStr=dates.map(function(d){
+    var dt=fd(d),isPre=dt===fDate,cells='',i=0;
+    while(i<TSN){
+      if(tR===dt&&i===tS&&dur){
+        var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
+        cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
+        i+=dur/TSD;continue;
+      }
+      var foundS=S.filter(function(x){return x.dt===dt;});
+      var matchedS=foundS.find(function(x){
+        var stSlot=t2sl(x.s);
+        var len=(t2m(x.e)-t2m(x.s))/TSD;
+        return i>=stSlot&&i<stSlot+len;
+      });
+      if(matchedS){
+        var stSlot=t2sl(matchedS.s);
+        if(i===stSlot){
+          var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
+          var col=SCOLD[matchedS.sj]||'#2563EB';
+          var ed=canEdit(matchedS.ins);
+          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'+(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')+'<div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
+          i+=len;
+          continue;
+        } else {
+          i++;
+          continue;
+        }
+      }
 
-      cells+='<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
-      i++;
-    }
-    return'<tr data-dt="'+dt+'"><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
-  }).join('');
+      cells+='<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
+      i++;
+    }
+    return'<tr data-dt="'+dt+'"><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
+  }).join('');
 
-  var cfPanel='';
-  if(cfOpen&&tR&&tS!==null&&dur&&fSj&&fGr){
-    var bpillsC=mb.map(function(b){return'<button class="cpill '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="cBr(\''+b+'\')">'+b+'</button>';}).join('');
-    var spillsC=ms.map(function(s){return'<button class="cpill '+(fSj===s?'act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');
-    var gpillsC=mg.map(function(g){return'<button class="cpill '+(fGr===g?'act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
+  var cfPanel='';
+  if(cfOpen&&tR&&tS!==null&&dur&&fSj&&fGr){
+    var bpillsC=mb.map(function(b){return'<button class="cpill '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="cBr(\''+b+'\')">'+b+'</button>';}).join('');
+    var spillsC=ms.map(function(s){return'<button class="cpill '+(fSj===s?'act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');
+    var gpillsC=mg.map(function(g){return'<button class="cpill '+(fGr===g?'act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
 
-    cfPanel='<div class="cpanel"><div style="padding:16px"><div class="cptitle">内容確認</div>'
-      +'<div class="cprow"><div class="cplab">日時</div><div style="font-size:13px;font-weight:700;color:#1E40AF;padding-top:4px">'+tR+' '+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div><button class="cetbtn" onclick="editTime()">時間変更</button></div>'
-      +'<div class="cprow"><div class="cplab">校舎</div><div class="cppills">'+bpillsC+'</div></div>'
-      +'<div class="cprow"><div class="cplab">教科</div><div class="cppills">'+spillsC+'</div></div>'
-      +'<div class="cprow"><div class="cplab">学年</div><div class="cppills">'+gpillsC+'</div></div>'
-      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
-      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="備考欄 (任意)" value="'+fNote+'" oninput="fNote=this.value"></div>'
-      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
-      +'</div></div>';
-  }
+    cfPanel='<div class="cpanel"><div style="padding:16px"><div class="cptitle">内容確認</div>'
+      +'<div class="cprow"><div class="cplab">日時</div><div style="font-size:13px;font-weight:700;color:#1E40AF;padding-top:4px">'+tR+' '+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div><button class="cetbtn" onclick="editTime()">時間変更</button></div>'
+      +'<div class="cprow"><div class="cplab">校舎</div><div class="cppills">'+bpillsC+'</div></div>'
+      +'<div class="cprow"><div class="cplab">教科</div><div class="cppills">'+spillsC+'</div></div>'
+      +'<div class="cprow"><div class="cplab">学年</div><div class="cppills">'+gpillsC+'</div></div>'
+      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
+      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="備考欄 (任意)" value="'+fNote+'" oninput="fNote=this.value"></div>'
+      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
+      +'</div></div>';
+  }
 
-  var delModalStr='';
-  if(delConfId!==null){
-    var targetS=S.find(function(x){return x.id===delConfId;});
-    if(targetS){
-      delModalStr='<div class="del-modal-overlay"><div class="del-modal">'
-        +'<div class="del-modal-title">🗑️ 予定を削除しますか？</div>'
-        +'<div class="del-modal-info"><b>'+targetS.br+'</b> '+targetS.dt+' '+targetS.s+'〜'+targetS.e+'<br>'+targetS.gr+' '+targetS.sj+(targetS.stu?'<br>生徒: '+targetS.stu:'')+'</div>'
-        +'<div class="del-modal-btns"><button class="del-modal-cancel" onclick="delConfCancel()">キャンセル</button><button class="del-modal-ok" onclick="delConfOk()">削除する</button></div>'
-        +'</div></div>';
-    }
-  }
+  var delModalStr='';
+  if(delConfId!==null){
+    var targetS=S.find(function(x){return x.id===delConfId;});
+    if(targetS){
+      delModalStr='<div class="del-modal-overlay"><div class="del-modal">'
+        +'<div class="del-modal-title">🗑️ 予定を削除しますか？</div>'
+        +'<div class="del-modal-info"><b>'+targetS.br+'</b> '+targetS.dt+' '+targetS.s+'〜'+targetS.e+'<br>'+targetS.gr+' '+targetS.sj+(targetS.stu?'<br>生徒: '+targetS.stu:'')+'</div>'
+        +'<div class="del-modal-btns"><button class="del-modal-cancel" onclick="delConfCancel()">キャンセル</button><button class="del-modal-ok" onclick="delConfOk()">削除する</button></div>'
+        +'</div></div>';
+    }
+  }
 
-  var undoToastStr='';
-  if(undoMsg){
-    undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
-  }
+  var undoToastStr='';
+  if(undoMsg){
+    undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
+  }
 
-  return'<div class="fpage">'+rAH(true)
-    +'<div class="ffixed">'
-    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← スケジュール画面へ</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
-    +'<div class="frow"><span class="flab">校舎</span><div class="hpills">'+bpills+'</div></div>'
-    +'<div class="frow"><span class="flab">教科</span><div class="hpills">'+spills+'</div></div>'
-    +'<div class="frow"><span class="flab">学年</span><div class="hpills">'+gpills+'</div></div>'
-    +'<div style="padding:6px 12px;display:flex;gap:6px">'
-    +[50,80,90,120].map(function(m){return'<button class="durbtn" onclick="applyCustomDur('+m+')">'+m+'分</button>';}).join('')
-    +'</div>'
-    +'<div class="ubar"><span class="ubhint">'+(tR&&tS!==null&&dur?'時間設定完了':'時間枠をタップしてください')+'</span>'+(tR&&tS!==null&&dur?'<button class="ubsave" onclick="saveF()">確認画面へ</button>':'')+'</div>'
-    +cfPanel
-    +'</div>'
-    +'<div class="fscr"><div class="fbody">'
-    +'<div class="tgsh"><div class="tgcorner">時間</div><div class="tghc"><table class="tght"><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></table></div></div>'
-    +'<div class="tgwrap" id="tgW"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
-    +'</div></div>'+delModalStr+undoToastStr+'</div>';
+  return'<div class="fpage">'+rAH(true)
+    +'<div class="ffixed">'
+    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← スケジュール画面へ</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
+    +'<div class="frow"><span class="flab">校舎</span><div class="hpills">'+bpills+'</div></div>'
+    +'<div class="frow"><span class="flab">教科</span><div class="hpills">'+spills+'</div></div>'
+    +'<div class="frow"><span class="flab">学年</span><div class="hpills">'+gpills+'</div></div>'
+    +'<div style="padding:6px 12px;display:flex;gap:6px">'
+    +[50,80,90,120].map(function(m){return'<button class="durbtn" onclick="applyCustomDur('+m+')">'+m+'分</button>';}).join('')
+    +'</div>'
+    +'<div class="ubar"><span class="ubhint">'+(tR&&tS!==null&&dur?'時間設定完了':'時間枠をタップしてください')+'</span>'+(tR&&tS!==null&&dur?'<button class="ubsave" onclick="saveF()">確認画面へ</button>':'')+'</div>'
+    +cfPanel
+    +'</div>'
+    +'<div class="fscr"><div class="fbody">'
+    +'<div class="tgsh"><div class="tgcorner">時間</div><div class="tghc"><table class="tght"><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></table></div></div>'
+    +'<div class="tgwrap" id="tgW"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
+    +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
 
-// 予定詳細ポップアップ内の削除ボタン用関数（確認モーダルを正しく呼び出す修正版）
+// 予定詳細ポップアップ内の削除ボタン用関数
 window.tipDel=function(id){
-  var old=document.getElementById('sc-tip-modal');
-  if(old) old.remove();
-  delS(id); // スケジュール一覧と同じ削除確認プロセス（delConfId設定）をキック
+  var old=document.getElementById('sc-tip-modal');
+  if(old) old.remove();
+  delS(id);
 };
 
 window.showTipModal=function(id,ev){
-  if(ev)ev.stopPropagation();
-  var s=S.find(function(x){return x.id===id;});if(!s)return;
-  var canEd=canEdit(s.ins);
-  var old=document.getElementById('sc-tip-modal');if(old)old.remove();
-  var modal=document.createElement('div');modal.id='sc-tip-modal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
-  modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:280px;font-size:13px;line-height:1.6">'
-    +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
-    +(s.note?'<br>備考: '+s.note:'')
-    +(canEd?'<div style="display:flex;gap:6px;margin-top:12px"><button onclick="document.getElementById(\'sc-tip-modal\').remove();editSession('+id+')" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button><button onclick="tipDel('+id+')" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button></div>':'')
-    +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:7px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
-    +'</div>';
-  document.body.appendChild(modal);
+  if(ev)ev.stopPropagation();
+  var s=S.find(function(x){return x.id===id;});if(!s)return;
+  var canEd=canEdit(s.ins);
+  var old=document.getElementById('sc-tip-modal');if(old)old.remove();
+  var modal=document.createElement('div');modal.id='sc-tip-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:280px;font-size:13px;line-height:1.6">'
+    +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
+    +(s.note?'<br>備考: '+s.note:'')
+    +(canEd?'<div style="display:flex;gap:6px;margin-top:12px"><button onclick="document.getElementById(\'sc-tip-modal\').remove();editSession('+id+')" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button><button onclick="tipDel('+id+')" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button></div>':'')
+    +'<button onclick="document.getElementById(\'sc-tip-modal\').remove()" style="margin-top:8px;width:100%;padding:7px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
+    +'</div>';
+  document.body.appendChild(modal);
 };
 
 function R(){
-  var main=!cu?rLogin():view==='setup'?rSuCard(false):view==='settings'?rSuCard(true):view==='register'?rRegister():view==='sch'?rSch():rForm();
-  document.getElementById('app').innerHTML=main;
+  var main=!cu?rLogin():view==='setup'?rSuCard(false):view==='settings'?rSuCard(true):view==='register'?rRegister():view==='sch'?rSch():rForm();
+  document.getElementById('app').innerHTML=main;
 }
 R();
 </script>
