@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.17 23時まで完全対応＆タイムグリッド連動スクロール版
+  v1.18 タイムグリッド時間軸固定（Sticky）版
 ==========================================================
 -->
 <html lang="ja">
@@ -64,7 +64,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .delbtn:hover{background:rgba(0,0,0,.55)}
 /* FORM */
 .fpage{height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
-.ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible}
+.ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible;z-index:15}
 .frow{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
 .hpills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x}
 .hpills::-webkit-scrollbar{display:none}
@@ -100,16 +100,16 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .bpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
 .autotag{background:#DCFCE7;color:#166534;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap}
-/* タイムグリッド連動用 */
-.tgsh{flex-shrink:0;display:flex;align-items:stretch;background:#f9fafb;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0}
-.tgcorner{width:50px;min-width:50px;flex-shrink:0;border-right:1px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#9ca3af;padding:0 2px}
+/* タイムグリッド固定（Sticky）＆連動用 */
+.tgsh{position:sticky;top:0;z-index:10;flex-shrink:0;display:flex;align-items:stretch;background:#f9fafb;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0}
+.tgcorner{width:50px;min-width:50px;flex-shrink:0;border-right:1px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#9ca3af;padding:0 2px;position:sticky;left:0;z-index:11}
 .tghc{flex:1;overflow:hidden}
 .tght{border-collapse:collapse;table-layout:fixed}
 .thhour{font-size:10px;font-weight:700;color:#374151;padding:4px 4px;text-align:left;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;white-space:nowrap}
 .th10{font-size:7px;color:#c4c9d4;padding:1px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:21px;min-width:21px}
 .th10.h30{color:#6b7280;font-weight:700;font-size:8px;border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch}
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch}
 .tgbody{border-collapse:collapse}
 .tdd{font-size:11px;padding:4px 5px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:50px;min-width:50px;line-height:1.4;position:sticky;left:0;z-index:2}
 .tdd.tdt{color:#3B82F6;font-weight:700}
@@ -200,7 +200,7 @@ function canEdit(ins){return true;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.17';
+var APP_VERSION='v1.18';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -545,7 +545,7 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  // タイムグリッドのヘッダー（tgsh）と本文（tgwrap）の横スクロールを完全に連動させる処理を組み込み
+  // タイムグリッドのヘッダー（tgsh）と本文（tgwrap）の横スクロールを完全に連動させる処理
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -575,7 +575,7 @@ function rForm(){
     +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
 
-// 予定詳細ポップアップ
+// 予定詳細ポップアップ（ダイレクトイベント紐付けによる確実な動作）
 window.showTipModal=function(id,ev){
   if(ev)ev.stopPropagation();
   var s=S.find(function(x){return x.id===id;});if(!s)return;
