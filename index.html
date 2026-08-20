@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.21 既存予定上からの時間起点タップ対応版
+  v1.22 タイムテーブル上の予定・選択バー表示修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu && cu.name === ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.21';
+var APP_VERSION='v1.22';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -482,24 +482,28 @@ function rForm(){
   var tgRowsStr=dates.map(function(d){
     var dt=fd(d),isPre=dt===fDate,cells='',i=0;
     while(i<TSN){
+      // 1. 選択中のプレビュー範囲（選択バー）がある場合
       if(tR===dt&&i===tS&&dur){
         var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
         cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
         i+=dur/TSD;continue;
       }
+
+      // 2. 既存の予定がある場合（ただし、現在編集中の予定や選択開始位置と被っていない場合のみ描画）
       var foundS=S.filter(function(x){return x.dt===dt;});
       var matchedS=foundS.find(function(x){
+        if(editId!==null && x.id===editId)return false; // 編集中のものはプレビューを優先
         var stSlot=t2sl(x.s);
         var len=(t2m(x.e)-t2m(x.s))/TSD;
         return i>=stSlot&&i<stSlot+len;
       });
+
       if(matchedS){
         var stSlot=t2sl(matchedS.s);
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
           var col=SCOLD[matchedS.sj]||'#2563EB';
           var ed=canEdit(matchedS.ins);
-          // 既存予定のブロック上であってもクリックして新しい時間起点を選べるようにクリックイベントを付与
           cells+='<td colspan="'+len+'" class="exm" onclick="clickSlot(\''+dt+'\','+stSlot+')"><div class="exbar" style="background:'+col+'">'+(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')+'<div class="exmain" onclick="showTipModal('+matchedS.id+',event);event.stopPropagation();">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
           i+=len;
           continue;
@@ -509,6 +513,7 @@ function rForm(){
         }
       }
 
+      // 3. 空きスロット
       cells+='<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
       i++;
     }
