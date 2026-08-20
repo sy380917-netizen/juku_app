@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.19 スマホレイアウト・内容確認パネル高さ最適化版
+  v1.20 権限制御対応版（ログイン本人のみ編集・削除可能）
 ==========================================================
 -->
 <html lang="ja">
@@ -130,7 +130,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .exbr{color:rgba(255,255,255,.8);font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .exmain{color:#fff;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .extime{color:rgba(255,255,255,.85);font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-/* 確認パネル（スマホで途切れないようスクロール対応＆最大高さ設定） */
+/* 確認パネル */
 .cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
 .cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
 .cptitle{font-size:14px;font-weight:700;color:#111827;margin-bottom:8px;text-align:center;padding-top:12px}
@@ -196,11 +196,16 @@ var ACCOUNTS=[
   {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
   {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
 ];
-function canEdit(ins){return true;}
+
+// ログイン中のユーザーのみ編集・削除可能にする関数
+function canEdit(ins){
+  return cu && cu.name === ins;
+}
+
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.19';
+var APP_VERSION='v1.20';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -275,7 +280,7 @@ window.oForm=function(br,dt){
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
 window.editSession=function(id){
-  var s=S.find(function(x){return x.id===id});if(!s)return;
+  var s=S.find(function(x){return x.id===id});if(!s||!canEdit(s.ins))return;
   view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
   tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;R();
 };
@@ -285,6 +290,8 @@ window.sSj=function(s){fSj=s;R();};
 window.sGr=function(g){fGr=fGr===g?null:g;if(fGr&&!_customDur){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
 window.delS=function(id,ev){
   if(ev)ev.stopPropagation();
+  var s=S.find(function(x){return x.id===id;});
+  if(!s||!canEdit(s.ins))return; // 権限がない場合は削除させない
   delConfId=id;
   R();
 };
@@ -427,8 +434,9 @@ function rSch(){
       var ss=S.filter(function(s){return s.br===br&&s.dt===dt;});
       var cards=ss.map(function(s){
         var col=SCOLD[s.sj]||'#6B7280';
+        var ed=canEdit(s.ins);
         return'<div class="sc" style="background:'+col+'" onclick="showTipModal('+s.id+',event)">'
-          +'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>'
+          +(ed?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
           +'<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
           +'<div class="scd">'+s.s+'〜'+s.e+'</div></div>';
       }).join('');
@@ -495,7 +503,8 @@ function rForm(){
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
           var col=SCOLD[matchedS.sj]||'#2563EB';
-          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'+'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>'+'<div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
+          var ed=canEdit(matchedS.ins);
+          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'+(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')+'<div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
           i+=len;
           continue;
         } else {
@@ -573,34 +582,38 @@ function rForm(){
     +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
 
-// 予定詳細ポップアップ
+// 予定詳細ポップアップ（ログインユーザー本人なら編集・削除ボタンを表示、そうでなければ非表示）
 window.showTipModal=function(id,ev){
   if(ev)ev.stopPropagation();
   var s=S.find(function(x){return x.id===id;});if(!s)return;
   var old=document.getElementById('sc-tip-modal');if(old)old.remove();
+
+  var isOwner = canEdit(s.ins);
 
   var modal=document.createElement('div');modal.id='sc-tip-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
   modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:16px;border-radius:14px;width:280px;font-size:13px;line-height:1.6">'
     +'<b>'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
     +(s.note?'<br>備考: '+s.note:'')
-    +'<div style="display:flex;gap:6px;margin-top:12px">'
-    +'<button id="tipEditBtn" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button>'
-    +'<button id="tipDelBtn" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button>'
-    +'</div>'
+    +(isOwner ? '<div style="display:flex;gap:6px;margin-top:12px">'
+      +'<button id="tipEditBtn" style="flex:1;padding:8px;background:#22C55E;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">編集</button>'
+      +'<button id="tipDelBtn" style="flex:1;padding:8px;background:#DC2626;border:none;color:#fff;border-radius:6px;cursor:pointer;font-weight:700">削除</button>'
+      +'</div>' : '<div style="margin-top:10px;font-size:11px;color:#9ca3af;text-align:center">※閲覧専用（編集・削除は担当者のみ可能）</div>')
     +'<button id="tipCloseBtn" style="margin-top:8px;width:100%;padding:7px;background:#4B5563;border:none;color:#fff;border-radius:6px;cursor:pointer">閉じる</button>'
     +'</div>';
   document.body.appendChild(modal);
 
-  document.getElementById('tipEditBtn').onclick = function(){
-    modal.remove();
-    editSession(id);
-  };
-  document.getElementById('tipDelBtn').onclick = function(){
-    modal.remove();
-    delConfId = id;
-    R();
-  };
+  if(isOwner){
+    document.getElementById('tipEditBtn').onclick = function(){
+      modal.remove();
+      editSession(id);
+    };
+    document.getElementById('tipDelBtn').onclick = function(){
+      modal.remove();
+      delConfId = id;
+      R();
+    };
+  }
   document.getElementById('tipCloseBtn').onclick = function(){
     modal.remove();
   };
