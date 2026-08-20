@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.23 時間重複時のタイムテーブル並列表示対応版
+  v1.24 タイムテーブル並列表示・描画不具合修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -199,7 +199,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.23';
+var APP_VERSION='v1.24';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -217,7 +217,7 @@ var nid=1;
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
-function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+'-'+('0'+(m%60)).slice(-2)}
+function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
 function sl2m(i){return TS0+i*TSD}
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
 function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
@@ -496,25 +496,12 @@ function rForm(){
         var stSlot=t2sl(matchedS.s);
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          // 同じ時間スロットに複数の予定が被っている場合をすべて抽出して並列表示する
-          var overlapping = foundS.filter(function(x){
-            var xSt = t2sl(x.s);
-            var xEn = xSt + (t2m(x.e)-t2m(x.s))/TSD;
-            var mSt = stSlot;
-            var mEn = stSlot + len;
-            return Math.max(xSt, mSt) < Math.min(xEn, mEn);
-          });
-
-          var barsHtml = overlapping.map(function(s){
-            var col = SCOLD[s.sj]||'#2563EB';
-            var ed = canEdit(s.ins);
-            return '<div class="exbar" style="background:'+col+'" onclick="showTipModal('+s.id+',event)">'
-              +'<button class="adc" style="position:absolute;top:1px;left:1px;width:16px;height:16px;font-size:10px;z-index:3;line-height:14px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+t2sl(s.s)+');event.stopPropagation();">+</button>'
-              +(ed?'<button class="delbtn" style="width:16px;height:16px;line-height:16px;font-size:8px;right:2px" onclick="delS('+s.id+',event)">×</button>':'')
-              +'<div class="exmain" style="padding-left:18px">'+s.br+' '+s.gr+' '+s.sj+' ('+s.ins+')</div><div class="extime">'+s.s+'〜'+s.e+'</div></div>';
-          }).join('');
-
-          cells+='<td colspan="'+len+'" class="exm" style="vertical-align:middle;padding:1px"><div style="display:flex;flex-direction:column;gap:2px">'+barsHtml+'</div></td>';
+          var col=SCOLD[matchedS.sj]||'#2563EB';
+          var ed=canEdit(matchedS.ins);
+          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'
+            +'<button class="adc" style="position:absolute;top:2px;left:2px;width:18px;height:18px;font-size:12px;z-index:3;line-height:16px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+stSlot+');event.stopPropagation();">+</button>'
+            +(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')
+            +'<div class="exmain" style="padding-left:18px">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime" style="padding-left:18px">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
           i+=len;
           continue;
         } else {
