@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.16 タイムテーブル23時対応＆詳細削除完全修復版
+  v1.16 タイムテーブル23時表示拡張・完全修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -138,7 +138,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .cprow:last-of-type{border-bottom:none}
 .cplab{font-size:11px;color:#6b7280;width:46px;flex-shrink:0;padding-top:5px;font-weight:500}
 .cppills{display:flex;flex-wrap:wrap;gap:4px;flex:1}
-.cpill{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500}
+.cpill{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500}
 .cpill.act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
 .cetbtn{margin-top:4px;font-size:11px;color:#3B82F6;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;display:block}
 .cpbtns{display:flex;gap:8px;padding:10px 16px;border-top:1px solid #e5e7eb;background:#fff;border-radius:0 0 10px 10px;flex-shrink:0}
@@ -184,7 +184,7 @@ var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'
 var GRADES=['小','中1','中2','中3','高1','高2','高3'];
 var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
 var DY=['日','月','火','水','木','金','土'];
-var TS0=480,TSD=10,TSN=90;
+var TS0=480,TSD=10,TSN=90; // 8:00〜23:00 (合計90スロット)
 function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
 var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
@@ -472,6 +472,7 @@ function rForm(){
   var gpills=mg.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
   var spills=ms.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
 
+  // 8時〜23時までの時間を正しく生成
   var hrHdr='';for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
   var subHdr='';for(var j=0;j<TSN;j++){
     var mm=sl2m(j)%60,cls='th10'+(mm===30?' h30':mm===0?' h00':'');
