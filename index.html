@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.18 タイムグリッド時間軸固定（Sticky）版
+  v1.19 スマホレイアウト・内容確認パネル高さ最適化版
 ==========================================================
 -->
 <html lang="ja">
@@ -63,7 +63,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .delbtn{position:absolute;top:50%;right:3px;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:10px;line-height:22px;text-align:center;padding:0;z-index:2;touch-action:manipulation;flex-shrink:0}
 .delbtn:hover{background:rgba(0,0,0,.55)}
 /* FORM */
-.fpage{height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.fpage{height:100%;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
 .ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible;z-index:15}
 .frow{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
 .hpills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x}
@@ -82,8 +82,8 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .ubsave.em:hover{background:#D97706}
 .durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
-.fscr{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;position:relative}
-.fbody{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px 12px}
+.fscr{background:#fff;position:relative}
+.fbody{padding:10px 12px}
 .tinp{width:100%;font-size:13px;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff}
 .legend{display:flex;align-items:center;gap:6px;font-size:11px;color:#6b7280;margin-bottom:5px;flex-wrap:wrap}
 .legbox{width:10px;height:10px;border-radius:2px;flex-shrink:0}
@@ -93,11 +93,11 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .ebadge{font-size:10px;background:#F59E0B;color:#fff;padding:2px 7px;border-radius:20px;font-weight:600}
 .nbadge{font-size:10px;background:#22C55E;color:#fff;padding:2px 7px;border-radius:20px;font-weight:600}
 .delbf{font-size:11px;padding:4px 8px;border:1px solid #FECACA;border-radius:6px;background:#FEF2F2;color:#DC2626;cursor:pointer}
-.spisms{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
+.spisms{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
 .spisms.act{background:#22C55E;color:#fff;border-color:#22C55E}
-.gpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#111827;font-weight:500;white-space:nowrap;flex-shrink:0}
+.gpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#111827;font-weight:500;white-space:nowrap;flex-shrink:0}
 .gpsm.act{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
-.bpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
+.bpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
 .autotag{background:#DCFCE7;color:#166534;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap}
 /* タイムグリッド固定（Sticky）＆連動用 */
@@ -130,8 +130,8 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .exbr{color:rgba(255,255,255,.8);font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .exmain{color:#fff;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .extime{color:rgba(255,255,255,.85);font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-/* 確認パネル */
-.cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:calc(100dvh - 120px);overflow:hidden}
+/* 確認パネル（スマホで途切れないようスクロール対応＆最大高さ設定） */
+.cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
 .cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
 .cptitle{font-size:14px;font-weight:700;color:#111827;margin-bottom:8px;text-align:center;padding-top:12px}
 .cprow{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f3f4f6}
@@ -184,7 +184,7 @@ var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'
 var GRADES=['小','中1','中2','中3','高1','高2','高3'];
 var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
 var DY=['日','月','火','水','木','金','土'];
-var TS0=480,TSD=10,TSN=90; // 8:00〜23:00 (90スロット)
+var TS0=480,TSD=10,TSN=90;
 function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
 var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
@@ -200,7 +200,7 @@ function canEdit(ins){return true;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.18';
+var APP_VERSION='v1.19';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -470,7 +470,6 @@ function rForm(){
   var gpills=mg.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
   var spills=ms.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
 
-  // 8時〜23時までの時間を正しく生成 (8〜23)
   var hrHdr='';for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
   var subHdr='';for(var j=0;j<TSN;j++){
     var mm=sl2m(j)%60,cls='th10'+(mm===30?' h30':mm===0?' h00':'');
@@ -545,7 +544,6 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  // タイムグリッドのヘッダー（tgsh）と本文（tgwrap）の横スクロールを完全に連動させる処理
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -575,7 +573,7 @@ function rForm(){
     +'</div></div>'+delModalStr+undoToastStr+'</div>';
 }
 
-// 予定詳細ポップアップ（ダイレクトイベント紐付けによる確実な動作）
+// 予定詳細ポップアップ
 window.showTipModal=function(id,ev){
   if(ev)ev.stopPropagation();
   var s=S.find(function(x){return x.id===id;});if(!s)return;
