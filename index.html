@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.27 タイムテーブル重複予定の縦型スタック・バー表示版
+  v1.28 タイムテーブル：既存予定を隠して新規予定をすっきり入力する版
 ==========================================================
 -->
 <html lang="ja">
@@ -124,9 +124,10 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .selbar{background:#2563EB;height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 8px;overflow:hidden;gap:2px;box-shadow:0 2px 8px rgba(37,99,235,.3)}
 .sbi{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2;text-align:center}
 .sbt{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap;line-height:1.2}
-.exm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:top}
-.exbar{height:36px;border-radius:6px;display:flex;flex-direction:column;justify-content:center;padding:3px 7px;overflow:hidden;gap:1px;transition:filter .1s;box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative;cursor:pointer;touch-action:manipulation;margin-bottom:3px}
+.exm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;cursor:pointer;vertical-align:middle}
+.exbar{height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:3px 7px;overflow:hidden;gap:1px;transition:filter .1s;box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative;cursor:pointer;touch-action:manipulation}
 .exbar:hover{filter:brightness(1.08)}
+.exbr{color:rgba(255,255,255,.8);font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .exmain{color:#fff;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .extime{color:rgba(255,255,255,.85);font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 /* 確認パネル */
@@ -189,7 +190,7 @@ var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
   {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
   {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
-  {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
+  {id:4,name:'田中',email:'tanaka@gmail.com',color:#D97706},
   {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
   {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
   {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
@@ -199,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.27';
+var APP_VERSION='v1.28';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -217,7 +218,7 @@ var nid=1;
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
-function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
+function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+'-'+('0'+(m%60)).slice(-2)}
 function sl2m(i){return TS0+i*TSD}
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
 function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
@@ -496,25 +497,11 @@ function rForm(){
         var stSlot=t2sl(matchedS.s);
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          // タイムテーブル上で同じ時間帯にあるすべての予定を抽出し、縦に並んだバーとして並列表示する
-          var overlapping = foundS.filter(function(x){
-            var xSt = t2sl(x.s);
-            var xEn = xSt + (t2m(x.e)-t2m(x.s))/TSD;
-            var mSt = stSlot;
-            var mEn = stSlot + len;
-            return Math.max(xSt, mSt) < Math.min(xEn, mEn);
-          });
-
-          var barsHtml = overlapping.map(function(s){
-            var col = SCOLD[s.sj]||'#2563EB';
-            var ed = canEdit(s.ins);
-            return '<div class="exbar" style="background:'+col+'" onclick="showTipModal('+s.id+',event)">'
-              +'<button class="adc" style="position:absolute;top:2px;left:2px;width:16px;height:16px;font-size:10px;z-index:3;line-height:14px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+t2sl(s.s)+');event.stopPropagation();">+</button>'
-              +(ed?'<button class="delbtn" style="width:16px;height:16px;line-height:16px;font-size:8px;right:2px" onclick="delS('+s.id+',event)">×</button>':'')
-              +'<div class="exmain" style="padding-left:18px">'+s.br+' '+s.gr+' '+s.sj+' ('+s.ins+')</div><div class="extime" style="padding-left:18px">'+s.s+'〜'+s.e+'</div></div>';
-          }).join('');
-
-          cells+='<td colspan="'+len+'" class="exm"><div style="display:flex;flex-direction:column;gap:2px">'+barsHtml+'</div></td>';
+          // プラスボタン（＋）を押した時に既存の予定を非表示にして新規入力に集中できるようにするため、
+          // タイムテーブル上では「＋」ボタンのみを表示し、重なる既存の予定バーは非表示（隠す）にする
+          cells+='<td colspan="'+len+'" class="exm" style="background:#fff;text-align:center;vertical-align:middle">'
+            +'<button class="adc" style="width:22px;height:22px;font-size:16px;margin:auto" onclick="clickSlot(\''+dt+'\','+stSlot+');event.stopPropagation();">+</button>'
+            +'</td>';
           i+=len;
           continue;
         } else {
