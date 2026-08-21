@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.33 1件目非表示不具合の修復・完全版
+  v1.34 1件目単独登録時の表示不具合修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.33';
+var APP_VERSION='v1.34';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -499,24 +499,12 @@ function rForm(){
         var stSlot=t2sl(matchedS.s);
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          var overlapping = foundS.filter(function(x){
-            var xSt = t2sl(x.s);
-            var xEn = xSt + (t2m(x.e)-t2m(x.s))/TSD;
-            var mSt = stSlot;
-            var mEn = stSlot + len;
-            return Math.max(xSt, mSt) < Math.min(xEn, mEn);
-          });
-
-          var barsHtml = overlapping.map(function(s){
-            var col = SCOLD[s.sj]||'#2563EB';
-            var ed = canEdit(s.ins);
-            return '<div class="exbar" style="background:'+col+';margin-bottom:2px" onclick="showTipModal('+s.id+',event)">'
-              +'<button class="adc" style="position:absolute;top:2px;left:2px;width:16px;height:16px;font-size:10px;z-index:3;line-height:14px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+t2sl(s.s)+');event.stopPropagation();">+</button>'
-              +(ed?'<button class="delbtn" style="width:16px;height:16px;line-height:16px;font-size:8px;right:2px" onclick="delS('+s.id+',event)">×</button>':'')
-              +'<div class="exmain" style="padding-left:18px">'+s.br+' '+s.gr+' '+s.sj+' ('+s.ins+')</div><div class="extime" style="padding-left:18px">'+s.s+'〜'+s.e+'</div></div>';
-          }).join('');
-
-          cells+='<td colspan="'+len+'" class="exm" style="vertical-align:top"><div style="display:flex;flex-direction:column">'+barsHtml+'</div></td>';
+          var col=SCOLD[matchedS.sj]||'#2563EB';
+          var ed=canEdit(matchedS.ins);
+          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'
+            +'<button class="adc" style="position:absolute;top:2px;left:2px;width:18px;height:18px;font-size:12px;z-index:3;line-height:16px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+stSlot+');event.stopPropagation();">+</button>'
+            +(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')
+            +'<div class="exmain" style="padding-left:18px">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime" style="padding-left:18px">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
           i+=len;
           continue;
         } else {
