@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.26 タイムテーブル重複予定の独立レーン並列（スペース確保）版
+  v1.27 タイムテーブル重複予定の縦型スタック・バー表示版
 ==========================================================
 -->
 <html lang="ja">
@@ -114,7 +114,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .tdd{font-size:11px;padding:4px 5px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:50px;min-width:50px;line-height:1.4;position:sticky;left:0;z-index:2}
 .tdd.tdt{color:#3B82F6;font-weight:700}
 .tdd.psel{background:#FFF1F2;color:#B91C1C;font-weight:700;border-right:2px solid #B91C1C}
-.tds{width:21px;min-width:21px;max-width:21px;height:auto;min-height:46px;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
+.tds{width:21px;min-width:21px;max-width:21px;height:46px;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
 .tds.hst{border-left:1.5px solid #d1d5db}
 .tds.h30s{border-left:1px solid #cbd5e1}
 .tds.prow{background:#FFF5F5}
@@ -125,10 +125,10 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .sbi{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2;text-align:center}
 .sbt{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap;line-height:1.2}
 .exm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:top}
-.exbar{height:20px;border-radius:4px;display:flex;align-items:center;justify-content:flex-start;padding:2px 5px;overflow:hidden;gap:4px;transition:filter .1s;box-shadow:0 1px 3px rgba(0,0,0,.12);position:relative;cursor:pointer;touch-action:manipulation;margin-bottom:2px}
+.exbar{height:36px;border-radius:6px;display:flex;flex-direction:column;justify-content:center;padding:3px 7px;overflow:hidden;gap:1px;transition:filter .1s;box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative;cursor:pointer;touch-action:manipulation;margin-bottom:3px}
 .exbar:hover{filter:brightness(1.08)}
-.exmain{color:#fff;font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.extime{color:rgba(255,255,255,.9);font-size:8px;white-space:nowrap}
+.exmain{color:#fff;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.extime{color:rgba(255,255,255,.85);font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 /* 確認パネル */
 .cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
 .cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
@@ -199,7 +199,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.26';
+var APP_VERSION='v1.27';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -496,7 +496,7 @@ function rForm(){
         var stSlot=t2sl(matchedS.s);
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          // 重複する予定をすべて取得し、それぞれ独立した行（レーン）として上下に並べて配置する
+          // タイムテーブル上で同じ時間帯にあるすべての予定を抽出し、縦に並んだバーとして並列表示する
           var overlapping = foundS.filter(function(x){
             var xSt = t2sl(x.s);
             var xEn = xSt + (t2m(x.e)-t2m(x.s))/TSD;
@@ -505,23 +505,16 @@ function rForm(){
             return Math.max(xSt, mSt) < Math.min(xEn, mEn);
           });
 
-          var lanesHtml = overlapping.map(function(s){
+          var barsHtml = overlapping.map(function(s){
             var col = SCOLD[s.sj]||'#2563EB';
             var ed = canEdit(s.ins);
-            var sSlot = t2sl(s.s);
-            var sLen = (t2m(s.e)-t2m(s.s))/TSD;
-            return '<td colspan="'+sLen+'" class="exm" style="vertical-align:top;padding:1px">'
-              +'<div class="exbar" style="background:'+col+';margin-bottom:2px" onclick="showTipModal('+s.id+',event)">'
-              +'<button class="adc" style="position:absolute;top:2px;left:2px;width:16px;height:16px;font-size:10px;z-index:3;line-height:14px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+sSlot+');event.stopPropagation();">+</button>'
+            return '<div class="exbar" style="background:'+col+'" onclick="showTipModal('+s.id+',event)">'
+              +'<button class="adc" style="position:absolute;top:2px;left:2px;width:16px;height:16px;font-size:10px;z-index:3;line-height:14px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+t2sl(s.s)+');event.stopPropagation();">+</button>'
               +(ed?'<button class="delbtn" style="width:16px;height:16px;line-height:16px;font-size:8px;right:2px" onclick="delS('+s.id+',event)">×</button>':'')
-              +'<div class="exmain" style="padding-left:18px">'+s.br+' '+s.gr+' '+s.sj+' ('+s.ins+')</div><div class="extime">'+s.s+'〜'+s.e+'</div></div>'
-              +'</td>';
+              +'<div class="exmain" style="padding-left:18px">'+s.br+' '+s.gr+' '+s.sj+' ('+s.ins+')</div><div class="extime" style="padding-left:18px">'+s.s+'〜'+s.e+'</div></div>';
           }).join('');
 
-          // 独立したテーブル行として各レーンを展開することで、下に同じだけの空きスペース（レーン）を確保して並列表示する
-          cells+='<td colspan="'+len+'" style="padding:0;vertical-align:top">'
-            +'<table style="width:100%;border-collapse:collapse;table-layout:fixed"><tr>'+lanesHtml+'</tr></table>'
-            +'</td>';
+          cells+='<td colspan="'+len+'" class="exm"><div style="display:flex;flex-direction:column;gap:2px">'+barsHtml+'</div></td>';
           i+=len;
           continue;
         } else {
