@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.28 タイムテーブル：既存予定を隠して新規予定をすっきり入力する版
+  v1.29 構文エラー修復・安定稼働版
 ==========================================================
 -->
 <html lang="ja">
@@ -190,7 +190,7 @@ var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
   {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
   {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
-  {id:4,name:'田中',email:'tanaka@gmail.com',color:#D97706},
+  {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
   {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
   {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
   {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.28';
+var APP_VERSION='v1.29';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -497,11 +497,9 @@ function rForm(){
         var stSlot=t2sl(matchedS.s);
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          // プラスボタン（＋）を押した時に既存の予定を非表示にして新規入力に集中できるようにするため、
-          // タイムテーブル上では「＋」ボタンのみを表示し、重なる既存の予定バーは非表示（隠す）にする
-          cells+='<td colspan="'+len+'" class="exm" style="background:#fff;text-align:center;vertical-align:middle">'
-            +'<button class="adc" style="width:22px;height:22px;font-size:16px;margin:auto" onclick="clickSlot(\''+dt+'\','+stSlot+');event.stopPropagation();">+</button>'
-            +'</td>';
+          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:#4B5563" onclick="showTipModal('+matchedS.id+',event)">'
+            +'<button class="adc" style="position:absolute;top:2px;left:2px;width:18px;height:18px;font-size:12px;z-index:3;line-height:16px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+stSlot+');event.stopPropagation();">+</button>'
+            +'<div class="exmain" style="padding-left:18px">予定あり (タップで新規追加)</div><div class="extime" style="padding-left:18px">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
           i+=len;
           continue;
         } else {
