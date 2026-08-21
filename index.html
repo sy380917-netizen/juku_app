@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.30 タイムテーブル表示・確定修正完全版
+  v1.31 タイムテーブルのカラーバー描画修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.30';
+var APP_VERSION='v1.31';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -479,6 +479,8 @@ function rForm(){
     subHdr+='<th class="'+cls+'"></th>';
   }
 
+  var currentSelectedBr = fBrList[0] || BR[0];
+
   var tgRowsStr=dates.map(function(d){
     var dt=fd(d),isPre=dt===fDate,cells='',i=0;
     while(i<TSN){
@@ -487,7 +489,8 @@ function rForm(){
         cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
         i+=dur/TSD;continue;
       }
-      var foundS=S.filter(function(x){return x.dt===dt;});
+      // 現在選択されている校舎（currentSelectedBr）と日付（dt）に一致する予定を正しく抽出する
+      var foundS=S.filter(function(x){return x.br===currentSelectedBr&&x.dt===dt;});
       var matchedS=foundS.find(function(x){
         var stSlot=t2sl(x.s);
         var len=(t2m(x.e)-t2m(x.s))/TSD;
