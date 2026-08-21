@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.35 タイムテーブル・1件目確実表示修復版
+  v1.36 タイムテーブル・タイムライン方式（確実表示）版
 ==========================================================
 -->
 <html lang="ja">
@@ -36,21 +36,17 @@ body{background:#f3f4f6}
 .ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb}
 .atitle{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px}
 .atitle span{color:#B91C1C}
-/* 撮影ボタンのスタイル */
 .hdr-camera-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border:1px solid #3B82F6;border-radius:6px;background:#EFF6FF;color:#1E40AF;cursor:pointer;font-weight:600;white-space:nowrap}
 .hdr-camera-btn:hover{background:#DBEAFE}
-
 .uchip{display:flex;align-items:center;gap:6px}
 .uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
 .hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
 /* SCHEDULE */
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;position:relative}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
 .gwrap{width:100%}
 table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap}
-.stbl th.thT{background:#991B1B}
 .stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;overflow:visible}
 .stbl td.dyt.tcol{background:#fffbeb}
 .cin{display:flex;flex-direction:column;gap:3px;overflow:visible}
@@ -59,81 +55,34 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .sc:hover{filter:brightness(1.12)}
 .sc .sct{font-weight:600;font-size:10px;white-space:nowrap}
 .sc .scd{margin-top:2px;font-size:10px;opacity:.92;word-break:break-all;padding-right:14px}
-.sc .eh{position:absolute;bottom:3px;right:5px;font-size:8px;opacity:.7;font-style:italic}
-.delbtn{position:absolute;top:50%;right:3px;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:10px;line-height:22px;text-align:center;padding:0;z-index:2;touch-action:manipulation;flex-shrink:0}
+.delbtn{position:absolute;top:50%;right:3px;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:10px;line-height:22px;text-align:center;padding:0;z-index:2;flex-shrink:0}
 .delbtn:hover{background:rgba(0,0,0,.55)}
-/* FORM */
+/* FORM & TIMELINE */
 .fpage{height:100%;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
 .ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible;z-index:15}
 .frow{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
-.hpills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x}
+.hpills{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch}
 .hpills::-webkit-scrollbar{display:none}
 .flab{font-size:11px;color:#6b7280;white-space:nowrap;flex-shrink:0;min-width:28px}
 .ubar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:46px}
 .ubhint{font-size:12px;color:#9ca3af;flex:1}
-.ubinfo{flex:1;min-width:0}
-.ubtime{font-size:13px;font-weight:700;color:#1E40AF}
-.ubtime.em{color:#92400E}
-.ubstu{font-size:11px;color:#6b7280;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ubclr{border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:11px;color:#9ca3af;padding:3px 8px;border-radius:6px;white-space:nowrap}
 .ubsave{padding:9px 20px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(34,197,94,.35);flex-shrink:0}
 .ubsave:hover{background:#16A34A}
-.ubsave.em{background:#F59E0B}
-.ubsave.em:hover{background:#D97706}
 .durbtn{padding:7px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
-.fscr{background:#fff;position:relative}
-.fbody{padding:10px 12px}
+.fscr{background:#fff;flex:1;padding:12px}
 .tinp{width:100%;font-size:13px;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff}
-.legend{display:flex;align-items:center;gap:6px;font-size:11px;color:#6b7280;margin-bottom:5px;flex-wrap:wrap}
-.legbox{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .fhrow{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid #f3f4f6}
 .bbtn{font-size:13px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280;white-space:nowrap}
 .kjval{font-size:15px;font-weight:700;color:#B91C1C;white-space:nowrap;flex:1}
-.ebadge{font-size:10px;background:#F59E0B;color:#fff;padding:2px 7px;border-radius:20px;font-weight:600}
-.nbadge{font-size:10px;background:#22C55E;color:#fff;padding:2px 7px;border-radius:20px;font-weight:600}
-.delbf{font-size:11px;padding:4px 8px;border:1px solid #FECACA;border-radius:6px;background:#FEF2F2;color:#DC2626;cursor:pointer}
 .spisms{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
 .spisms.act{background:#22C55E;color:#fff;border-color:#22C55E}
 .gpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#111827;font-weight:500;white-space:nowrap;flex-shrink:0}
 .gpsm.act{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
 .bpsm{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500;white-space:nowrap;flex-shrink:0}
 .bpsm.act{background:#B91C1C;color:#fff;border-color:#B91C1C}
-.autotag{background:#DCFCE7;color:#166534;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap}
-/* タイムグリッド固定（Sticky）＆連動用 */
-.tgsh{position:sticky;top:0;z-index:10;flex-shrink:0;display:flex;align-items:stretch;background:#f9fafb;border:1px solid #e5e7eb;border-bottom:none;border-radius:8px 8px 0 0}
-.tgcorner{width:50px;min-width:50px;flex-shrink:0;border-right:1px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:9px;color:#9ca3af;padding:0 2px;position:sticky;left:0;z-index:11}
-.tghc{flex:1;overflow:hidden}
-.tght{border-collapse:collapse;table-layout:fixed}
-.thhour{font-size:10px;font-weight:700;color:#374151;padding:4px 4px;text-align:left;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;white-space:nowrap}
-.th10{font-size:7px;color:#c4c9d4;padding:1px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:21px;min-width:21px}
-.th10.h30{color:#6b7280;font-weight:700;font-size:8px;border-left:1.5px solid #d1d5db}
-.th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch}
-.tgbody{border-collapse:collapse}
-.tdd{font-size:11px;padding:4px 5px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:50px;min-width:50px;line-height:1.4;position:sticky;left:0;z-index:2}
-.tdd.tdt{color:#3B82F6;font-weight:700}
-.tdd.psel{background:#FFF1F2;color:#B91C1C;font-weight:700;border-right:2px solid #B91C1C}
-.tds{width:21px;min-width:21px;max-width:21px;height:46px;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
-.tds.hst{border-left:1.5px solid #d1d5db}
-.tds.h30s{border-left:1px solid #cbd5e1}
-.tds.prow{background:#FFF5F5}
-.tds.prow:hover{background:#FECDD3}
-.tds:not(.prow):hover{background:#DBEAFE}
-.selm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid #2563EB;background:transparent;cursor:pointer;vertical-align:middle}
-.selbar{background:#2563EB;height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 8px;overflow:hidden;gap:2px;box-shadow:0 2px 8px rgba(37,99,235,.3)}
-.sbi{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2;text-align:center}
-.sbt{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap;line-height:1.2}
-.exm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;cursor:pointer;vertical-align:middle}
-.exbar{height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:3px 7px;overflow:hidden;gap:1px;transition:filter .1s;box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative;cursor:pointer;touch-action:manipulation}
-.exbar:hover{filter:brightness(1.08)}
-.exbr{color:rgba(255,255,255,.8);font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.exmain{color:#fff;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.extime{color:rgba(255,255,255,.85);font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 /* 確認パネル */
 .cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
-.cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
-.cptitle{font-size:14px;font-weight:700;color:#111827;margin-bottom:8px;text-align:center;padding-top:12px}
 .cprow{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f3f4f6}
 .cprow:last-of-type{border-bottom:none}
 .cplab{font-size:11px;color:#6b7280;width:46px;flex-shrink:0;padding-top:5px;font-weight:500}
@@ -141,36 +90,22 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .cpill{padding:4px 10px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:500}
 .cpill.act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
 .cetbtn{margin-top:4px;font-size:11px;color:#3B82F6;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;display:block}
-.cpbtns{display:flex;gap:8px;padding:10px 16px;border-top:1px solid #e5e7eb;background:#fff;border-radius:0 0 10px 10px;flex-shrink:0}
 .cpok{flex:1;padding:11px;border:none;border-radius:10px;background:#22C55E;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .cpok:hover{background:#16A34A}
-.cpok.em{background:#F59E0B}
 .cpcancel{flex:1;padding:11px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
 .cpcancel:hover{background:#f9fafb}
-.sch-sticky{position:sticky;top:0;z-index:9;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.sch-hdr-row{display:flex;background:#1F2937}
-.sch-corner{flex-shrink:0;background:#1F2937;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;border-right:1px solid #374151;padding:6px 4px}
-.sch-hdr-clip{flex:1;overflow:hidden}
-.sch-ht{border-collapse:collapse;table-layout:fixed;will-change:transform}
-.sch-th{width:88px;min-width:88px;padding:6px 4px;text-align:center;border-right:1px solid #374151;background:#1F2937;color:#fff;vertical-align:middle}
-.sch-th.tod{background:#991B1B}
-.sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
-.sch-dow{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
-.sch-today-tag{display:inline-block;background:#EF4444;font-size:9px;padding:1px 4px;border-radius:3px;vertical-align:middle}
-.brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;width:70px;min-width:70px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
-.sch-th-sel{background:#7F1D1D !important}
-.sch-th-sel .sch-date,.sch-th-sel .sch-dow{color:#fff}
-.sch-fsel-dot{display:inline-block;width:5px;height:5px;background:#FCD34D;border-radius:50%;margin-left:3px;vertical-align:middle}
-.flt-badge{font-size:10px;padding:1px 5px;border-radius:8px;color:#fff;margin-left:4px}
+/* 確実表示タイムラインカード */
+.tline-card{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e5e7eb;border-left:5px solid #2563EB;border-radius:8px;padding:10px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tline-info{display:flex;flex-direction:column;gap:2px}
+.tline-time{font-size:13px;font-weight:700;color:#1E40AF}
+.tline-detail{font-size:12px;color:#374151}
 .del-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .del-modal{background:#fff;border-radius:14px;padding:22px 20px;width:100%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
 .del-modal-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:10px;text-align:center}
 .del-modal-info{background:#f9fafb;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:#374151;line-height:1.6}
 .del-modal-btns{display:flex;gap:8px}
 .del-modal-ok{flex:1;padding:11px;border:none;border-radius:10px;background:#DC2626;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
-.del-modal-ok:hover{background:#B91C1C}
 .del-modal-cancel{flex:1;padding:11px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
-.del-modal-cancel:hover{background:#f9fafb}
 .undo-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:12px;font-size:13px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap}
 .undo-btn{padding:5px 12px;border:1.5px solid #fff;border-radius:6px;background:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700}
 </style>
@@ -200,7 +135,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.35';
+var APP_VERSION='v1.36';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -218,7 +153,7 @@ var nid=1;
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
-function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+'-'+('0'+(m%60)).slice(-2)}
+function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
 function sl2m(i){return TS0+i*TSD}
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
 function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
@@ -473,50 +408,26 @@ function rForm(){
   var gpills=mg.map(function(g){return'<button class="gpsm '+(fGr===g?'act':'')+'" onclick="sGr(\''+g+'\')">'+g+'</button>';}).join('');
   var spills=ms.map(function(s){return'<button class="spisms '+(fSj===s?'act':'')+'" onclick="sSj(\''+s+'\')">'+s+'</button>';}).join('');
 
-  var hrHdr='';for(var h=8;h<=23;h++){hrHdr+='<th class="thhour" colspan="6">'+h+':00</th>';}
-  var subHdr='';for(var j=0;j<TSN;j++){
-    var mm=sl2m(j)%60,cls='th10'+(mm===30?' h30':mm===0?' h00':'');
-    subHdr+='<th class="'+cls+'"></th>';
-  }
+  var currentSelectedBr = fBrList[0] || BR[0];
 
-  var tgRowsStr=dates.map(function(d){
-    var dt=fd(d),isPre=dt===fDate,cells='',i=0;
-    while(i<TSN){
-      if(tR===dt&&i===tS&&dur){
-        var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
-        cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
-        i+=dur/TSD;continue;
-      }
-      // 選択されているすべての校舎（fBrList）のいずれかに一致する予定を安全に抽出する
-      var foundS=S.filter(function(x){return fBrList.indexOf(x.br)>=0&&x.dt===dt;});
-      var matchedS=foundS.find(function(x){
-        var stSlot=t2sl(x.s);
-        var len=(t2m(x.e)-t2m(x.s))/TSD;
-        return i>=stSlot&&i<stSlot+len;
-      });
-      if(matchedS){
-        var stSlot=t2sl(matchedS.s);
-        if(i===stSlot){
-          var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          var col=SCOLD[matchedS.sj]||'#2563EB';
-          var ed=canEdit(matchedS.ins);
-          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'
-            +'<button class="adc" style="position:absolute;top:2px;left:2px;width:18px;height:18px;font-size:12px;z-index:3;line-height:16px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+stSlot+');event.stopPropagation();">+</button>'
-            +(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')
-            +'<div class="exmain" style="padding-left:18px">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime" style="padding-left:18px">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
-          i+=len;
-          continue;
-        } else {
-          i++;
-          continue;
-        }
-      }
+  // 選択された校舎と週の全スケジュールを取得し、タイムラインカードとして確実に一覧表示する
+  var activeSessions = S.filter(function(s){
+    return s.br === currentSelectedBr && dates.some(function(d){ return fd(d) === s.dt; });
+  }).sort(function(a,b){ return a.dt.localeCompare(b.dt) || a.s.localeCompare(b.s); });
 
-      cells+='<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
-      i++;
-    }
-    return'<tr data-dt="'+dt+'"><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
-  }).join('');
+  var tlineCardsHtml = activeSessions.length ? activeSessions.map(function(s){
+    var col = SCOLD[s.sj]||'#2563EB';
+    var ed = canEdit(s.ins);
+    return '<div class="tline-card" style="border-left-color:'+col+'">'
+      +'<div class="tline-info">'
+      +'<div class="tline-time">'+s.dt+' ('+s.s+'〜'+s.e+')</div>'
+      +'<div class="tline-detail"><b>'+s.sj+'</b> ('+s.gr+') / 生徒: '+(s.stu||'なし')+' / 担当: '+s.ins+(s.note?' / 備考: '+s.note:'')+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +(ed?'<button style="padding:5px 10px;background:#22C55E;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700" onclick="editSession('+s.id+')">編集</button>':'')
+      +(ed?'<button style="padding:5px 10px;background:#DC2626;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700" onclick="delS('+s.id+',event)">削除</button>':'')
+      +'</div></div>';
+  }).join('') : '<div style="color:#6b7280;font-size:13px;text-align:center;padding:20px">この校舎の今週の予定はまだありません。「＋」または下のボタンから新規追加してください。</div>';
 
   var cfPanel='';
   if(cfOpen&&tR&&tS!==null&&dur&&fSj&&fGr){
@@ -552,33 +463,22 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  setTimeout(function(){
-    var wrap = document.getElementById('tgW');
-    var hc = document.getElementById('tgHC');
-    if(wrap && hc && !wrap._scrollLinked){
-      wrap._scrollLinked = true;
-      wrap.onscroll = function(){
-        hc.scrollLeft = wrap.scrollLeft;
-      };
-    }
-  }, 50);
-
   return'<div class="fpage">'+rAH(true)
     +'<div class="ffixed">'
-    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← スケジュール画面へ</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
+    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← スケジュール画面へ</button><span class="kjval">'+fBrList.join('・')+' (タイムライン管理)</span></div>'
     +'<div class="frow"><span class="flab">校舎</span><div class="hpills">'+bpills+'</div></div>'
     +'<div class="frow"><span class="flab">教科</span><div class="hpills">'+spills+'</div></div>'
     +'<div class="frow"><span class="flab">学年</span><div class="hpills">'+gpills+'</div></div>'
     +'<div style="padding:6px 12px;display:flex;gap:6px">'
     +[50,80,90,120].map(function(m){return'<button class="durbtn" onclick="applyCustomDur('+m+')">'+m+'分</button>';}).join('')
     +'</div>'
-    +'<div class="ubar"><span class="ubhint">'+(tR&&tS!==null&&dur?'時間設定完了':'時間枠をタップしてください')+'</span>'+(tR&&tS!==null&&dur?'<button class="ubsave" onclick="saveF()">確認画面へ</button>':'')+'</div>'
+    +'<div class="ubar"><span class="ubhint">'+(tR&&tS!==null&&dur?'時間設定完了':'日付・時間を選択して新規追加してください')+'</span>'+(tR&&tS!==null&&dur?'<button class="ubsave" onclick="saveF()">確認画面へ</button>':'')+'</div>'
     +cfPanel
     +'</div>'
-    +'<div class="fscr"><div class="fbody">'
-    +'<div class="tgsh"><div class="tgcorner">時間</div><div class="tghc" id="tgHC"><table class="tght"><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></table></div></div>'
-    +'<div class="tgwrap" id="tgW"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
-    +'</div></div>'+delModalStr+undoToastStr+'</div>';
+    +'<div class="fscr">'
+    +'<div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:10px">📋 登録済みスケジュール一覧 ('+currentSelectedBr+')</div>'
+    +tlineCardsHtml
+    +'</div>'+delModalStr+undoToastStr+'</div>';
 }
 
 // 予定詳細ポップアップ
