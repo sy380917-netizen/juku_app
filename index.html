@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.32 タイムテーブル・複数スケジュール確実描画対応版
+  v1.33 1件目非表示不具合の修復・完全版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.32';
+var APP_VERSION='v1.33';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -499,7 +499,6 @@ function rForm(){
         var stSlot=t2sl(matchedS.s);
         if(i===stSlot){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          // 同じ時間帯にあるすべての予定を抽出してリストとして確実に縦に積み上げて描画する
           var overlapping = foundS.filter(function(x){
             var xSt = t2sl(x.s);
             var xEn = xSt + (t2m(x.e)-t2m(x.s))/TSD;
