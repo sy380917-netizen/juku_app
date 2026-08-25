@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.23 タイムグリッド内「＋」ボタン非重複・独立配置版
+  v1.24 タイムグリッド内「＋」ボタンを左上に配置版
 ==========================================================
 -->
 <html lang="ja">
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.23';
+var APP_VERSION='v1.24';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -501,9 +501,9 @@ function rForm(){
           var ed=canEdit(matchedS.ins);
           var targetSlotIndex = t2sl(matchedS.s);
           
-          // ＋ボタンをバーの上に独立して配置（重ならないように配置）
-          cells+='<td colspan="'+len+'" class="exm" style="vertical-align:bottom;">'
-            +'<div style="display:flex;align-items:center;justify-content:center;margin-bottom:2px;">'
+          // ＋ボタンをセルの「左上」に独立して配置
+          cells+='<td colspan="'+len+'" class="exm" style="vertical-align:top;">'
+            +'<div style="display:flex;align-items:center;justify-content:flex-start;margin-bottom:2px;">'
             +'<button class="adc" style="width:18px;height:18px;font-size:12px;line-height:16px;text-align:center;padding:0;cursor:pointer;" onclick="clickSlot(\''+dt+'\','+targetSlotIndex+');event.stopPropagation();" title="この時間帯に追加">+</button>'
             +'</div>'
             +'<div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'
