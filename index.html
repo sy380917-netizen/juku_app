@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.22 タイムグリッド内「＋」ボタン動作修復版
+  v1.23 タイムグリッド内「＋」ボタン非重複・独立配置版
 ==========================================================
 -->
 <html lang="ja">
@@ -124,7 +124,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .selbar{background:#2563EB;height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 8px;overflow:hidden;gap:2px;box-shadow:0 2px 8px rgba(37,99,235,.3)}
 .sbi{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2;text-align:center}
 .sbt{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap;line-height:1.2}
-.exm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;cursor:pointer;vertical-align:middle}
+.exm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:middle}
 .exbar{height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:3px 7px;overflow:hidden;gap:1px;transition:filter .1s;box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative;cursor:pointer;touch-action:manipulation}
 .exbar:hover{filter:brightness(1.08)}
 .exbr{color:rgba(255,255,255,.8);font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -200,7 +200,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.22';
+var APP_VERSION='v1.23';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -233,7 +233,7 @@ window.loginWithEmail=function(){
   if(!email){alert('Gmailアドレスを入力してください');return;}
   var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
   if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
-  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
+  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();};
 };
 window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
 window.cancelRegister=function(){view=cu?'sch':'login';showPick=false;R();};
@@ -499,13 +499,18 @@ function rForm(){
           var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
           var col=SCOLD[matchedS.sj]||'#2563EB';
           var ed=canEdit(matchedS.ins);
-          // 既存の予定ブロック上で「＋」ボタンをクリックした際、正しくその日時のスロットを選択して新規登録状態へ移行する
-          var currentBr = fBrList[0] || BR[0];
           var targetSlotIndex = t2sl(matchedS.s);
-          cells+='<td colspan="'+len+'" class="exm"><div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'
-            +'<button class="adc" style="position:absolute;top:2px;left:2px;width:18px;height:18px;font-size:12px;z-index:3;line-height:16px;text-align:center;padding:0" onclick="clickSlot(\''+dt+'\','+targetSlotIndex+');event.stopPropagation();">+</button>'
+          
+          // ＋ボタンをバーの上に独立して配置（重ならないように配置）
+          cells+='<td colspan="'+len+'" class="exm" style="vertical-align:bottom;">'
+            +'<div style="display:flex;align-items:center;justify-content:center;margin-bottom:2px;">'
+            +'<button class="adc" style="width:18px;height:18px;font-size:12px;line-height:16px;text-align:center;padding:0;cursor:pointer;" onclick="clickSlot(\''+dt+'\','+targetSlotIndex+');event.stopPropagation();" title="この時間帯に追加">+</button>'
+            +'</div>'
+            +'<div class="exbar" style="background:'+col+'" onclick="showTipModal('+matchedS.id+',event)">'
             +(ed?'<button class="delbtn" onclick="delS('+matchedS.id+',event)">×</button>':'')
-            +'<div class="exmain" style="padding-left:18px">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div><div class="extime" style="padding-left:18px">'+matchedS.s+'〜'+matchedS.e+'</div></div></td>';
+            +'<div class="exmain">'+matchedS.br+' '+matchedS.gr+' '+matchedS.sj+'</div>'
+            +'<div class="extime">'+matchedS.s+'〜'+matchedS.e+'</div>'
+            +'</div></td>';
           i+=len;
           continue;
         } else {
