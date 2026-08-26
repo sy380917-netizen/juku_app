@@ -115,7 +115,6 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .selbar{background:#2563EB;border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden;gap:2px;box-shadow:0 2px 8px rgba(37,99,235,.3)}
 .sbi{color:#fff;font-size:11px;font-weight:700;line-height:1.2;text-align:left}
 .sbt{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap;line-height:1.2}
-.exm{padding:4px 6px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:top}
 /* 確認パネル */
 .cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 8px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
 .cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
@@ -460,54 +459,114 @@ function rForm(){
     subHdr+='<th class="'+cls+'"></th>';
   }
 
-  var tgRowsStr=dates.map(function(d){
-    var dt=fd(d),isPre=dt===fDate,cells='',i=0;
-    while(i<TSN){
-      var isPreStart = (tR === dt && i === tS && dur);
-      var isPreInside = (tR === dt && dur && i > tS && i < tS + (dur / TSD));
+  var tgRowsStr = dates.map(function(d) {
+    var dt = fd(d), isPre = (dt === fDate);
+    var cells = '', i = 0;
 
-      var exStartsHere = S.filter(function(x){ return x.dt === dt && t2sl(x.s) === i; });
-      var insideEx = S.find(function(x){
-        var stSlot=t2sl(x.s);
-        var len=(t2m(x.e)-t2m(x.s))/TSD;
-        return i > stSlot && i < stSlot + len;
-      });
+    // 1. その日の「入力中プレビュー」と「既存予定」を全て収集
+    var items = [];
+    if (tR === dt && dur && tS !== null) {
+      items.push({ type: 'pre', s: tS, e: tS + (dur / TSD), len: dur / TSD });
+    }
+    var daySs = S.filter(function(x) { return x.dt === dt; });
+    daySs.forEach(function(x) {
+      var ss = t2sl(x.s);
+      var ee = ss + (t2m(x.e) - t2m(x.s)) / TSD;
+      items.push({ type: 'ex', s: ss, e: ee, len: ee - ss, orig: x });
+    });
 
-      if (isPreStart || exStartsHere.length > 0) {
-        var maxLen = 1;
-        if (isPreStart) maxLen = Math.max(maxLen, dur / TSD);
-        exStartsHere.forEach(function(s){
-          maxLen = Math.max(maxLen, (t2m(s.e)-t2m(s.s))/TSD);
-        });
-
-        var cardsHtml = '<div style="display:flex;align-items:center;justify-content:flex-start;margin-bottom:6px;">'
-          +'<button class="adc" onclick="clickSlot(\''+dt+'\','+i+');event.stopPropagation();">+</button>'
-          +'</div>';
-
-        if (isPreStart) {
-          var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
-          cardsHtml += '<div class="selbar" style="margin-bottom:4px; height:auto; padding:6px 8px; align-items:flex-start;"><div class="sbi" style="white-space:normal; text-align:left;">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div>';
-        }
-
-        exStartsHere.forEach(function(s){
-          var scCol = SCOLD[s.sj]||'#6B7280';
-          var isEd = canEdit(s.ins);
-          cardsHtml += '<div class="sc" style="background:'+scCol+';margin-bottom:4px;" onclick="showTipModal('+s.id+',event)">'
-            + (isEd?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
-            + '<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
-            + '<div class="scd">'+s.s+'〜'+s.e+'</div></div>';
-        });
-
-        cells += '<td colspan="'+maxLen+'" class="exm" style="vertical-align:top; padding:4px 6px;">' + cardsHtml + '</td>';
-        i += maxLen;
-      } else if (isPreInside || insideEx) {
-        i++;
+    // 2. 時間の早い順に並び替え、時間が被っている（または連続している）予定を同じグループにまとめる
+    items.sort(function(a, b) { return a.s - b.s; });
+    var groups = [];
+    var cur = null;
+    items.forEach(function(it) {
+      if (!cur) {
+        cur = { s: it.s, e: it.e, items: [it] };
+        groups.push(cur);
       } else {
-        cells += '<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
+        if (it.s <= cur.e) { // 時間が被っている、または直後に連続している場合
+          cur.e = Math.max(cur.e, it.e);
+          cur.items.push(it);
+        } else {
+          cur = { s: it.s, e: it.e, items: [it] };
+          groups.push(cur);
+        }
+      }
+    });
+
+    // 3. タイムグリッドのセルをレンダリング（グループ化された予定は一つに結合して描画）
+    var gIdx = 0;
+    while (i < TSN) {
+      if (gIdx < groups.length && i === groups[gIdx].s) {
+        var g = groups[gIdx];
+        var glen = g.e - g.s;
+
+        // 【背景のクリック可能なグリッド】
+        var bgHtml = '<div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; z-index:1;">';
+        for (var slot = 0; slot < glen; slot++) {
+          var actualSlot = g.s + slot;
+          var mm = sl2m(actualSlot) % 60;
+          var cls = 'tds';
+          if (mm === 0) cls += ' hst';
+          else if (mm === 30) cls += ' h30s';
+          if (isPre) cls += ' prow';
+          bgHtml += '<div class="'+cls+'" style="flex:1; height:100%; border-top:1px solid #e5e7eb;" onclick="clickSlot(\''+dt+'\','+actualSlot+')"></div>';
+        }
+        bgHtml += '</div>';
+
+        // 【手前の予定カード（縦並びの重ね合わせ）】
+        var stackHtml = '<div style="position:relative; z-index:2; width:100%; padding-top:4px; pointer-events:none;">';
+        
+        // ＋ボタンをグループの開始位置に配置
+        stackHtml += '<div style="padding: 0 4px; margin-bottom: 4px;">'
+                   + '<button class="adc" style="pointer-events:auto;" onclick="clickSlot(\''+dt+'\','+g.s+');event.stopPropagation();">+</button>'
+                   + '</div>';
+
+        // プレビューと既存予定を計算した横幅（margin-left）で並列描画
+        g.items.forEach(function(it) {
+          var pctLeft = ((it.s - g.s) / glen) * 100;
+          var pctWidth = (it.len / glen) * 100;
+          var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; pointer-events:auto; margin-bottom:4px; padding:0 2px;';
+
+          if (it.type === 'pre') {
+            var selLabel = (fBrList.join('・')||'') + ' ' + (fGr||'') + ' ' + (fSj||'');
+            stackHtml += '<div style="'+blockStyle+'">'
+                       + '<div class="selbar" style="height:auto; padding:6px 8px; align-items:flex-start;">'
+                       + '<div class="sbi" style="white-space:normal; text-align:left;">'+selLabel+'</div>'
+                       + '<div class="sbt">'+m2s(sl2m(it.s))+'〜'+m2s(sl2m(it.e))+'</div>'
+                       + '</div></div>';
+          } else {
+            var s = it.orig;
+            var scCol = SCOLD[s.sj] || '#6B7280';
+            var isEd = canEdit(s.ins);
+            stackHtml += '<div style="'+blockStyle+'">'
+                       + '<div class="sc" style="background:'+scCol+';" onclick="showTipModal('+s.id+',event)">'
+                       + (isEd?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
+                       + '<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
+                       + '<div class="scd">'+s.s+'〜'+s.e+'</div>'
+                       + '</div></div>';
+          }
+        });
+        stackHtml += '</div>';
+
+        // 背景と手前の要素を合成
+        cells += '<td colspan="'+glen+'" style="padding:0; position:relative; vertical-align:top; border:none; background:transparent;">'
+               + bgHtml + stackHtml + '</td>';
+        
+        i += glen;
+        gIdx++;
+      } else {
+        // 予定がない通常の空白セル
+        var mm = sl2m(i) % 60;
+        var cls = 'tds';
+        if (mm === 0) cls += ' hst';
+        else if (mm === 30) cls += ' h30s';
+        if (isPre) cls += ' prow';
+        cells += '<td class="'+cls+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
         i++;
       }
     }
-    return'<tr data-dt="'+dt+'"><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
+    return '<tr data-dt="'+dt+'"><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
   }).join('');
 
   var cfPanel='';
