@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.29 構文エラー修正・完全動作版
+  v1.30 新規プレビューと既存予定の完全並列表示（青・紫バー共存）対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -112,9 +112,8 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .tds.prow{background:#FFF5F5}
 .tds.prow:hover{background:#FECDD3}
 .tds:not(.prow):hover{background:#DBEAFE}
-.selm{padding:2px 1px;border-top:1px solid #e5e7eb;border-right:1px solid #2563EB;background:transparent;cursor:pointer;vertical-align:middle}
-.selbar{background:#2563EB;height:42px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 8px;overflow:hidden;gap:2px;box-shadow:0 2px 8px rgba(37,99,235,.3)}
-.sbi{color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1.2;text-align:center}
+.selbar{background:#2563EB;border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden;gap:2px;box-shadow:0 2px 8px rgba(37,99,235,.3)}
+.sbi{color:#fff;font-size:11px;font-weight:700;line-height:1.2;text-align:left}
 .sbt{color:rgba(255,255,255,.85);font-size:9px;white-space:nowrap;line-height:1.2}
 .exm{padding:4px 6px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:top}
 /* 確認パネル */
@@ -182,7 +181,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.29';
+var APP_VERSION='v1.30';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -464,54 +463,49 @@ function rForm(){
   var tgRowsStr=dates.map(function(d){
     var dt=fd(d),isPre=dt===fDate,cells='',i=0;
     while(i<TSN){
-      // 選択中のプレビューバー（selm）がこのスロットにかかっているかチェック
-      var isSelSlot = (tR === dt && dur && i >= tS && i < tS + (dur / TSD));
-      if(isSelSlot && i === tS){
-        var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
-        cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
-        i+=dur/TSD; continue;
-      } else if(isSelSlot) {
-        i++; continue;
-      }
+      var isPreStart = (tR === dt && i === tS && dur);
+      var isPreInside = (tR === dt && dur && i > tS && i < tS + (dur / TSD));
 
-      var foundS=S.filter(function(x){return x.dt===dt;});
-      var matchedS=foundS.find(function(x){
+      var exStartsHere = S.filter(function(x){ return x.dt === dt && t2sl(x.s) === i; });
+      var insideEx = S.find(function(x){
         var stSlot=t2sl(x.s);
         var len=(t2m(x.e)-t2m(x.s))/TSD;
-        return i>=stSlot&&i<stSlot+len;
+        return i > stSlot && i < stSlot + len;
       });
 
-      if(matchedS){
-        var stSlot=t2sl(matchedS.s);
-        if(i===stSlot){
-          var len=(t2m(matchedS.e)-t2m(matchedS.s))/TSD;
-          var currentBr = fBrList[0] || BR[0];
-          var targetSlotIndex = t2sl(matchedS.s);
-          
-          var daySs = S.filter(function(s){return s.dt===dt;});
-          var cardsHtml = daySs.map(function(s){
-            var scCol = SCOLD[s.sj]||'#6B7280';
-            var isEd = canEdit(s.ins);
-            return '<div class="sc" style="background:'+scCol+';margin-top:4px;" onclick="showTipModal('+s.id+',event)">'
-              + (isEd?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
-              + '<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
-              + '<div class="scd">'+s.s+'〜'+s.e+'</div></div>';
-          }).join('');
+      if (isPreStart || exStartsHere.length > 0) {
+        var maxLen = 1;
+        if (isPreStart) maxLen = Math.max(maxLen, dur / TSD);
+        exStartsHere.forEach(function(s){
+          maxLen = Math.max(maxLen, (t2m(s.e)-t2m(s.s))/TSD);
+        });
 
-          cells+='<td colspan="'+len+'" class="exm"><div class="cin">'
-            +'<button class="adc" onclick="clickSlot(\''+dt+'\','+targetSlotIndex+');event.stopPropagation();">+</button>'
-            + cardsHtml
-            +'</div></td>';
-          i+=len;
-          continue;
-        } else {
-          i++;
-          continue;
+        var cardsHtml = '<div style="display:flex;align-items:center;justify-content:flex-start;margin-bottom:6px;">'
+          +'<button class="adc" onclick="clickSlot(\''+dt+'\','+i+');event.stopPropagation();">+</button>'
+          +'</div>';
+
+        if (isPreStart) {
+          var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
+          cardsHtml += '<div class="selbar" style="margin-bottom:4px; height:auto; padding:6px 8px; align-items:flex-start;"><div class="sbi" style="white-space:normal; text-align:left;">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div>';
         }
-      }
 
-      cells+='<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
-      i++;
+        exStartsHere.forEach(function(s){
+          var scCol = SCOLD[s.sj]||'#6B7280';
+          var isEd = canEdit(s.ins);
+          cardsHtml += '<div class="sc" style="background:'+scCol+';margin-bottom:4px;" onclick="showTipModal('+s.id+',event)">'
+            + (isEd?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
+            + '<div class="sct">'+s.sj+' '+s.gr+' '+s.ins+'</div>'
+            + '<div class="scd">'+s.s+'〜'+s.e+'</div></div>';
+        });
+
+        cells += '<td colspan="'+maxLen+'" class="exm" style="vertical-align:top; padding:4px 6px;">' + cardsHtml + '</td>';
+        i += maxLen;
+      } else if (isPreInside || insideEx) {
+        i++;
+      } else {
+        cells += '<td class="tds'+(isPre?' prow':'')+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
+        i++;
+      }
     }
     return'<tr data-dt="'+dt+'"><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
   }).join('');
