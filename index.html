@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.27 タイムグリッド内＋ボタンの新規入力トリガー修復版
+  v1.28 入力中プレビューと既存予定の完全並列表示対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -182,7 +182,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.27';
+var APP_VERSION='v1.28';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -464,11 +464,14 @@ function rForm(){
   var tgRowsStr=dates.map(function(d){
     var dt=fd(d),isPre=dt===fDate,cells='',i=0;
     while(i<TSN){
-      // 入力中プレビュー（選択中のスロット）の表示
-      if(tR===dt&&i===tS&&dur){
+      // 選択中のプレビューバー（selm）がこのスロットにかかっているかチェック
+      var isSelSlot = (tR === dt && dur && i >= tS && i < tS + (dur / TSD));
+      if(isSelSlot && i === tS){
         var selLabel=(fBrList.join('・')||'')+' '+(fGr||'')+' '+(fSj||'');
         cells+='<td colspan="'+dur/TSD+'" class="selm"><div class="selbar"><div class="sbi">'+selLabel+'</div><div class="sbt">'+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div></div></td>';
-        i+=dur/TSD;continue;
+        i+=dur/TSD; continue;
+      } else if(isSelSlot) {
+        i++; continue;
       }
 
       var foundS=S.filter(function(x){return x.dt===dt;});
@@ -599,7 +602,7 @@ window.showTipModal=function(id,ev){
 
   if(isOwner){
     document.getElementById('tipEditBtn').onclick = function(){
-      modal.remove();
+    <i></i> modal.remove();
       editSession(id);
     };
     document.getElementById('tipDelBtn').onclick = function(){
