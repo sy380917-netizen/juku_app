@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.28 入力中プレビューと既存予定の完全並列表示対応版
+  v1.29 構文エラー修正・完全動作版
 ==========================================================
 -->
 <html lang="ja">
@@ -182,7 +182,7 @@ function canEdit(ins){return cu&&cu.name===ins;}
 var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.28';
+var APP_VERSION='v1.29';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -215,7 +215,7 @@ window.loginWithEmail=function(){
   if(!email){alert('Gmailアドレスを入力してください');return;}
   var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
   if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
-  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();};
+  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
 };
 window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
 window.cancelRegister=function(){view=cu?'sch':'login';showPick=false;R();};
@@ -602,7 +602,7 @@ window.showTipModal=function(id,ev){
 
   if(isOwner){
     document.getElementById('tipEditBtn').onclick = function(){
-    <i></i> modal.remove();
+      modal.remove();
       editSession(id);
     };
     document.getElementById('tipDelBtn').onclick = function(){
