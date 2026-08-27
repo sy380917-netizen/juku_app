@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.30 新規プレビューと既存予定の完全並列表示（青・紫バー共存）対応版
+  v1.31 localStorageによるデータ永続化対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -177,10 +177,30 @@ var ACCOUNTS=[
   {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
 ];
 function canEdit(ins){return cu&&cu.name===ins;}
-var aSubj={},aBr={},aGr={},suSubj=[],suBr=[],suGr=[];
+
+// localStorageからのデータ読み込み（永続化）
+var savedS = localStorage.getItem('sq_s');
+var S = savedS ? JSON.parse(savedS) : [];
+var nid = S.length > 0 ? Math.max.apply(null, S.map(function(x){return x.id;0})) + 1 : 1;
+
+var savedSubj = localStorage.getItem('sq_asubj');
+var aSubj = savedSubj ? JSON.parse(savedSubj) : {};
+var savedBr = localStorage.getItem('sq_abr');
+var aBr = savedBr ? JSON.parse(savedBr) : {};
+var savedGr = localStorage.getItem('sq_agr');
+var aGr = savedGr ? JSON.parse(savedGr) : {};
+
+function saveToLocalStorage(){
+  localStorage.setItem('sq_s', JSON.stringify(S));
+  localStorage.setItem('sq_asubj', JSON.stringify(aSubj));
+  localStorage.setItem('sq_abr', JSON.stringify(aBr));
+  localStorage.setItem('sq_agr', JSON.stringify(aGr));
+}
+
+var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.30';
+var APP_VERSION='v1.31';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -193,8 +213,7 @@ var delConfId=null,delAccId=null;
 var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
-var S=[];
-var nid=1;
+
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
@@ -230,10 +249,12 @@ window.tgSuBr=function(b){var i=suBr.indexOf(b);if(i>=0)suBr.splice(i,1);else su
 window.tgSuGr=function(g){var i=suGr.indexOf(g);if(i>=0)suGr.splice(i,1);else suGr.push(g);R()};
 window.confSetup=function(){
   if(!suSubj.length||!suBr.length||!suGr.length){alert('すべて選択してください');return;}
-  aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();fBrList=suBr.slice();view='sch';R();
+  aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();fBrList=suBr.slice();
+  saveToLocalStorage();
+  view='sch';R();
 };
 window.openSettings=function(){suSubj=(aSubj[cu.id]||[]).slice();suBr=(aBr[cu.id]||[]).slice();suGr=(aGr[cu.id]||[]).slice();view='settings';R();};
-window.saveSettings=function(){aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();view='sch';R();};
+window.saveSettings=function(){aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();saveToLocalStorage();view='sch';R();};
 window.cancelSettings=function(){view='sch';R()};
 window.openCal=function(){var today=new Date();calY=today.getFullYear();calM=today.getMonth();calOpen=true;R();};
 window.closeCal=function(){calOpen=false;R();};
@@ -278,6 +299,7 @@ window.delConfOk=function(){
     undoMsg=target.br+' '+target.s+'〜'+target.e+' '+target.sj+' を削除しました';
   }
   S=S.filter(function(x){return x.id!==delConfId;});
+  saveToLocalStorage();
   delConfId=null;
   R();
   if(undoTimer)clearTimeout(undoTimer);
@@ -287,13 +309,14 @@ window.delConfCancel=function(){delConfId=null;R();};
 window.undoDel=function(){
   if(undoPrevS){
     S.push(undoPrevS);
+    saveToLocalStorage();
     undoPrevS=null;
     undoMsg='';
     if(undoTimer)clearTimeout(undoTimer);
     R();
   }
 };
-window.delFF=function(){if(editId!==null)S=S.filter(function(s){return s.id!==editId});view='sch';editId=null;R()};
+window.delFF=function(){if(editId!==null)S=S.filter(function(s){return s.id!==editId});saveToLocalStorage();view='sch';editId=null;R()};
 window.clearTime=function(){tR=null;tS=null;dur=null;cfOpen=false;_customDur=false;R()};
 window.clickSlot=function(dt,i){tR=dt;tS=i;if(!_customDur){if(fGr){var ds=getDurs(fGr);dur=ds.length===1?ds[0]:null;}else dur=null;}R();};
 window.applyCustomDur=function(m){dur=m;_customDur=true;cfOpen=false;R();};
@@ -319,6 +342,7 @@ window.doSave=function(){
     savedCount+=(fBrList.length||1);
     cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
   }
+  saveToLocalStorage();
   R();
 };
 window.showDayModal=function(dt){
@@ -463,7 +487,6 @@ function rForm(){
     var dt = fd(d), isPre = (dt === fDate);
     var cells = '', i = 0;
 
-    // 1. その日の「入力中プレビュー」と「既存予定」を全て収集
     var items = [];
     if (tR === dt && dur && tS !== null) {
       items.push({ type: 'pre', s: tS, e: tS + (dur / TSD), len: dur / TSD });
@@ -475,7 +498,6 @@ function rForm(){
       items.push({ type: 'ex', s: ss, e: ee, len: ee - ss, orig: x });
     });
 
-    // 2. 時間の早い順に並び替え、時間が被っている（または連続している）予定を同じグループにまとめる
     items.sort(function(a, b) { return a.s - b.s; });
     var groups = [];
     var cur = null;
@@ -484,7 +506,7 @@ function rForm(){
         cur = { s: it.s, e: it.e, items: [it] };
         groups.push(cur);
       } else {
-        if (it.s <= cur.e) { // 時間が被っている、または直後に連続している場合
+        if (it.s <= cur.e) {
           cur.e = Math.max(cur.e, it.e);
           cur.items.push(it);
         } else {
@@ -494,14 +516,12 @@ function rForm(){
       }
     });
 
-    // 3. タイムグリッドのセルをレンダリング（グループ化された予定は一つに結合して描画）
     var gIdx = 0;
     while (i < TSN) {
       if (gIdx < groups.length && i === groups[gIdx].s) {
         var g = groups[gIdx];
         var glen = g.e - g.s;
 
-        // 【背景のクリック可能なグリッド】
         var bgHtml = '<div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; z-index:1;">';
         for (var slot = 0; slot < glen; slot++) {
           var actualSlot = g.s + slot;
@@ -514,15 +534,11 @@ function rForm(){
         }
         bgHtml += '</div>';
 
-        // 【手前の予定カード（縦並びの重ね合わせ）】
         var stackHtml = '<div style="position:relative; z-index:2; width:100%; padding-top:4px; pointer-events:none;">';
-        
-        // ＋ボタンをグループの開始位置に配置
         stackHtml += '<div style="padding: 0 4px; margin-bottom: 4px;">'
                    + '<button class="adc" style="pointer-events:auto;" onclick="clickSlot(\''+dt+'\','+g.s+');event.stopPropagation();">+</button>'
                    + '</div>';
 
-        // プレビューと既存予定を計算した横幅（margin-left）で並列描画
         g.items.forEach(function(it) {
           var pctLeft = ((it.s - g.s) / glen) * 100;
           var pctWidth = (it.len / glen) * 100;
@@ -549,14 +565,12 @@ function rForm(){
         });
         stackHtml += '</div>';
 
-        // 背景と手前の要素を合成
         cells += '<td colspan="'+glen+'" style="padding:0; position:relative; vertical-align:top; border:none; background:transparent;">'
                + bgHtml + stackHtml + '</td>';
         
         i += glen;
         gIdx++;
       } else {
-        // 予定がない通常の空白セル
         var mm = sl2m(i) % 60;
         var cls = 'tds';
         if (mm === 0) cls += ' hst';
