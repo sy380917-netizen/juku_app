@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.39 プレビュー中のタップブロック（時間変更不可）バグ修正版
+  v1.40 フォーム画面の予定表示を講師名順にグループ化
 ==========================================================
 -->
 <html lang="ja">
@@ -274,7 +274,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.39';
+var APP_VERSION='v1.40';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -562,13 +562,13 @@ function rForm(){
 
     var items = [];
     if (tR === dt && dur && tS !== null) {
-      items.push({ type: 'pre', s: tS, e: tS + (dur / TSD), len: dur / TSD });
+      items.push({ type: 'pre', s: tS, e: tS + (dur / TSD), len: dur / TSD, ins: fIns });
     }
     var daySs = S.filter(function(x) { return x.dt === dt; });
     daySs.forEach(function(x) {
       var ss = t2sl(x.s);
       var ee = ss + (t2m(x.e) - t2m(x.s)) / TSD;
-      items.push({ type: 'ex', s: ss, e: ee, len: ee - ss, orig: x });
+      items.push({ type: 'ex', s: ss, e: ee, len: ee - ss, orig: x, ins: x.ins });
     });
 
     items.sort(function(a, b) { return a.s - b.s; });
@@ -589,13 +589,23 @@ function rForm(){
       }
     });
 
+    // グループ内の並び順を「講師名」でソート
+    groups.forEach(function(g) {
+      g.items.sort(function(a, b) {
+        var insA = a.ins || '';
+        var insB = b.ins || '';
+        if (insA !== insB) return insA > insB ? 1 : -1;
+        if (a.s !== b.s) return a.s - b.s;
+        return a.e - b.e;
+      });
+    });
+
     var gIdx = 0;
     while (i < TSN) {
       if (gIdx < groups.length && i === groups[gIdx].s) {
         var g = groups[gIdx];
         var glen = g.e - g.s;
 
-        // ▼ 全体を囲むエリアにpointer-events: noneを付与し、タップ貫通を許可する ▼
         var stackHtml = '<div style="position:relative; z-index:2; width:100%; min-height:var(--slot-h); padding:4px 0; pointer-events:none;">';
         
         stackHtml += '<div style="padding:0 4px; margin-bottom:4px;">'
@@ -607,7 +617,6 @@ function rForm(){
           var pctWidth = (it.len / glen) * 100;
           
           if (it.type === 'pre') {
-            // ▼ 青いプレビューバーは pointer-events:none にしてタップを貫通させる ▼
             var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px; pointer-events:none;';
             var selLabel = (fBrList.join('・')||'') + ' ' + (fGr||'') + ' ' + (fSj||'');
             stackHtml += '<div style="'+blockStyle+'">'
@@ -616,7 +625,6 @@ function rForm(){
                        + '<div class="sbt">'+m2s(sl2m(it.s))+'〜'+m2s(sl2m(it.e))+'</div>'
                        + '</div></div>';
           } else {
-            // ▼ 既存の紫・緑の予定カードは pointer-events:auto で詳細クリックを可能に ▼
             var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px; pointer-events:auto;';
             var s = it.orig;
             var scCol = SCOLD[s.sj] || '#6B7280';
