@@ -3,36 +3,46 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.36 専用ピンチズーム搭載＆日付ヘッダー完全固定版
+  v1.37 スケジュール表専用の安全なピンチズーム搭載版
 ==========================================================
 -->
 <html lang="ja">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
 <title>個別指導スクエア 補習管理</title>
 <style>
-/* CSS変数でデバイスに応じた基準サイズを定義 */
+/* CSS変数による動的ズーム制御 */
 :root {
-  --slot-w: 22px;
-  --slot-h: 46px;
-  --adc-size: 28px;
-  --app-zoom: 1; /* JSでコントロールするズーム倍率 */
+  --zoom-ratio: 1.0; /* JSでコントロールするズーム倍率 */
+  
+  --slot-base-w: 22px;
+  --slot-base-h: 46px;
+  --adc-base-size: 28px;
+
+  --slot-w: calc(var(--slot-base-w) * var(--zoom-ratio));
+  --slot-h: calc(var(--slot-base-h) * var(--zoom-ratio));
+  --adc-size: calc(var(--adc-base-size) * var(--zoom-ratio));
+  
+  --font-xs: calc(9px * var(--zoom-ratio));
+  --font-sm: calc(10px * var(--zoom-ratio));
+  --font-md: calc(11px * var(--zoom-ratio));
 }
+/* スマホ向けの最適化基準サイズ（画面幅768px以下で自動適用） */
 @media (max-width: 768px) {
   :root {
-    --slot-w: 28px;
-    --slot-h: 54px;
-    --adc-size: 34px;
+    --slot-base-w: 28px;
+    --slot-base-h: 54px;
+    --adc-base-size: 34px;
   }
 }
 
 *{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
 html,body{height:100%}
-/* スマホでのタップ遅延解消＆ダブルタップズーム無効化 */
 button, .tds, .sc, .spx, .bpsm, .gpsm, .spisms, .cpill, .durbtn { touch-action: manipulation; }
 
 .app-root{display:flex;flex-direction:column;height:100%;overflow:hidden}
 #app{height:100%;display:flex;flex-direction:column;overflow:hidden}
 body{background:#f3f4f6}
+
 /* LOGIN/SETUP */
 .cp{min-height:100%;display:flex;align-items:center;justify-content:center;background:#f3f4f6}
 .lcard{background:#fff;border-radius:14px;padding:36px;width:340px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.1)}
@@ -51,6 +61,7 @@ body{background:#f3f4f6}
 .suconfirm{width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:600;border:none;background:#e5e7eb;color:#9ca3af;cursor:default;margin-top:4px}
 .suconfirm.rdy{background:#22C55E;color:#fff;cursor:pointer}
 .btiny{font-size:12px;color:#9ca3af;border:none;background:none;cursor:pointer;width:100%;text-align:center;margin-top:10px;display:block}
+
 /* APP HEADER */
 .ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb;overflow-x:auto;scrollbar-width:none}
 .ahdr::-webkit-scrollbar{display:none}
@@ -62,53 +73,56 @@ body{background:#f3f4f6}
 .uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
 .hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280;white-space:nowrap;flex-shrink:0}
 
-/* 専用ズーム適用クラス */
-.zoom-target { zoom: var(--app-zoom); transform-origin: top left; }
-
 /* SCHEDULE */
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;position:relative}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
 .gwrap{width:100%}
 table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
-/* ▼ スケジュール画面の日付ヘッダー固定 ▼ */
 .stbl th{position:sticky;top:0;z-index:10;background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap}
 .stbl th:first-child{left:0;z-index:12}
-.brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;width:70px;min-width:70px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
-/* ▲ -------------------------------------- ▲ */
 .stbl th.thT{background:#991B1B}
 .stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;overflow:visible}
 .stbl td.dyt.tcol{background:#fffbeb}
 .cin{display:flex;flex-direction:column;gap:3px;overflow:visible}
+
+/* 動的ズーム対応パーツ */
 .adc{width:var(--adc-size);height:var(--adc-size);border-radius:50%;background:#22C55E;color:#fff;border:none;cursor:pointer;font-size:calc(var(--adc-size) * 0.6);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 6px rgba(0,0,0,.15);transition:transform 0.1s}
 .adc:active{transform:scale(0.9)}
 .adc:hover{background:#16A34A}
-.sc{border-radius:8px;padding:8px;font-size:11px;color:#fff;line-height:1.35;position:relative;cursor:pointer;transition:filter .12s;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+
+.sc{border-radius:8px;padding:calc(6px * var(--zoom-ratio)) calc(8px * var(--zoom-ratio));font-size:var(--font-md);color:#fff;line-height:1.35;position:relative;cursor:pointer;transition:filter .12s;box-shadow:0 2px 4px rgba(0,0,0,.12)}
 .sc:active{transform:scale(0.98)}
 .sc:hover{filter:brightness(1.12)}
-.sc .sct{font-weight:600;font-size:11px;white-space:nowrap}
-.sc .scd{margin-top:3px;font-size:10px;opacity:.92;word-break:break-all;padding-right:20px}
-.delbtn{position:absolute;top:50%;right:6px;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;line-height:22px;text-align:center;padding:0;z-index:2;touch-action:manipulation;flex-shrink:0}
+.sc .sct{font-weight:600;font-size:var(--font-md);white-space:nowrap}
+.sc .scd{margin-top:calc(2px * var(--zoom-ratio));font-size:var(--font-sm);opacity:.92;word-break:break-all;padding-right:calc(20px * var(--zoom-ratio))}
+
+.delbtn{position:absolute;top:50%;right:6px;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:#fff;width:calc(22px * var(--zoom-ratio));height:calc(22px * var(--zoom-ratio));border-radius:50%;cursor:pointer;font-size:var(--font-md);line-height:calc(22px * var(--zoom-ratio));text-align:center;padding:0;z-index:2;touch-action:manipulation;flex-shrink:0}
 .delbtn:hover{background:rgba(0,0,0,.55)}
 
-/* FORM VIEW */
-/* スクロールエリアと固定エリアの分離を完全最適化 */
-.fpage{height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
+/* FORM */
+.fpage{height:100%;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
 .ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible;z-index:15}
-.fscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;position:relative}
-.fbody{padding:12px 0}
-
 .frow{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid #f3f4f6}
 .hpills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x;padding-bottom:2px}
 .hpills::-webkit-scrollbar{display:none}
 .flab{font-size:11px;color:#6b7280;white-space:nowrap;flex-shrink:0;min-width:28px}
 .ubar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:50px}
 .ubhint{font-size:13px;color:#9ca3af;flex:1}
+.ubinfo{flex:1;min-width:0}
 .ubtime{font-size:13px;font-weight:700;color:#1E40AF}
+.ubtime.em{color:#92400E}
+.ubstu{font-size:11px;color:#6b7280;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ubclr{border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:11px;color:#9ca3af;padding:3px 8px;border-radius:6px;white-space:nowrap}
 .ubsave{padding:10px 20px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:14px;font-weight:700;white-space:nowrap;box-shadow:0 3px 8px rgba(34,197,94,.35);flex-shrink:0}
 .ubsave:hover{background:#16A34A}
+.ubsave.em{background:#F59E0B}
+.ubsave.em:hover{background:#D97706}
 .durbtn{padding:8px 14px;border-radius:8px;font-size:13px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
+.fscr{background:#fff;position:relative}
+.fbody{padding:12px 0}
+.tinp{width:100%;font-size:14px;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff}
 .fhrow{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f3f4f6}
 .bbtn{font-size:13px;padding:5px 12px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280;white-space:nowrap}
 .kjval{font-size:15px;font-weight:700;color:#B91C1C;white-space:nowrap;flex:1}
@@ -124,9 +138,9 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .tgcorner{width:46px;min-width:46px;flex-shrink:0;border-right:1px solid #d1d5db;background:#f9fafb;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;padding:0 2px;position:sticky;left:0;z-index:11}
 .tghc{flex:1;overflow:hidden}
 .tght{border-collapse:collapse;table-layout:fixed}
-.thhour{font-size:11px;font-weight:700;color:#374151;padding:6px 4px;text-align:left;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;white-space:nowrap}
-.th10{font-size:8px;color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
-.th10.h30{color:#6b7280;font-weight:700;font-size:9px;border-left:1.5px solid #d1d5db}
+.thhour{font-size:var(--font-md);font-weight:700;color:#374151;padding:calc(4px * var(--zoom-ratio));text-align:left;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
+.th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
 .tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px}
 .tgbody{border-collapse:collapse}
@@ -137,15 +151,17 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .tds.prow{background:#FFF5F5}
 .tds.prow:hover{background:#FECDD3}
 .tds:not(.prow):hover{background:#DBEAFE}
-.selbar{background:#2563EB;border-radius:8px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden;gap:2px;box-shadow:0 3px 10px rgba(37,99,235,.35)}
-.sbi{color:#fff;font-size:11px;font-weight:700;line-height:1.3;text-align:left}
-.sbt{color:rgba(255,255,255,.9);font-size:10px;white-space:nowrap;line-height:1.2}
+.selbar{background:#2563EB;border-radius:8px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden;gap:calc(2px * var(--zoom-ratio));box-shadow:0 3px 10px rgba(37,99,235,.35)}
+.sbi{color:#fff;font-size:var(--font-md);font-weight:700;line-height:1.3;text-align:left}
+.sbt{color:rgba(255,255,255,.9);font-size:var(--font-xs);white-space:nowrap;line-height:1.2}
 .exm{padding:4px 6px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:top}
 
 /* 確認パネル */
 .cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:8px 12px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
+.cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
 .cptitle{font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;text-align:center;padding-top:14px}
 .cprow{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:0.5px solid #f3f4f6}
+.cprow:last-of-type{border-bottom:none}
 .cplab{font-size:12px;color:#6b7280;width:46px;flex-shrink:0;padding-top:6px;font-weight:600}
 .cppills{display:flex;flex-wrap:wrap;gap:4px;flex:1}
 .cpill{padding:6px 12px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
@@ -155,6 +171,16 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .cpok:hover{background:#16A34A}
 .cpcancel{flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:15px;font-weight:600;cursor:pointer}
 .cpcancel:hover{background:#f9fafb}
+.sch-sticky{position:sticky;top:0;z-index:9;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.sch-hdr-row{display:flex;background:#1F2937}
+.sch-corner{flex-shrink:0;background:#1F2937;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;border-right:1px solid #374151;padding:6px 4px}
+.sch-hdr-clip{flex:1;overflow:hidden}
+.sch-ht{border-collapse:collapse;table-layout:fixed;will-change:transform}
+.sch-th{width:88px;min-width:88px;padding:6px 4px;text-align:center;border-right:1px solid #374151;background:#1F2937;color:#fff;vertical-align:middle}
+.sch-th.tod{background:#991B1B}
+.sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
+.sch-dow{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
+.brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;width:70px;min-width:70px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
 .sch-th-sel{background:#7F1D1D !important}
 .sch-th-sel .sch-date,.sch-th-sel .sch-dow{color:#fff}
 .del-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -174,39 +200,43 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 <div class="app-root" id="app"></div>
 <div id="sc-tooltip" style="display:none;position:fixed;background:#1F2937;color:#fff;padding:10px 13px;border-radius:10px;font-size:12px;line-height:1.8;z-index:9999;pointer-events:auto"></div>
 <script>
-// ▼▼▼ スマホ専用のピンチズーム・エンジン ▼▼▼
-var appZoom = 1;
+// ▼▼▼ スケジュール表専用の安全なピンチズームエンジン ▼▼▼
+var appZoomRatio = 1.0;
 var lastPinchDist = null;
 
 window.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 2) {
-        lastPinchDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-        );
-    }
+  if (e.touches.length === 2) {
+    lastPinchDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
 }, { passive: false });
 
 window.addEventListener('touchmove', function(e) {
-    if (e.touches.length === 2 && lastPinchDist !== null) {
-        e.preventDefault(); // ブラウザ標準の挙動をブロックし、専用ズームを適用
-        var dist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-        );
-        var delta = dist / lastPinchDist;
-        appZoom *= delta;
-        // ズームの限界値（0.4=40%縮小全体表示 ～ 1.5=150%拡大）
-        appZoom = Math.max(0.4, Math.min(appZoom, 1.5));
-        document.documentElement.style.setProperty('--app-zoom', appZoom);
-        lastPinchDist = dist;
+  if (e.touches.length === 2 && lastPinchDist !== null) {
+    // タイムグリッドのエリア内でのみズームを許可する
+    var target = e.target.closest('.gwrap, .tgwrap, .tgsh, .schscr');
+    if (target) {
+      e.preventDefault(); 
+      var dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      var delta = dist / lastPinchDist;
+      appZoomRatio *= delta;
+      // 0.35倍から1.5倍までズームを許容
+      appZoomRatio = Math.max(0.35, Math.min(appZoomRatio, 1.5));
+      document.documentElement.style.setProperty('--zoom-ratio', appZoomRatio);
+      lastPinchDist = dist;
     }
+  }
 }, { passive: false });
 
 window.addEventListener('touchend', function(e) {
-    if (e.touches.length < 2) {
-        lastPinchDist = null;
-    }
+  if (e.touches.length < 2) {
+    lastPinchDist = null;
+  }
 });
 // ▲▲▲ 専用ピンチズーム・エンジンここまで ▲▲▲
 
@@ -229,9 +259,11 @@ var ACCOUNTS=[
 ];
 function canEdit(ins){return cu&&cu.name===ins;}
 
+// localStorageからのデータ読み込み（永続化）
 var savedS = localStorage.getItem('sq_s');
 var S = savedS ? JSON.parse(savedS) : [];
 var nid = S.length > 0 ? Math.max.apply(null, S.map(function(x){return x.id;})) + 1 : 1;
+
 var savedSubj = localStorage.getItem('sq_asubj');
 var aSubj = savedSubj ? JSON.parse(savedSubj) : {};
 var savedBr = localStorage.getItem('sq_abr');
@@ -249,7 +281,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.36';
+var APP_VERSION='v1.37';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -515,7 +547,7 @@ function rSch(){
     +'<button onclick="pWk()" style="padding:6px 12px;background:#2563EB;color:#fff;border:none;border-radius:6px;font-weight:600">◀ 前週</button>'
     +'<button onclick="nWk()" style="padding:6px 12px;background:#2563EB;color:#fff;border:none;border-radius:6px;font-weight:600">次週 ▶</button>'
     +'</div>'
-    +'<div class="gwrap zoom-target"><table class="stbl"><thead><tr><th style="width:70px">校舎</th>'+schThd+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
+    +'<div class="gwrap"><table class="stbl"><thead><tr><th style="width:70px">校舎</th>'+schThd+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
     +'</div>'+delModalStr+undoToastStr+'</div>';
 }
 
@@ -688,7 +720,7 @@ function rForm(){
     +'<div class="ubar"><span class="ubhint">'+(tR&&tS!==null&&dur?'時間設定完了':'時間枠をタップしてください')+'</span>'+(tR&&tS!==null&&dur?'<button class="ubsave" onclick="saveF()">確認画面へ</button>':'')+'</div>'
     +cfPanel
     +'</div>'
-    +'<div class="fscr"><div class="fbody zoom-target">'
+    +'<div class="fscr"><div class="fbody">'
     +'<div class="tgsh"><div class="tgcorner">時間</div><div class="tghc" id="tgHC"><table class="tght"><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></table></div></div>'
     +'<div class="tgwrap" id="tgW"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
     +'</div></div>'+delModalStr+undoToastStr+'</div>';
