@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.40 フォーム画面の予定表示を講師名順にグループ化
+  v1.41 講師ごとのグループ化ソート・完全動作版
 ==========================================================
 -->
 <html lang="ja">
@@ -274,7 +274,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.40';
+var APP_VERSION='v1.41';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -589,7 +589,7 @@ function rForm(){
       }
     });
 
-    // グループ内の並び順を「講師名」でソート
+    // 講師名順にソート
     groups.forEach(function(g) {
       g.items.sort(function(a, b) {
         var insA = a.ins || '';
