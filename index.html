@@ -3,11 +3,11 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.34 スケジュール表のヘッダー固定化・UI崩れ修正版
+  v1.35 スマホでのピンチイン・ピンチアウト（ズーム）許可版
 ==========================================================
 -->
 <html lang="ja">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>個別指導スクエア 補習管理</title>
 <style>
 /* CSS変数でデバイスに応じた基準サイズを定義 */
@@ -27,7 +27,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
 html,body{height:100%}
-/* スマホでのタップ遅延解消＆ダブルタップズーム無効化 */
+/* スマホでのタップ遅延解消＆ダブルタップズーム無効化（ピンチズームは有効） */
 button, .tds, .sc, .spx, .bpsm, .gpsm, .spisms, .cpill, .durbtn { touch-action: manipulation; }
 
 .app-root{display:flex;flex-direction:column;height:100%;overflow:hidden}
@@ -223,7 +223,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.34';
+var APP_VERSION='v1.35';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
