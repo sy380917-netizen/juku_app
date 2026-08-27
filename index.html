@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.33 予定バーへの教場名（校舎名）表示追加版
+  v1.34 スケジュール表のヘッダー固定化・UI崩れ修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -52,23 +52,25 @@ body{background:#f3f4f6}
 .suconfirm.rdy{background:#22C55E;color:#fff;cursor:pointer}
 .btiny{font-size:12px;color:#9ca3af;border:none;background:none;cursor:pointer;width:100%;text-align:center;margin-top:10px;display:block}
 /* APP HEADER */
-.ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb}
-.atitle{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px}
+.ahdr{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-bottom:1px solid #e5e7eb;overflow-x:auto;scrollbar-width:none}
+.ahdr::-webkit-scrollbar{display:none}
+.atitle{font-size:13px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
 .atitle span{color:#B91C1C}
 /* 撮影ボタンのスタイル */
-.hdr-camera-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border:1px solid #3B82F6;border-radius:6px;background:#EFF6FF;color:#1E40AF;cursor:pointer;font-weight:600;white-space:nowrap}
+.hdr-camera-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border:1px solid #3B82F6;border-radius:6px;background:#EFF6FF;color:#1E40AF;cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0}
 .hdr-camera-btn:hover{background:#DBEAFE}
 
-.uchip{display:flex;align-items:center;gap:6px}
-.uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
-.hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280}
+.uchip{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.uav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
+.hdrbtn{font-size:11px;padding:3px 9px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280;white-space:nowrap;flex-shrink:0}
 /* SCHEDULE */
 .schp{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;position:relative}
 .schscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .dinput{font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:6px}
 .gwrap{width:100%}
 table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
-.stbl th{background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap}
+.stbl th{position:sticky;top:0;z-index:10;background:#1F2937;color:#fff;padding:6px 5px;font-size:11px;font-weight:600;text-align:center;border:1px solid #374151;white-space:nowrap}
+.stbl th:first-child{left:0;z-index:12}
 .stbl th.thT{background:#991B1B}
 .stbl td.dyt{vertical-align:top;padding:4px;border:1px solid #e5e7eb;background:#fff;overflow:visible}
 .stbl td.dyt.tcol{background:#fffbeb}
@@ -221,7 +223,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.33';
+var APP_VERSION='v1.34';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -487,7 +489,7 @@ function rSch(){
     +'<button onclick="pWk()" style="padding:6px 12px;background:#2563EB;color:#fff;border:none;border-radius:6px;font-weight:600">◀ 前週</button>'
     +'<button onclick="nWk()" style="padding:6px 12px;background:#2563EB;color:#fff;border:none;border-radius:6px;font-weight:600">次週 ▶</button>'
     +'</div>'
-    +'<div class="gwrap"><table class="stbl"><tr><th style="width:70px">校舎</th>'+schThd+'</tr><tbody>'+rows+'</tbody></table></div>'
+    +'<div class="gwrap"><table class="stbl"><thead><tr><th style="width:70px">校舎</th>'+schThd+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
     +'</div>'+delModalStr+undoToastStr+'</div>';
 }
 
