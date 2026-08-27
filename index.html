@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.38 タイムグリッドの縦積みはみ出し・日付被りバグ修正版
+  v1.39 プレビュー中のタップブロック（時間変更不可）バグ修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -141,7 +141,6 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px}
 .tgbody{border-collapse:collapse}
 
-/* ▼ 日付固定列（z-indexを5に強化し、上にカードが被らないように修正） ▼ */
 .tdd{font-size:12px;padding:4px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:46px;min-width:46px;line-height:1.4;position:sticky;left:0;z-index:5}
 .tds{width:var(--slot-w);min-width:var(--slot-w);max-width:var(--slot-w);min-height:var(--slot-h);height:auto;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
 .tds.hst{border-left:1.5px solid #d1d5db}
@@ -174,7 +173,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .sch-hdr-row{display:flex;background:#1F2937}
 .sch-corner{flex-shrink:0;background:#1F2937;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;border-right:1px solid #374151;padding:6px 4px}
 .sch-hdr-clip{flex:1;overflow:hidden}
-.sch-ht{border-collapse:collapse;table-layout:fixed;will-change:transform}
+.sch-ht{border-collapse:collapse;table-layout:fixed}
 .sch-th{width:88px;min-width:88px;padding:6px 4px;text-align:center;border-right:1px solid #374151;background:#1F2937;color:#fff;vertical-align:middle}
 .sch-th.tod{background:#991B1B}
 .sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
@@ -275,7 +274,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.38';
+var APP_VERSION='v1.39';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -596,19 +595,20 @@ function rForm(){
         var g = groups[gIdx];
         var glen = g.e - g.s;
 
-        // ▼ 高さを自動拡張し、下行へはみ出さない構造に刷新 ▼
-        var stackHtml = '<div style="position:relative; width:100%; min-height:var(--slot-h); padding:4px 0;">';
+        // ▼ 全体を囲むエリアにpointer-events: noneを付与し、タップ貫通を許可する ▼
+        var stackHtml = '<div style="position:relative; z-index:2; width:100%; min-height:var(--slot-h); padding:4px 0; pointer-events:none;">';
         
         stackHtml += '<div style="padding:0 4px; margin-bottom:4px;">'
-                   + '<button class="adc" onclick="clickSlot(\''+dt+'\','+g.s+');event.stopPropagation();">+</button>'
+                   + '<button class="adc" style="pointer-events:auto;" onclick="clickSlot(\''+dt+'\','+g.s+');event.stopPropagation();">+</button>'
                    + '</div>';
 
         g.items.forEach(function(it) {
           var pctLeft = ((it.s - g.s) / glen) * 100;
           var pctWidth = (it.len / glen) * 100;
-          var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px;';
-
+          
           if (it.type === 'pre') {
+            // ▼ 青いプレビューバーは pointer-events:none にしてタップを貫通させる ▼
+            var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px; pointer-events:none;';
             var selLabel = (fBrList.join('・')||'') + ' ' + (fGr||'') + ' ' + (fSj||'');
             stackHtml += '<div style="'+blockStyle+'">'
                        + '<div class="selbar" style="height:auto; padding:8px 10px; align-items:flex-start;">'
@@ -616,6 +616,8 @@ function rForm(){
                        + '<div class="sbt">'+m2s(sl2m(it.s))+'〜'+m2s(sl2m(it.e))+'</div>'
                        + '</div></div>';
           } else {
+            // ▼ 既存の紫・緑の予定カードは pointer-events:auto で詳細クリックを可能に ▼
+            var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px; pointer-events:auto;';
             var s = it.orig;
             var scCol = SCOLD[s.sj] || '#6B7280';
             var isEd = canEdit(s.ins);
@@ -629,8 +631,20 @@ function rForm(){
         });
         stackHtml += '</div>';
 
-        cells += '<td colspan="'+glen+'" class="exm" style="padding:0; vertical-align:top; border-top:1px solid #e5e7eb; border-right:1px solid #e5e7eb; background:'+(isPre?'#FFF5F5':'#fff')+';">'
-               + stackHtml + '</td>';
+        var bgHtml = '<div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; z-index:1;">';
+        for (var slot = 0; slot < glen; slot++) {
+          var actualSlot = g.s + slot;
+          var mm = sl2m(actualSlot) % 60;
+          var cls = 'tds';
+          if (mm === 0) cls += ' hst';
+          else if (mm === 30) cls += ' h30s';
+          if (isPre) cls += ' prow';
+          bgHtml += '<div class="'+cls+'" style="flex:1; height:100%; border-top:1px solid #e5e7eb;" onclick="clickSlot(\''+dt+'\','+actualSlot+')"></div>';
+        }
+        bgHtml += '</div>';
+
+        cells += '<td colspan="'+glen+'" class="exm" style="padding:0; position:relative; vertical-align:top; border-top:1px solid #e5e7eb; border-right:1px solid #e5e7eb; background:'+(isPre?'#FFF5F5':'#fff')+';">'
+               + bgHtml + stackHtml + '</td>';
         
         i += glen;
         gIdx++;
