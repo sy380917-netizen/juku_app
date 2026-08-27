@@ -3,17 +3,15 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.37 スケジュール表専用の安全なピンチズーム搭載版
+  v1.38 タイムグリッドの縦積みはみ出し・日付被りバグ修正版
 ==========================================================
 -->
 <html lang="ja">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
 <title>個別指導スクエア 補習管理</title>
 <style>
-/* CSS変数による動的ズーム制御 */
 :root {
-  --zoom-ratio: 1.0; /* JSでコントロールするズーム倍率 */
-  
+  --zoom-ratio: 1.0;
   --slot-base-w: 22px;
   --slot-base-h: 46px;
   --adc-base-size: 28px;
@@ -26,7 +24,6 @@
   --font-sm: calc(10px * var(--zoom-ratio));
   --font-md: calc(11px * var(--zoom-ratio));
 }
-/* スマホ向けの最適化基準サイズ（画面幅768px以下で自動適用） */
 @media (max-width: 768px) {
   :root {
     --slot-base-w: 28px;
@@ -86,7 +83,6 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .stbl td.dyt.tcol{background:#fffbeb}
 .cin{display:flex;flex-direction:column;gap:3px;overflow:visible}
 
-/* 動的ズーム対応パーツ */
 .adc{width:var(--adc-size);height:var(--adc-size);border-radius:50%;background:#22C55E;color:#fff;border:none;cursor:pointer;font-size:calc(var(--adc-size) * 0.6);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 6px rgba(0,0,0,.15);transition:transform 0.1s}
 .adc:active{transform:scale(0.9)}
 .adc:hover{background:#16A34A}
@@ -101,7 +97,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .delbtn:hover{background:rgba(0,0,0,.55)}
 
 /* FORM */
-.fpage{height:100%;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
+.fpage{height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
 .ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible;z-index:15}
 .frow{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid #f3f4f6}
 .hpills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x;padding-bottom:2px}
@@ -120,7 +116,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .ubsave.em:hover{background:#D97706}
 .durbtn{padding:8px 14px;border-radius:8px;font-size:13px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
-.fscr{background:#fff;position:relative}
+.fscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;position:relative}
 .fbody{padding:12px 0}
 .tinp{width:100%;font-size:14px;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff}
 .fhrow{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f3f4f6}
@@ -144,13 +140,16 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10.h00{border-left:1.5px solid #d1d5db}
 .tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px}
 .tgbody{border-collapse:collapse}
-.tdd{font-size:12px;padding:4px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:46px;min-width:46px;line-height:1.4;position:sticky;left:0;z-index:2}
-.tds{width:var(--slot-w);min-width:var(--slot-w);max-width:var(--slot-w);height:var(--slot-h);border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
+
+/* ▼ 日付固定列（z-indexを5に強化し、上にカードが被らないように修正） ▼ */
+.tdd{font-size:12px;padding:4px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:46px;min-width:46px;line-height:1.4;position:sticky;left:0;z-index:5}
+.tds{width:var(--slot-w);min-width:var(--slot-w);max-width:var(--slot-w);min-height:var(--slot-h);height:auto;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
 .tds.hst{border-left:1.5px solid #d1d5db}
 .tds.h30s{border-left:1px solid #cbd5e1}
 .tds.prow{background:#FFF5F5}
 .tds.prow:hover{background:#FECDD3}
 .tds:not(.prow):hover{background:#DBEAFE}
+
 .selbar{background:#2563EB;border-radius:8px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden;gap:calc(2px * var(--zoom-ratio));box-shadow:0 3px 10px rgba(37,99,235,.35)}
 .sbi{color:#fff;font-size:var(--font-md);font-weight:700;line-height:1.3;text-align:left}
 .sbt{color:rgba(255,255,255,.9);font-size:var(--font-xs);white-space:nowrap;line-height:1.2}
@@ -200,7 +199,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 <div class="app-root" id="app"></div>
 <div id="sc-tooltip" style="display:none;position:fixed;background:#1F2937;color:#fff;padding:10px 13px;border-radius:10px;font-size:12px;line-height:1.8;z-index:9999;pointer-events:auto"></div>
 <script>
-// ▼▼▼ スケジュール表専用の安全なピンチズームエンジン ▼▼▼
+// ▼ スケジュール表専用ピンチズーム ▼
 var appZoomRatio = 1.0;
 var lastPinchDist = null;
 
@@ -215,7 +214,6 @@ window.addEventListener('touchstart', function(e) {
 
 window.addEventListener('touchmove', function(e) {
   if (e.touches.length === 2 && lastPinchDist !== null) {
-    // タイムグリッドのエリア内でのみズームを許可する
     var target = e.target.closest('.gwrap, .tgwrap, .tgsh, .schscr');
     if (target) {
       e.preventDefault(); 
@@ -225,7 +223,6 @@ window.addEventListener('touchmove', function(e) {
       );
       var delta = dist / lastPinchDist;
       appZoomRatio *= delta;
-      // 0.35倍から1.5倍までズームを許容
       appZoomRatio = Math.max(0.35, Math.min(appZoomRatio, 1.5));
       document.documentElement.style.setProperty('--zoom-ratio', appZoomRatio);
       lastPinchDist = dist;
@@ -238,7 +235,6 @@ window.addEventListener('touchend', function(e) {
     lastPinchDist = null;
   }
 });
-// ▲▲▲ 専用ピンチズーム・エンジンここまで ▲▲▲
 
 var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
 var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
@@ -259,11 +255,9 @@ var ACCOUNTS=[
 ];
 function canEdit(ins){return cu&&cu.name===ins;}
 
-// localStorageからのデータ読み込み（永続化）
 var savedS = localStorage.getItem('sq_s');
 var S = savedS ? JSON.parse(savedS) : [];
 var nid = S.length > 0 ? Math.max.apply(null, S.map(function(x){return x.id;})) + 1 : 1;
-
 var savedSubj = localStorage.getItem('sq_asubj');
 var aSubj = savedSubj ? JSON.parse(savedSubj) : {};
 var savedBr = localStorage.getItem('sq_abr');
@@ -281,7 +275,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.37';
+var APP_VERSION='v1.38';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -602,27 +596,17 @@ function rForm(){
         var g = groups[gIdx];
         var glen = g.e - g.s;
 
-        var bgHtml = '<div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; z-index:1;">';
-        for (var slot = 0; slot < glen; slot++) {
-          var actualSlot = g.s + slot;
-          var mm = sl2m(actualSlot) % 60;
-          var cls = 'tds';
-          if (mm === 0) cls += ' hst';
-          else if (mm === 30) cls += ' h30s';
-          if (isPre) cls += ' prow';
-          bgHtml += '<div class="'+cls+'" style="flex:1; height:100%; border-top:1px solid #e5e7eb;" onclick="clickSlot(\''+dt+'\','+actualSlot+')"></div>';
-        }
-        bgHtml += '</div>';
-
-        var stackHtml = '<div style="position:relative; z-index:2; width:100%; padding-top:6px; pointer-events:none;">';
-        stackHtml += '<div style="padding: 0 6px; margin-bottom: 6px;">'
-                   + '<button class="adc" style="pointer-events:auto;" onclick="clickSlot(\''+dt+'\','+g.s+');event.stopPropagation();">+</button>'
+        // ▼ 高さを自動拡張し、下行へはみ出さない構造に刷新 ▼
+        var stackHtml = '<div style="position:relative; width:100%; min-height:var(--slot-h); padding:4px 0;">';
+        
+        stackHtml += '<div style="padding:0 4px; margin-bottom:4px;">'
+                   + '<button class="adc" onclick="clickSlot(\''+dt+'\','+g.s+');event.stopPropagation();">+</button>'
                    + '</div>';
 
         g.items.forEach(function(it) {
           var pctLeft = ((it.s - g.s) / glen) * 100;
           var pctWidth = (it.len / glen) * 100;
-          var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; pointer-events:auto; margin-bottom:6px; padding:0 2px;';
+          var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px;';
 
           if (it.type === 'pre') {
             var selLabel = (fBrList.join('・')||'') + ' ' + (fGr||'') + ' ' + (fSj||'');
@@ -645,8 +629,8 @@ function rForm(){
         });
         stackHtml += '</div>';
 
-        cells += '<td colspan="'+glen+'" style="padding:0; position:relative; vertical-align:top; border:none; background:transparent;">'
-               + bgHtml + stackHtml + '</td>';
+        cells += '<td colspan="'+glen+'" class="exm" style="padding:0; vertical-align:top; border-top:1px solid #e5e7eb; border-right:1px solid #e5e7eb; background:'+(isPre?'#FFF5F5':'#fff')+';">'
+               + stackHtml + '</td>';
         
         i += glen;
         gIdx++;
