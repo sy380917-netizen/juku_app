@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.43 上部パネルスクロール化＆タイムテーブル表示範囲拡大版
+  v1.44 タイムテーブルへの曜日表示追加・週末中央スクロール対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -87,7 +87,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .adc:active{transform:scale(0.9)}
 .adc:hover{background:#16A34A}
 
-.sc{border-radius:8px;padding:calc(6px * var(--zoom-ratio)) calc(8px * var(--zoom-ratio));font-size:var(--font-md);color:#fff;line-height:1.35;position:relative;cursor:pointer;transition:filter .12s;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.sc{border-radius:8px;padding:calc(6px * var(--zoom-ratio)) calc(8px * var(--zoom-ratio));font-size:var(--font-md);color:#fff;line-height:1.35;position:relative;cursor:pointer;transition:filter .12s;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .sc:active{transform:scale(0.98)}
 .sc:hover{filter:brightness(1.12)}
 .sc .sct{font-weight:600;font-size:var(--font-md);white-space:nowrap}
@@ -96,7 +96,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .delbtn{position:absolute;top:50%;right:6px;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;color:#fff;width:calc(22px * var(--zoom-ratio));height:calc(22px * var(--zoom-ratio));border-radius:50%;cursor:pointer;font-size:var(--font-md);line-height:calc(22px * var(--zoom-ratio));text-align:center;padding:0;z-index:2;touch-action:manipulation;flex-shrink:0}
 .delbtn:hover{background:rgba(0,0,0,.55)}
 
-/* FORM VIEW (全体スクロール対応型に変更) */
+/* FORM VIEW */
 .fpage{height:100%;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;background:#fff}
 .ffixed{flex-shrink:0;background:#fff;border-bottom:1px solid #e5e7eb}
 .frow{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid #f3f4f6}
@@ -134,7 +134,8 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px}
 .tgbody{border-collapse:collapse}
 
-.tdd{font-size:12px;padding:4px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:46px;min-width:46px;line-height:1.4;position:sticky;left:0;z-index:5}
+/* タイムテーブルの日付セル */
+.tdd{font-size:11px;padding:4px 2px;text-align:center;background:#f9fafb;border-right:1px solid #d1d5db;border-top:1px solid #e5e7eb;vertical-align:middle;white-space:nowrap;width:46px;min-width:46px;line-height:1.3;position:sticky;left:0;z-index:5}
 .tds{width:var(--slot-w);min-width:var(--slot-w);max-width:var(--slot-w);min-height:var(--slot-h);height:auto;border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;cursor:pointer;transition:background .06s}
 .tds.hst{border-left:1.5px solid #d1d5db}
 .tds.h30s{border-left:1px solid #cbd5e1}
@@ -268,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.43';
+var APP_VERSION='v1.44';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -659,7 +660,10 @@ function rForm(){
         i++;
       }
     }
-    return '<tr data-dt="'+dt+'"><td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'</td>'+cells+'</tr>';
+    var dowStr = DY[d.getDay()];
+    return '<tr data-dt="'+dt+'" '+(isPre?'id="pre-target-row"':'')+'>'
+         + '<td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'<br><span style="font-size:10px;opacity:.75">('+dowStr+')</span></td>'
+         + cells + '</tr>';
   }).join('');
 
   var cfPanel='';
@@ -705,9 +709,16 @@ function rForm(){
         hc.scrollLeft = wrap.scrollLeft;
       };
     }
-  }, 50);
+    var targetRow = document.getElementById('pre-target-row');
+    if(!targetRow && dates.length >= 6) {
+      targetRow = wrap.querySelector('tr:nth-child(6)');
+    }
+    if(targetRow && wrap) {
+      var topPos = targetRow.offsetTop - (wrap.clientHeight / 2) + (targetRow.clientHeight / 2);
+      wrap.scrollTop = Math.max(0, topPos);
+    }
+  }, 60);
 
-  // ▼ フォーム画面全体をスクロール可能にし、タイムテーブルを広く表示 ▼
   return'<div class="fpage">'+rAH(true)
     +'<div style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;">'
     +'<div class="ffixed">'
