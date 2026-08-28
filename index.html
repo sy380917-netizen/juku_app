@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.41 講師ごとのグループ化ソート・完全動作版
+  v1.42 確認画面切れ・スクロール不具合修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -98,29 +98,29 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 
 /* FORM */
 .fpage{height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
-.ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible;z-index:15}
-.frow{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid #f3f4f6}
+.ffixed{flex-shrink:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:visible;z-index:15;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.frow{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6}
 .hpills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-x;padding-bottom:2px}
 .hpills::-webkit-scrollbar{display:none}
 .flab{font-size:11px;color:#6b7280;white-space:nowrap;flex-shrink:0;min-width:28px}
-.ubar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:50px}
+.ubar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9fafb;border-top:1.5px solid #e5e7eb;min-height:44px}
 .ubhint{font-size:13px;color:#9ca3af;flex:1}
 .ubinfo{flex:1;min-width:0}
 .ubtime{font-size:13px;font-weight:700;color:#1E40AF}
 .ubtime.em{color:#92400E}
 .ubstu{font-size:11px;color:#6b7280;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ubclr{border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:11px;color:#9ca3af;padding:3px 8px;border-radius:6px;white-space:nowrap}
-.ubsave{padding:10px 20px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:14px;font-weight:700;white-space:nowrap;box-shadow:0 3px 8px rgba(34,197,94,.35);flex-shrink:0}
+.ubsave{padding:8px 16px;border:none;border-radius:8px;background:#22C55E;color:#fff;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 3px 8px rgba(34,197,94,.35);flex-shrink:0}
 .ubsave:hover{background:#16A34A}
 .ubsave.em{background:#F59E0B}
 .ubsave.em:hover{background:#D97706}
-.durbtn{padding:8px 14px;border-radius:8px;font-size:13px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
+.durbtn{padding:6px 12px;border-radius:8px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .durbtn:hover{border-color:#3B82F6;background:#EFF6FF;color:#1E40AF}
 .fscr{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;position:relative}
 .fbody{padding:12px 0}
 .tinp{width:100%;font-size:14px;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff}
-.fhrow{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f3f4f6}
-.bbtn{font-size:13px;padding:5px 12px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280;white-space:nowrap}
+.fhrow{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid #f3f4f6}
+.bbtn{font-size:13px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:none;cursor:pointer;color:#6b7280;white-space:nowrap}
 .kjval{font-size:15px;font-weight:700;color:#B91C1C;white-space:nowrap;flex:1}
 .spisms{padding:6px 12px;border-radius:20px;font-size:13px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600;white-space:nowrap;flex-shrink:0}
 .spisms.act{background:#22C55E;color:#fff;border-color:#22C55E}
@@ -154,21 +154,23 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .sbt{color:rgba(255,255,255,.9);font-size:var(--font-xs);white-space:nowrap;line-height:1.2}
 .exm{padding:4px 6px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:top}
 
-/* 確認パネル */
-.cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:8px 12px;padding:0;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:60vh;overflow-y:auto}
+/* ▼ 確認パネルのスクロール性・高さをスマホ最適化 ▼ */
+.cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:6px 12px;padding:12px 14px;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column;max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
-.cptitle{font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;text-align:center;padding-top:14px}
-.cprow{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:0.5px solid #f3f4f6}
+.cptitle{font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;text-align:center}
+.cprow{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:0.5px solid #f3f4f6}
 .cprow:last-of-type{border-bottom:none}
-.cplab{font-size:12px;color:#6b7280;width:46px;flex-shrink:0;padding-top:6px;font-weight:600}
+.cplab{font-size:11px;color:#6b7280;width:40px;flex-shrink:0;padding-top:4px;font-weight:600}
 .cppills{display:flex;flex-wrap:wrap;gap:4px;flex:1}
-.cpill{padding:6px 12px;border-radius:20px;font-size:12px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
+.cpill{padding:4px 10px;border-radius:20px;font-size:11px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
 .cpill.act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
-.cetbtn{margin-top:4px;font-size:12px;color:#3B82F6;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;display:block}
-.cpok{flex:1;padding:12px;border:none;border-radius:10px;background:#22C55E;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.cetbtn{margin-top:2px;font-size:11px;color:#3B82F6;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;display:block}
+.cpok{flex:1;padding:10px;border:none;border-radius:8px;background:#22C55E;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .cpok:hover{background:#16A34A}
-.cpcancel{flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:15px;font-weight:600;cursor:pointer}
+.cpcancel{flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;color:#6b7280;font-size:14px;font-weight:600;cursor:pointer}
 .cpcancel:hover{background:#f9fafb}
+/* ▲ --------------------------------------------- ▲ */
+
 .sch-sticky{position:sticky;top:0;z-index:9;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .sch-hdr-row{display:flex;background:#1F2937}
 .sch-corner{flex-shrink:0;background:#1F2937;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;border-right:1px solid #374151;padding:6px 4px}
@@ -274,7 +276,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.41';
+var APP_VERSION='v1.42';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -589,7 +591,6 @@ function rForm(){
       }
     });
 
-    // 講師名順にソート
     groups.forEach(function(g) {
       g.items.sort(function(a, b) {
         var insA = a.ins || '';
@@ -675,14 +676,14 @@ function rForm(){
     var spillsC=ms.map(function(s){return'<button class="cpill '+(fSj===s?'act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');
     var gpillsC=mg.map(function(g){return'<button class="cpill '+(fGr===g?'act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
 
-    cfPanel='<div class="cpanel"><div style="padding:18px"><div class="cptitle">内容確認</div>'
-      +'<div class="cprow"><div class="cplab">日時</div><div style="font-size:14px;font-weight:700;color:#1E40AF;padding-top:4px">'+tR+' '+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div><button class="cetbtn" onclick="editTime()">時間変更</button></div>'
+    cfPanel='<div class="cpanel"><div style="padding:14px"><div class="cptitle">内容確認</div>'
+      +'<div class="cprow"><div class="cplab">日時</div><div style="font-size:13px;font-weight:700;color:#1E40AF;padding-top:2px">'+tR+' '+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div><button class="cetbtn" onclick="editTime()">時間変更</button></div>'
       +'<div class="cprow"><div class="cplab">校舎</div><div class="cppills">'+bpillsC+'</div></div>'
       +'<div class="cprow"><div class="cplab">教科</div><div class="cppills">'+spillsC+'</div></div>'
       +'<div class="cprow"><div class="cplab">学年</div><div class="cppills">'+gpillsC+'</div></div>'
-      +'<div style="margin-top:12px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
-      +'<div style="margin-top:10px"><input class="tinp" type="text" placeholder="備考欄 (任意)" value="'+fNote+'" oninput="fNote=this.value"></div>'
-      +'<div style="display:flex;gap:10px;margin-top:16px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
+      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
+      +'<div style="margin-top:6px"><input class="tinp" type="text" placeholder="備考欄 (任意)" value="'+fNote+'" oninput="fNote=this.value"></div>'
+      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
       +'</div></div>';
   }
 
@@ -720,7 +721,7 @@ function rForm(){
     +'<div class="frow"><span class="flab">校舎</span><div class="hpills">'+bpills+'</div></div>'
     +'<div class="frow"><span class="flab">教科</span><div class="hpills">'+spills+'</div></div>'
     +'<div class="frow"><span class="flab">学年</span><div class="hpills">'+gpills+'</div></div>'
-    +'<div style="padding:8px 12px;display:flex;gap:8px">'
+    +'<div style="padding:6px 12px;display:flex;gap:6px">'
     +[50,80,90,120].map(function(m){return'<button class="durbtn" onclick="applyCustomDur('+m+')">'+m+'分</button>';}).join('')
     +'</div>'
     +'<div class="ubar"><span class="ubhint">'+(tR&&tS!==null&&dur?'時間設定完了':'時間枠をタップしてください')+'</span>'+(tR&&tS!==null&&dur?'<button class="ubsave" onclick="saveF()">確認画面へ</button>':'')+'</div>'
