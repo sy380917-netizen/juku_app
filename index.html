@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.61 起動時・ログイン時に「当日（今日）」へ確実ジャンプする修正版
+  v1.62 白紙化バグ修正および当日基準・無限スクロール安定版
 ==========================================================
 -->
 <html lang="ja">
@@ -268,11 +268,10 @@ function saveToLocalStorage(){
 
 var suSubj=[],suBr=[],suGr=[];
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.61';
+var APP_VERSION='v1.62';
 var cu=null,showPick=false,loginEmail='',view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
-var _skipAutoScroll=false;
 var _schFirstLoad=true;
 var _customDur=false;
 var schFBr=[],schFDt=[],schFIns=[],schPickerOpen=false;
@@ -281,20 +280,20 @@ var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
-// ▼ 動的無限スクロール用の範囲管理変数 ▼
-var dynamicDaysBefore = 120;
-var dynamicDaysAfter = 120;
+// 固定範囲ではなく、常に現在を起点に前後120日間を展開する固定日数（無限スクロール用）
+var rangeDaysBefore = 120;
+var rangeDaysAfter = 120;
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 常に「今日（当日）」または選択された日付を確実に中心として無限スクロール用の配列を生成 ▼
+// 常に今日（または選択日）を中心に前後へ連続する日付配列を生成
 function wkd(){
   var r=[];
   var baseDate = fDate ? new Date(fDate) : new Date();
   var startD = new Date(baseDate);
-  startD.setDate(startD.getDate() - dynamicDaysBefore);
-  var totalDays = dynamicDaysBefore + dynamicDaysAfter;
+  startD.setDate(startD.getDate() - rangeDaysBefore);
+  var totalDays = rangeDaysBefore + rangeDaysAfter;
   for(var i=0; i<totalDays; i++){
     var d=new Date(startD);
     d.setDate(d.getDate()+i);
@@ -717,24 +716,6 @@ function rForm(){
       wrap._scrollLinked = true;
       wrap.onscroll = function(){
         hc.scrollLeft = wrap.scrollLeft;
-        
-        if(wrap.scrollTop < 150) {
-          dynamicDaysBefore += 90;
-          var curScrollH = wrap.scrollHeight;
-          var curScrollT = wrap.scrollTop;
-          R();
-          setTimeout(function(){
-            var newWrap = document.getElementById('tgW');
-            if(newWrap) {
-              newWrap.scrollTop = curScrollT + (newWrap.scrollHeight - curScrollH);
-            }
-          }, 10);
-        }
-        
-        if(wrap.scrollTop + wrap.clientHeight > wrap.scrollHeight - 150) {
-          dynamicDaysAfter += 90;
-          R();
-        }
       };
     }
     
