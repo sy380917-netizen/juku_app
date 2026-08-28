@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.58 スクロール監視による完全な動的無限日付追加対応版
+  v1.59 デフォルト日付を当日基準に変更版
 ==========================================================
 -->
 <html lang="ja">
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.57';
+var APP_VERSION='v1.59';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -282,17 +282,18 @@ var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
-// ▼ 動的無限スクロール用の範囲管理変数 ▼
+// ▼ 動的無限スクロール用の範囲管理変数（デフォルト当日基準） ▼
 var dynamicDaysBefore = 180;
 var dynamicDaysAfter = 180;
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ スクロール位置に応じて動的に範囲を広げる無限日付生成関数 ▼
+// ▼ スクロール監視により動的に範囲を広げる無限日付生成関数 ▼
 function wkd(){
   var r=[];
-  var baseDate = fDate ? new Date(fDate) : new Date(wk);
+  // デフォルト（または選択された日付）を当日基準にするため、fDateが未設定の場合は今日（new Date()）を起点にする
+  var baseDate = fDate ? new Date(fDate) : new Date();
   var startD = new Date(baseDate);
   startD.setDate(startD.getDate() - dynamicDaysBefore);
   var totalDays = dynamicDaysBefore + dynamicDaysAfter;
@@ -720,7 +721,6 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  // ▼ スクロール位置を監視し、上下の端に近づいたら動的に日付範囲を拡大する無限ローダー処理 ▼
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -729,7 +729,6 @@ function rForm(){
       wrap.onscroll = function(){
         hc.scrollLeft = wrap.scrollLeft;
         
-        // 上端に近づいたら過去方向へ日付を追加
         if(wrap.scrollTop < 150) {
           dynamicDaysBefore += 90;
           var curScrollH = wrap.scrollHeight;
@@ -743,7 +742,6 @@ function rForm(){
           }, 10);
         }
         
-        // 下端に近づいたら未来方向へ日付を追加
         if(wrap.scrollTop + wrap.clientHeight > wrap.scrollHeight - 150) {
           dynamicDaysAfter += 90;
           R();
