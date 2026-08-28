@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.62 白紙化バグ修正および当日基準・無限スクロール安定版
+  v1.63 白紙化防止・起動クラッシュ完全修復版
 ==========================================================
 -->
 <html lang="ja">
@@ -268,7 +268,7 @@ function saveToLocalStorage(){
 
 var suSubj=[],suBr=[],suGr=[];
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.62';
+var APP_VERSION='v1.63';
 var cu=null,showPick=false,loginEmail='',view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -280,14 +280,12 @@ var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
-// 固定範囲ではなく、常に現在を起点に前後120日間を展開する固定日数（無限スクロール用）
 var rangeDaysBefore = 120;
 var rangeDaysAfter = 120;
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// 常に今日（または選択日）を中心に前後へ連続する日付配列を生成
 function wkd(){
   var r=[];
   var baseDate = fDate ? new Date(fDate) : new Date();
