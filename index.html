@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.54 1週間表示単位・エンドレス週切り替え対応版
+  v1.55 上下エンドレス連続日付表示（過去・未来へ無限スクロール）版
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 20vh; }
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding: 20vh 0; }
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -183,7 +183,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .del-modal-btns{display:flex;gap:8px}
 .del-modal-ok{flex:1;padding:12px;border:none;border-radius:10px;background:#DC2626;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .del-modal-ok:hover{background:#B91C1C}
-.del-modal-cancel{flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}
+.del-modal-cancel{flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:600;cursor:pointer}
 .del-modal-cancel:hover{background:#f9fafb}
 .undo-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:16px;font-size:14px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap}
 .undo-btn{padding:6px 14px;border:1.5px solid #fff;border-radius:6px;background:none;color:#fff;cursor:pointer;font-size:13px;font-weight:700}
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.54';
+var APP_VERSION='v1.55';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -285,11 +285,13 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 1週間（7日間）の表示単位を維持しつつ、次週（◀前週・次週▶ボタン）へ自然に切り替えられる関数 ▼
+// ▼ 過去（上方）へも未来（下方）へもスクロールするだけで途切れなく日付が生成されるように拡大（前後各3週間＝計42日間を常時表示） ▼
 function wkd(){
   var r=[];
-  for(var i=0;i<7;i++){
-    var d=new Date(wk);
+  var startD = new Date(wk);
+  startD.setDate(startD.getDate() - 21); // 3週間前からスタート
+  for(var i=0;i<42;i++){
+    var d=new Date(startD);
     d.setDate(d.getDate()+i);
     r.push(d);
   }
@@ -432,7 +434,7 @@ window.showDayModal=function(dt){
   modal.innerHTML='<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;max-height:80vh;padding:18px;overflow-y:auto">'
     +'<div style="font-size:18px;font-weight:700;margin-bottom:10px">'+dt+' の予定</div>'
     +(all.length?all.map(function(s){return'<div style="padding:8px;border-bottom:1px solid #eee"><b>'+s.br+'</b> '+s.s+'-'+s.e+' '+s.sj+' ('+s.stu+')'+(s.note?'<br><span style="color:#666;font-size:11px">備考: '+s.note+'</span>':'')+'</div>';}).join(''):'<div style="color:#888">予定なし</div>')
-    +'<button onclick="document.getElementById(\'day-modal\'].remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
+    +'<button onclick="document.getElementById(\'day-modal\').remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
     +'</div>';
   document.body.appendChild(modal);
 };
