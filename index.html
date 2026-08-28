@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.59 デフォルト日付を当日基準に変更版
+  v1.60 ログイン時の日付初期化バグ（3/5になってしまう現象）修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -267,9 +267,9 @@ function saveToLocalStorage(){
 }
 
 var suSubj=[],suBr=[],suGr=[];
-var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
+var _today=new Date(); // 当日基準の初期化
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.59';
+var APP_VERSION='v1.60';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -282,17 +282,16 @@ var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
-// ▼ 動的無限スクロール用の範囲管理変数（デフォルト当日基準） ▼
+// ▼ 動的無限スクロール用の範囲管理変数 ▼
 var dynamicDaysBefore = 180;
 var dynamicDaysAfter = 180;
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ スクロール監視により動的に範囲を広げる無限日付生成関数 ▼
+// ▼ 常に今日（当日）または選択日を基準として無限に日付配列を生成 ▼
 function wkd(){
   var r=[];
-  // デフォルト（または選択された日付）を当日基準にするため、fDateが未設定の場合は今日（new Date()）を起点にする
   var baseDate = fDate ? new Date(fDate) : new Date();
   var startD = new Date(baseDate);
   startD.setDate(startD.getDate() - dynamicDaysBefore);
@@ -572,7 +571,7 @@ function rForm(){
   }
 
   var tgRowsStr = dates.map(function(d) {
-    var dt = fd(d), isPre = (dt === fDate);
+    var dt = fd(d), isPre = (dt === fDate || (!fDate && isTd(d)));
     var cells = '', i = 0;
 
     var items = [];
@@ -753,7 +752,7 @@ function rForm(){
       _schFirstLoad = false;
       var targetRow = document.getElementById('pre-target-row');
       if(targetRow && wrap) {
-        wrap.scrollTop = Math.max(0, targetRow.offsetTop);
+        wrap.scrollTop = Math.max(0, targetRow.offsetTop - 50);
       }
     }
   }, 50);
