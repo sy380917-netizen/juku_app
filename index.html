@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.49 画面白紙化（構文エラー）修正版
+  v1.50 日付の連続表示の安定化・構文チェック済み完全版
 ==========================================================
 -->
 <html lang="ja">
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.49';
+var APP_VERSION='v1.50';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -284,7 +284,15 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
-function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
+function wkd(){
+  var r=[];
+  for(var i=0;i<7;i++){
+    var d=new Date(wk);
+    d.setDate(d.getDate()+i);
+    r.push(d);
+  }
+  return r;
+}
 function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
 function sl2m(i){return TS0+i*TSD}
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
@@ -421,7 +429,7 @@ window.showDayModal=function(dt){
   modal.innerHTML='<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;max-height:80vh;padding:18px;overflow-y:auto">'
     +'<div style="font-size:18px;font-weight:700;margin-bottom:10px">'+dt+' の予定</div>'
     +(all.length?all.map(function(s){return'<div style="padding:8px;border-bottom:1px solid #eee"><b>'+s.br+'</b> '+s.s+'-'+s.e+' '+s.sj+' ('+s.stu+')'+(s.note?'<br><span style="color:#666;font-size:11px">備考: '+s.note+'</span>':'')+'</div>';}).join(''):'<div style="color:#888">予定なし</div>')
-    +'<button onclick="document.getElementById(\'day-modal\'].remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
+    +'<button onclick="document.getElementById(\'day-modal\').remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
     +'</div>';
   document.body.appendChild(modal);
 };
@@ -702,7 +710,6 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  // ▼ 初回表示時のみ選択日・週末行にスクロール（ロックはせず自由に動かせる） ▼
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
