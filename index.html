@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.56 日付制限完全撤廃・無限エンドレススクロール対応版
+  v1.58 スクロール監視による完全な動的無限日付追加対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding: 30vh 0; }
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding: 0; }
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.56';
+var APP_VERSION='v1.57';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -282,15 +282,21 @@ var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
+// ▼ 動的無限スクロール用の範囲管理変数 ▼
+var dynamicDaysBefore = 180;
+var dynamicDaysAfter = 180;
+
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 制限を完全に撤廃し、上下にスクロールするだけで過去（2ヶ月前）から未来（2ヶ月後・計120日間）まで自動生成される無限エンドレス関数 ▼
+// ▼ スクロール位置に応じて動的に範囲を広げる無限日付生成関数 ▼
 function wkd(){
   var r=[];
-  var startD = new Date(wk);
-  startD.setDate(startD.getDate() - 30); // 1ヶ月前からスタート
-  for(var i=0;i<120;i++){ // 120日間（約4ヶ月分）を連続表示
+  var baseDate = fDate ? new Date(fDate) : new Date(wk);
+  var startD = new Date(baseDate);
+  startD.setDate(startD.getDate() - dynamicDaysBefore);
+  var totalDays = dynamicDaysBefore + dynamicDaysAfter;
+  for(var i=0; i<totalDays; i++){
     var d=new Date(startD);
     d.setDate(d.getDate()+i);
     r.push(d);
@@ -714,6 +720,7 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
+  // ▼ スクロール位置を監視し、上下の端に近づいたら動的に日付範囲を拡大する無限ローダー処理 ▼
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -721,6 +728,26 @@ function rForm(){
       wrap._scrollLinked = true;
       wrap.onscroll = function(){
         hc.scrollLeft = wrap.scrollLeft;
+        
+        // 上端に近づいたら過去方向へ日付を追加
+        if(wrap.scrollTop < 150) {
+          dynamicDaysBefore += 90;
+          var curScrollH = wrap.scrollHeight;
+          var curScrollT = wrap.scrollTop;
+          R();
+          setTimeout(function(){
+            var newWrap = document.getElementById('tgW');
+            if(newWrap) {
+              newWrap.scrollTop = curScrollT + (newWrap.scrollHeight - curScrollH);
+            }
+          }, 10);
+        }
+        
+        // 下端に近づいたら未来方向へ日付を追加
+        if(wrap.scrollTop + wrap.clientHeight > wrap.scrollHeight - 150) {
+          dynamicDaysAfter += 90;
+          R();
+        }
       };
     }
     
