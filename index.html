@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.51 週末を過ぎても次週以降の日付が連続表示される版
+  v1.52 週単位の自然な連続表示・スクロール切り替え版
 ==========================================================
 -->
 <html lang="ja">
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.50';
+var APP_VERSION='v1.52';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -285,10 +285,9 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 週末を過ぎても次週以降の日付（14日間＝2週間分）が連続して表示されるように変更 ▼
+// ▼ 1週間単位ではなく、指定した開始日から連続して14日間（次週へ自然に繋がる）の日付を生成する関数 ▼
 function wkd(){
   var r=[];
-  // 選択された週の月曜日（または日曜）を起点に14日分（2週間分）の日付を連続生成
   var startD = new Date(wk);
   for(var i=0;i<14;i++){
     var d=new Date(startD);
