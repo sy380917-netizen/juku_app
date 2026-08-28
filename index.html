@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.46 週末・選択行の中央確実スクロール（下部余白対応版）
+  v1.47 週末行が赤ライン（ヘッダー下）にピタッと止まるスクロール版
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 50vh; } /* ▼ 下部に50vhの余白を持たせて中央スクロールを可能に ▼ */
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 60vh; }
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.46';
+var APP_VERSION='v1.47';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -661,7 +661,6 @@ function rForm(){
       }
     }
     var dowStr = DY[d.getDay()];
-    // 週末（土曜日・日曜日）または選択日をターゲットに識別できるようにする
     var isWeekend = (d.getDay() === 0 || d.getDay() === 6);
     var targetAttr = (isPre || (!fDate && isWeekend)) ? 'id="pre-target-row"' : '';
     return '<tr data-dt="'+dt+'" '+targetAttr+'>'
@@ -703,7 +702,7 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  // ▼ 下部の白画面余白を活用した確実な中央スクロール処理 ▼
+  // ▼ 指定行が赤ライン（ヘッダーの真下）にピタッとくっつくようにスクロール位置を計算 ▼
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -714,20 +713,18 @@ function rForm(){
       };
     }
     
-    function scrollToCenter() {
+    function scrollToTopLine() {
       var targetRow = document.getElementById('pre-target-row');
       if(!targetRow && wrap) {
-        // 選択日がない場合は土曜日（下の方の週末行）をデフォルトターゲットにする
-        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child');
+        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child'); // 土曜日等
       }
       if(targetRow && wrap) {
-        var topPos = targetRow.offsetTop - (wrap.clientHeight / 2) + (targetRow.clientHeight / 2);
-        wrap.scrollTop = Math.max(0, topPos);
+        // ターゲット行のoffsetTop（テーブル内での位置）に合わせることで、ヘッダー直下の赤ラインの位置にピタッと止まる
+        wrap.scrollTop = Math.max(0, targetRow.offsetTop);
       }
     }
-    scrollToCenter();
-    setTimeout(scrollToCenter, 100);
-    setTimeout(scrollToCenter, 300);
+    scrollToTopLine();
+    setTimeout(scrollToTopLine, 150);
   }, 50);
 
   return'<div class="fpage">'+rAH(true)
