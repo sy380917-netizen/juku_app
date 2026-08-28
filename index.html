@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.52 週単位の自然な連続表示・スクロール切り替え版
+  v1.53 上下エンドレス（無限）スクロール対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.52';
+var APP_VERSION='v1.53';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -285,11 +285,12 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 1週間単位ではなく、指定した開始日から連続して14日間（次週へ自然に繋がる）の日付を生成する関数 ▼
+// ▼ 下方向・上方向へエンドレス（無限）にスクロール・展開できる日付生成関数（計30日間＝約4週間分を常にカバー） ▼
 function wkd(){
   var r=[];
   var startD = new Date(wk);
-  for(var i=0;i<14;i++){
+  startD.setDate(startD.getDate() - 7); // 過去1週間分も含めることで上下どちらにもスクロール可能に
+  for(var i=0;i<30;i++){
     var d=new Date(startD);
     d.setDate(d.getDate()+i);
     r.push(d);
