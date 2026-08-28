@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.45 選択日・週末の中央自動スクロール確実動作版
+  v1.46 週末・選択行の中央確実スクロール（下部余白対応版）
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px}
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 50vh; } /* ▼ 下部に50vhの余白を持たせて中央スクロールを可能に ▼ */
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.45';
+var APP_VERSION='v1.46';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -661,7 +661,10 @@ function rForm(){
       }
     }
     var dowStr = DY[d.getDay()];
-    return '<tr data-dt="'+dt+'" '+(isPre?'id="pre-target-row"':'')+'>'
+    // 週末（土曜日・日曜日）または選択日をターゲットに識別できるようにする
+    var isWeekend = (d.getDay() === 0 || d.getDay() === 6);
+    var targetAttr = (isPre || (!fDate && isWeekend)) ? 'id="pre-target-row"' : '';
+    return '<tr data-dt="'+dt+'" '+targetAttr+'>'
          + '<td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'<br><span style="font-size:10px;opacity:.75">('+dowStr+')</span></td>'
          + cells + '</tr>';
   }).join('');
@@ -700,7 +703,7 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  // ▼ 画面描画完了後に確実に中央スクロールさせる処理（複数回実行で確実性アップ） ▼
+  // ▼ 下部の白画面余白を活用した確実な中央スクロール処理 ▼
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -711,18 +714,20 @@ function rForm(){
       };
     }
     
-    function scrollToTarget() {
+    function scrollToCenter() {
       var targetRow = document.getElementById('pre-target-row');
-      if(!targetRow && dates.length >= 6) {
-        targetRow = wrap.querySelector('tr:nth-child(6)'); // 土曜日付近
+      if(!targetRow && wrap) {
+        // 選択日がない場合は土曜日（下の方の週末行）をデフォルトターゲットにする
+        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child');
       }
       if(targetRow && wrap) {
         var topPos = targetRow.offsetTop - (wrap.clientHeight / 2) + (targetRow.clientHeight / 2);
         wrap.scrollTop = Math.max(0, topPos);
       }
     }
-    scrollToTarget();
-    setTimeout(scrollToTarget, 150); // 描画遅延対策
+    scrollToCenter();
+    setTimeout(scrollToCenter, 100);
+    setTimeout(scrollToCenter, 300);
   }, 50);
 
   return'<div class="fpage">'+rAH(true)
