@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.44 タイムテーブルへの曜日表示追加・週末中央スクロール対応版
+  v1.45 選択日・週末の中央自動スクロール確実動作版
 ==========================================================
 -->
 <html lang="ja">
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.44';
+var APP_VERSION='v1.45';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -700,6 +700,7 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
+  // ▼ 画面描画完了後に確実に中央スクロールさせる処理（複数回実行で確実性アップ） ▼
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -709,15 +710,20 @@ function rForm(){
         hc.scrollLeft = wrap.scrollLeft;
       };
     }
-    var targetRow = document.getElementById('pre-target-row');
-    if(!targetRow && dates.length >= 6) {
-      targetRow = wrap.querySelector('tr:nth-child(6)');
+    
+    function scrollToTarget() {
+      var targetRow = document.getElementById('pre-target-row');
+      if(!targetRow && dates.length >= 6) {
+        targetRow = wrap.querySelector('tr:nth-child(6)'); // 土曜日付近
+      }
+      if(targetRow && wrap) {
+        var topPos = targetRow.offsetTop - (wrap.clientHeight / 2) + (targetRow.clientHeight / 2);
+        wrap.scrollTop = Math.max(0, topPos);
+      }
     }
-    if(targetRow && wrap) {
-      var topPos = targetRow.offsetTop - (wrap.clientHeight / 2) + (targetRow.clientHeight / 2);
-      wrap.scrollTop = Math.max(0, topPos);
-    }
-  }, 60);
+    scrollToTarget();
+    setTimeout(scrollToTarget, 150); // 描画遅延対策
+  }, 50);
 
   return'<div class="fpage">'+rAH(true)
     +'<div style="flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;">'
