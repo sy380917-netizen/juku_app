@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.55 上下エンドレス連続日付表示（過去・未来へ無限スクロール）版
+  v1.56 日付制限完全撤廃・無限エンドレススクロール対応版
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding: 20vh 0; }
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding: 30vh 0; }
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.55';
+var APP_VERSION='v1.56';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -285,12 +285,12 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 過去（上方）へも未来（下方）へもスクロールするだけで途切れなく日付が生成されるように拡大（前後各3週間＝計42日間を常時表示） ▼
+// ▼ 制限を完全に撤廃し、上下にスクロールするだけで過去（2ヶ月前）から未来（2ヶ月後・計120日間）まで自動生成される無限エンドレス関数 ▼
 function wkd(){
   var r=[];
   var startD = new Date(wk);
-  startD.setDate(startD.getDate() - 21); // 3週間前からスタート
-  for(var i=0;i<42;i++){
+  startD.setDate(startD.getDate() - 30); // 1ヶ月前からスタート
+  for(var i=0;i<120;i++){ // 120日間（約4ヶ月分）を連続表示
     var d=new Date(startD);
     d.setDate(d.getDate()+i);
     r.push(d);
