@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.60 ログイン時の日付初期化バグ（3/5になってしまう現象）修正版
+  v1.61 起動時・ログイン時に「当日（今日）」へ確実ジャンプする修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -267,10 +267,9 @@ function saveToLocalStorage(){
 }
 
 var suSubj=[],suBr=[],suGr=[];
-var _today=new Date(); // 当日基準の初期化
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.60';
-var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
+var APP_VERSION='v1.61';
+var cu=null,showPick=false,loginEmail='',view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
 var _skipAutoScroll=false;
@@ -283,13 +282,13 @@ var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
 // ▼ 動的無限スクロール用の範囲管理変数 ▼
-var dynamicDaysBefore = 180;
-var dynamicDaysAfter = 180;
+var dynamicDaysBefore = 120;
+var dynamicDaysAfter = 120;
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 常に今日（当日）または選択日を基準として無限に日付配列を生成 ▼
+// ▼ 常に「今日（当日）」または選択された日付を確実に中心として無限スクロール用の配列を生成 ▼
 function wkd(){
   var r=[];
   var baseDate = fDate ? new Date(fDate) : new Date();
@@ -304,21 +303,12 @@ function wkd(){
   return r;
 }
 
-function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
-function sl2m(i){return TS0+i*TSD}
-function av(n){return n.replace(/\s/g,'').slice(0,2)}
-function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
-function t2m(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
-function mySbj(){return cu&&aSubj[cu.id]?aSubj[cu.id]:SBJ}
-function myBr(){return cu&&aBr[cu.id]?aBr[cu.id]:BR}
-function myGr(){return cu&&aGr[cu.id]?aGr[cu.id]:GRADES}
-
-window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});fIns=cu.name;showPick=false;_schFirstLoad=true;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();};
+window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});fIns=cu.name;showPick=false;_schFirstLoad=true;fDate=null;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();};
 window.loginWithEmail=function(){
   var email=(loginEmail||'').trim().toLowerCase();
   if(!email){alert('Gmailアドレスを入力してください');return;}
   var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
-  if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
+  if(acct){cu=acct;fIns=cu.name;fDate=null;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
   else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
 };
 window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
@@ -328,9 +318,9 @@ window.confirmRegister=function(){
   if(!e||!n){regErrMsg='必要項目を入力してください';R();return;}
   var newId=Math.max.apply(null,ACCOUNTS.map(function(a){return a.id;}))+1;
   ACCOUNTS.push({id:newId,name:n,email:e,color:'#3B82F6'});
-  cu=ACCOUNTS[ACCOUNTS.length-1];fIns=cu.name;suSubj=[];suBr=[];suGr=[];view='setup';R();
+  cu=ACCOUNTS[ACCOUNTS.length-1];fIns=cu.name;fDate=null;suSubj=[];suBr=[];suGr=[];view='setup';R();
 };
-window.logout=function(){cu=null;showPick=false;view='sch';R()};
+window.logout=function(){cu=null;showPick=false;fDate=null;view='sch';R()};
 window.tgSuSubj=function(s){var i=suSubj.indexOf(s);if(i>=0)suSubj.splice(i,1);else suSubj.push(s);R()};
 window.tgSuBr=function(b){var i=suBr.indexOf(b);if(i>=0)suBr.splice(i,1);else suBr.push(b);R()};
 window.tgSuGr=function(g){var i=suGr.indexOf(g);if(i>=0)suGr.splice(i,1);else suGr.push(g);R()};
@@ -349,25 +339,25 @@ window.calPrev=function(){if(calM===0){calM=11;calY--;}else calM--;R();};
 window.calNext=function(){if(calM===11){calM=0;calY++;}else calM++;R();};
 window.calSel=function(y,m,d){
   var dt=new Date(y,m,d,12,0,0),dtStr=fd(dt);
-  dt.setDate(dt.getDate()-dt.getDay());wk=dt;calOpen=false;schNavOpen=false;
+  fDate=dtStr;calOpen=false;schNavOpen=false;
   var mb=myBr(),br=mb.length===1?mb[0]:(fBrList[0]||mb[0]||'');
-  view='form';editId=null;fBrList=[br];fDate=dtStr;fGr=null;fStu='';fIns=cu?cu.name:'';
-  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
+  view='form';editId=null;fBrList=[br];fGr=null;fStu='';fIns=cu?cu.name:'';
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;_schFirstLoad=true;
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
-window.pWk=function(){var d=new Date(wk);d.setDate(d.getDate()-7);wk=d;R()};
-window.nWk=function(){var d=new Date(wk);d.setDate(d.getDate()+7);wk=d;R()};
+window.pWk=function(){if(!fDate){fDate=fd(new Date());}var d=new Date(fDate);d.setDate(d.getDate()-7);fDate=fd(d);_schFirstLoad=true;R();};
+window.nWk=function(){if(!fDate){fDate=fd(new Date());}var d=new Date(fDate);d.setDate(d.getDate()+7);fDate=fd(d);_schFirstLoad=true;R();};
 window.oForm=function(br,dt){
   view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
-  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;_schFirstLoad=true;
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
 window.editSession=function(id){
   var s=S.find(function(x){return x.id===id});if(!s||!canEdit(s.ins))return;
   view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
-  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;R();
+  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;_schFirstLoad=true;R();
 };
-window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;fNote='';R();};
+window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;fNote='';_schFirstLoad=true;R();};
 window.sBr=function(b){fBrList=[b];R();};
 window.sSj=function(s){fSj=s;R();};
 window.sGr=function(g){fGr=fGr===g?null:g;if(fGr&&!_customDur){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
