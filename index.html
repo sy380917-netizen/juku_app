@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.50 日付の連続表示の安定化・構文チェック済み完全版
+  v1.51 週末を過ぎても次週以降の日付が連続表示される版
 ==========================================================
 -->
 <html lang="ja">
@@ -284,15 +284,20 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
+
+// ▼ 週末を過ぎても次週以降の日付（14日間＝2週間分）が連続して表示されるように変更 ▼
 function wkd(){
   var r=[];
-  for(var i=0;i<7;i++){
-    var d=new Date(wk);
+  // 選択された週の月曜日（または日曜）を起点に14日分（2週間分）の日付を連続生成
+  var startD = new Date(wk);
+  for(var i=0;i<14;i++){
+    var d=new Date(startD);
     d.setDate(d.getDate()+i);
     r.push(d);
   }
   return r;
 }
+
 function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
 function sl2m(i){return TS0+i*TSD}
 function av(n){return n.replace(/\s/g,'').slice(0,2)}
@@ -669,8 +674,7 @@ function rForm(){
       }
     }
     var dowStr = DY[d.getDay()];
-    var isWeekend = (d.getDay() === 0 || d.getDay() === 6);
-    var targetAttr = (isPre || (!fDate && isWeekend)) ? 'id="pre-target-row"' : '';
+    var targetAttr = (isPre) ? 'id="pre-target-row"' : '';
     return '<tr data-dt="'+dt+'" '+targetAttr+'>'
          + '<td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'<br><span style="font-size:10px;opacity:.75">('+dowStr+')</span></td>'
          + cells + '</tr>';
@@ -723,9 +727,6 @@ function rForm(){
     if(_schFirstLoad) {
       _schFirstLoad = false;
       var targetRow = document.getElementById('pre-target-row');
-      if(!targetRow && wrap) {
-        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child');
-      }
       if(targetRow && wrap) {
         wrap.scrollTop = Math.max(0, targetRow.offsetTop);
       }
