@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.47 週末行が赤ライン（ヘッダー下）にピタッと止まるスクロール版
+  v1.48 スクロール停止を解除し自由に日付が進むように修正版
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 60vh; }
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 20vh; }
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -241,7 +241,7 @@ var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
   {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
   {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
-  {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
+  {id:4,name:'田中',email:'tanaka@gmail.com',color:#D97706},
   {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
   {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
   {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
@@ -269,7 +269,7 @@ function saveToLocalStorage(){
 var suSubj=[],suBr=[],suGr=[];
 var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.47';
+var APP_VERSION='v1.48';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -702,7 +702,7 @@ function rForm(){
     undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
   }
 
-  // ▼ 指定行が赤ライン（ヘッダーの真下）にピタッとくっつくようにスクロール位置を計算 ▼
+  // ▼ 初回表示時のみ選択日や週末の位置へ一瞬でスクロールし、あとは自由にスクロールできるように変更 ▼
   setTimeout(function(){
     var wrap = document.getElementById('tgW');
     var hc = document.getElementById('tgHC');
@@ -713,18 +713,17 @@ function rForm(){
       };
     }
     
-    function scrollToTopLine() {
+    // 初回ロード時のみ自動ジャンプする（一度スクロールしたら勝手にロックされないようにする）
+    if(_schFirstLoad) {
+      _schFirstLoad = false;
       var targetRow = document.getElementById('pre-target-row');
       if(!targetRow && wrap) {
-        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child'); // 土曜日等
+        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child');
       }
       if(targetRow && wrap) {
-        // ターゲット行のoffsetTop（テーブル内での位置）に合わせることで、ヘッダー直下の赤ラインの位置にピタッと止まる
         wrap.scrollTop = Math.max(0, targetRow.offsetTop);
       }
     }
-    scrollToTopLine();
-    setTimeout(scrollToTopLine, 150);
   }, 50);
 
   return'<div class="fpage">'+rAH(true)
