@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.73 白紙化完全ブロック＆月曜〜土曜表示版
+  v1.74 日曜〜土曜（7日間）表示固定版
 ==========================================================
 -->
 <html lang="ja">
@@ -211,7 +211,7 @@ var TS0=480,TSD=10,TSN=90;
 function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
 var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
-  {id:2,name:'山下',email:'yamashita@gmail.com',color:#10B981},
+  {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
   {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
   {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
   {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
@@ -242,14 +242,14 @@ var suSubj=[],suBr=[],suGr=[];
 var _today = new Date();
 try {
   var day = _today.getDay();
-  var diff = _today.getDate() - day + (day === 0 ? -6 : 1);
+  var diff = _today.getDate() - day; // 日曜日を起点とする
   _today = new Date(_today.setDate(diff));
 } catch(e) {
   _today = new Date();
 }
 
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.73';
+var APP_VERSION='v1.74';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -265,23 +265,23 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ 確実に安全な月曜〜土曜（6日間）を生成するロジック ▼
+// ▼ 日曜日から土曜日までの7日間に限定して生成 ▼
 function wkd(){
   var r = [];
   try {
     var base = new Date(wk.getTime());
     var day = base.getDay();
-    var diff = base.getDate() - day + (day === 0 ? -6 : 1);
-    var monday = new Date(base.setDate(diff));
+    var diff = base.getDate() - day; // 日曜日を週の始まりにする
+    var sunday = new Date(base.setDate(diff));
     
-    for(var i=0; i<6; i++){
-      var d = new Date(monday.getTime());
-      d.setDate(monday.getDate() + i);
+    for(var i=0; i<7; i++){
+      var d = new Date(sunday.getTime());
+      d.setDate(sunday.getDate() + i);
       r.push(d);
     }
   } catch(e) {
     var fallback = new Date();
-    for(var i=0; i<6; i++){
+    for(var i=0; i<7; i++){
       var d = new Date(fallback.getTime());
       d.setDate(fallback.getDate() + i);
       r.push(d);
@@ -336,7 +336,7 @@ window.calNext=function(){if(calM===11){calM=0;calY++;}else calM++;R();};
 window.calSel=function(y,m,d){
   var dt=new Date(y,m,d,12,0,0),dtStr=fd(dt);
   var day = dt.getDay();
-  var diff = dt.getDate() - day + (day === 0 ? -6 : 1);
+  var diff = dt.getDate() - day; // 日曜日を起点にする
   dt.setDate(diff);
   wk=dt;calOpen=false;schNavOpen=false;
   var mb=myBr(),br=mb.length===1?mb[0]:(fBrList[0]||mb[0]||'');
