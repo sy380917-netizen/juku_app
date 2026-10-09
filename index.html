@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.64 モーダル閉じタグのタイポ修正による白紙化完全解決版
+  v1.46 安定動作版（白紙化完全回避ベース）
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding: 0; }
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 50vh; }
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -267,11 +267,13 @@ function saveToLocalStorage(){
 }
 
 var suSubj=[],suBr=[],suGr=[];
+var _today=new Date();_today.setDate(_today.getDate()-_today.getDay());
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.64';
-var cu=null,showPick=false,loginEmail='',view='sch';
+var APP_VERSION='v1.46';
+var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
+var _skipAutoScroll=false;
 var _schFirstLoad=true;
 var _customDur=false;
 var schFBr=[],schFDt=[],schFIns=[],schPickerOpen=false;
@@ -280,32 +282,24 @@ var undoPrevS=null,undoMsg='',undoTimer=null;
 var schNavOpen=false,schBrOpen=false,schInsOpen=false;
 var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 
-var rangeDaysBefore = 120;
-var rangeDaysAfter = 120;
-
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
+function wkd(){var r=[];for(var i=0;i<7;i++){var d=new Date(wk);d.setDate(d.getDate()+i);r.push(d)}return r}
+function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
+function sl2m(i){return TS0+i*TSD}
+function av(n){return n.replace(/\s/g,'').slice(0,2)}
+function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
+function t2m(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
+function mySbj(){return cu&&aSubj[cu.id]?aSubj[cu.id]:SBJ}
+function myBr(){return cu&&aBr[cu.id]?aBr[cu.id]:BR}
+function myGr(){return cu&&aGr[cu.id]?aGr[cu.id]:GRADES}
 
-function wkd(){
-  var r=[];
-  var baseDate = fDate ? new Date(fDate) : new Date();
-  var startD = new Date(baseDate);
-  startD.setDate(startD.getDate() - rangeDaysBefore);
-  var totalDays = rangeDaysBefore + rangeDaysAfter;
-  for(var i=0; i<totalDays; i++){
-    var d=new Date(startD);
-    d.setDate(d.getDate()+i);
-    r.push(d);
-  }
-  return r;
-}
-
-window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});fIns=cu.name;showPick=false;_schFirstLoad=true;fDate=null;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();};
+window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});fIns=cu.name;showPick=false;_schFirstLoad=true;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();};
 window.loginWithEmail=function(){
   var email=(loginEmail||'').trim().toLowerCase();
   if(!email){alert('Gmailアドレスを入力してください');return;}
   var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
-  if(acct){cu=acct;fIns=cu.name;fDate=null;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
+  if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
   else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
 };
 window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
@@ -315,9 +309,9 @@ window.confirmRegister=function(){
   if(!e||!n){regErrMsg='必要項目を入力してください';R();return;}
   var newId=Math.max.apply(null,ACCOUNTS.map(function(a){return a.id;}))+1;
   ACCOUNTS.push({id:newId,name:n,email:e,color:'#3B82F6'});
-  cu=ACCOUNTS[ACCOUNTS.length-1];fIns=cu.name;fDate=null;suSubj=[];suBr=[];suGr=[];view='setup';R();
+  cu=ACCOUNTS[ACCOUNTS.length-1];fIns=cu.name;suSubj=[];suBr=[];suGr=[];view='setup';R();
 };
-window.logout=function(){cu=null;showPick=false;fDate=null;view='sch';R()};
+window.logout=function(){cu=null;showPick=false;view='sch';R()};
 window.tgSuSubj=function(s){var i=suSubj.indexOf(s);if(i>=0)suSubj.splice(i,1);else suSubj.push(s);R()};
 window.tgSuBr=function(b){var i=suBr.indexOf(b);if(i>=0)suBr.splice(i,1);else suBr.push(b);R()};
 window.tgSuGr=function(g){var i=suGr.indexOf(g);if(i>=0)suGr.splice(i,1);else suGr.push(g);R()};
@@ -336,25 +330,25 @@ window.calPrev=function(){if(calM===0){calM=11;calY--;}else calM--;R();};
 window.calNext=function(){if(calM===11){calM=0;calY++;}else calM++;R();};
 window.calSel=function(y,m,d){
   var dt=new Date(y,m,d,12,0,0),dtStr=fd(dt);
-  fDate=dtStr;calOpen=false;schNavOpen=false;
+  dt.setDate(dt.getDate()-dt.getDay());wk=dt;calOpen=false;schNavOpen=false;
   var mb=myBr(),br=mb.length===1?mb[0]:(fBrList[0]||mb[0]||'');
-  view='form';editId=null;fBrList=[br];fGr=null;fStu='';fIns=cu?cu.name:'';
-  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;_schFirstLoad=true;
+  view='form';editId=null;fBrList=[br];fDate=dtStr;fGr=null;fStu='';fIns=cu?cu.name:'';
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
-window.pWk=function(){if(!fDate){fDate=fd(new Date());}var d=new Date(fDate);d.setDate(d.getDate()-7);fDate=fd(d);_schFirstLoad=true;R();};
-window.nWk=function(){if(!fDate){fDate=fd(new Date());}var d=new Date(fDate);d.setDate(d.getDate()+7);fDate=fd(d);_schFirstLoad=true;R();};
+window.pWk=function(){var d=new Date(wk);d.setDate(d.getDate()-7);wk=d;R()};
+window.nWk=function(){var d=new Date(wk);d.setDate(d.getDate()+7);wk=d;R()};
 window.oForm=function(br,dt){
   view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
-  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;_schFirstLoad=true;
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
 window.editSession=function(id){
   var s=S.find(function(x){return x.id===id});if(!s||!canEdit(s.ins))return;
   view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
-  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;_schFirstLoad=true;R();
+  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;R();
 };
-window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;fNote='';_schFirstLoad=true;R();};
+window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;fNote='';R();};
 window.sBr=function(b){fBrList=[b];R();};
 window.sSj=function(s){fSj=s;R();};
 window.sGr=function(g){fGr=fGr===g?null:g;if(fGr&&!_customDur){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
@@ -558,7 +552,7 @@ function rForm(){
   }
 
   var tgRowsStr = dates.map(function(d) {
-    var dt = fd(d), isPre = (dt === fDate || (!fDate && isTd(d)));
+    var dt = fd(d), isPre = (dt === fDate);
     var cells = '', i = 0;
 
     var items = [];
@@ -667,7 +661,8 @@ function rForm(){
       }
     }
     var dowStr = DY[d.getDay()];
-    var targetAttr = (isPre) ? 'id="pre-target-row"' : '';
+    var isWeekend = (d.getDay() === 0 || d.getDay() === 6);
+    var targetAttr = (isPre || (!fDate && isWeekend)) ? 'id="pre-target-row"' : '';
     return '<tr data-dt="'+dt+'" '+targetAttr+'>'
          + '<td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'<br><span style="font-size:10px;opacity:.75">('+dowStr+')</span></td>'
          + cells + '</tr>';
@@ -717,13 +712,17 @@ function rForm(){
       };
     }
     
-    if(_schFirstLoad) {
-      _schFirstLoad = false;
+    function scrollToTopLine() {
       var targetRow = document.getElementById('pre-target-row');
+      if(!targetRow && wrap) {
+        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child');
+      }
       if(targetRow && wrap) {
-        wrap.scrollTop = Math.max(0, targetRow.offsetTop - 50);
+        wrap.scrollTop = Math.max(0, targetRow.offsetTop);
       }
     }
+    scrollToTopLine();
+    setTimeout(scrollToTopLine, 150);
   }, 50);
 
   return'<div class="fpage">'+rAH(true)
