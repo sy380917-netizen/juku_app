@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.75 日曜〜土曜（7日間）固定表示・範囲制限版
+  v1.75 日曜〜土曜（7日間）表示固定版
 ==========================================================
 -->
 <html lang="ja">
@@ -131,7 +131,7 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .th10{font-size:var(--font-xs);color:#c4c9d4;padding:2px 0;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #e5e7eb;width:var(--slot-w);min-width:var(--slot-w)}
 .th10.h30{color:#6b7280;font-weight:700;font-size:var(--font-sm);border-left:1.5px solid #d1d5db}
 .th10.h00{border-left:1.5px solid #d1d5db}
-.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px; padding-bottom: 50vh; }
+.tgwrap{flex:1;min-height:0;overflow-x:auto;overflow-y:auto;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;-webkit-overflow-scrolling:touch;margin:0 12px;}
 .tgbody{border-collapse:collapse}
 
 /* タイムテーブルの日付セル */
@@ -144,4 +144,315 @@ table.stbl{width:100%;border-collapse:collapse;table-layout:fixed}
 .tds:not(.prow):hover{background:#DBEAFE}
 
 .selbar{background:#2563EB;border-radius:8px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden;gap:calc(2px * var(--zoom-ratio));box-shadow:0 3px 10px rgba(37,99,235,.35)}
-.sbi{color:#fff;font-size:var(--font-md);
+.sbi{color:#fff;font-size:var(--font-md);font-weight:700;line-height:1.3;text-align:left}
+.sbt{color:rgba(255,255,255,.9);font-size:var(--font-xs);white-space:nowrap;line-height:1.2}
+.exm{padding:4px 6px;border-top:1px solid #e5e7eb;border-right:1px solid rgba(0,0,0,.06);background:transparent;vertical-align:top}
+
+/* 確認パネル */
+.cpanel{background:#fff;border:2px solid #22C55E;border-radius:12px;margin:8px 12px;padding:12px 14px;box-shadow:0 4px 16px rgba(34,197,94,.15);display:flex;flex-direction:column}
+.cpanel.em{border-color:#F59E0B;box-shadow:0 4px 16px rgba(245,158,11,.15)}
+.cptitle{font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;text-align:center}
+.cprow{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:0.5px solid #f3f4f6}
+.cprow:last-of-type{border-bottom:none}
+.cplab{font-size:11px;color:#6b7280;width:40px;flex-shrink:0;padding-top:4px;font-weight:600}
+.cppills{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.cpill{padding:4px 10px;border-radius:20px;font-size:11px;border:1.5px solid #d1d5db;cursor:pointer;background:#fff;color:#374151;font-weight:600}
+.cpill.act{background:#22C55E;color:#fff;border-color:#22C55E;font-weight:700}
+.cetbtn{margin-top:2px;font-size:11px;color:#3B82F6;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;display:block}
+.cpok{flex:1;padding:10px;border:none;border-radius:8px;background:#22C55E;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.cpok:hover{background:#16A34A}
+.cpcancel{flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;color:#6b7280;font-size:14px;font-weight:600;cursor:pointer}
+.cpcancel:hover{background:#f9fafb}
+
+.sch-sticky{position:sticky;top:0;z-index:9;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.sch-hdr-row{display:flex;background:#1F2937}
+.sch-corner{flex-shrink:0;background:#1F2937;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;border-right:1px solid #374151;padding:6px 4px}
+.sch-hdr-clip{flex:1;overflow:hidden}
+.sch-ht{border-collapse:collapse;table-layout:fixed}
+.sch-th{width:88px;min-width:88px;padding:6px 4px;text-align:center;border-right:1px solid #374151;background:#1F2937;color:#fff;vertical-align:middle}
+.sch-th.tod{background:#991B1B}
+.sch-date{font-size:13px;font-weight:700;line-height:1.2;display:block}
+.sch-dow{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
+.brn{background:#B91C1C;color:#fff;font-size:16px;font-weight:700;padding:6px 4px;text-align:center;border:1px solid #991B1B;width:70px;min-width:70px;position:sticky;left:0;z-index:2;height:60px;vertical-align:middle}
+.sch-th-sel{background:#7F1D1D !important}
+.sch-th-sel .sch-date,.sch-th-sel .sch-dow{color:#fff}
+.del-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.del-modal{background:#fff;border-radius:14px;padding:22px 20px;width:100%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.del-modal-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:10px;text-align:center}
+.del-modal-info{background:#f9fafb;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:#374151;line-height:1.6}
+.del-modal-btns{display:flex;gap:8px}
+.del-modal-ok{flex:1;padding:12px;border:none;border-radius:10px;background:#DC2626;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.del-modal-ok:hover{background:#B91C1C}
+.del-modal-cancel{flex:1;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:600;cursor:pointer}
+.del-modal-cancel:hover{background:#f9fafb}
+.undo-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:16px;font-size:14px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap}
+.undo-btn{padding:6px 14px;border:1.5px solid #fff;border-radius:6px;background:none;color:#fff;cursor:pointer;font-size:13px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="app-root" id="app"></div>
+<div id="sc-tooltip" style="display:none;position:fixed;background:#1F2937;color:#fff;padding:10px 13px;border-radius:10px;font-size:12px;line-height:1.8;z-index:9999;pointer-events:auto"></div>
+<script>
+try {
+  var testCheck = localStorage.getItem('sq_s');
+  if (testCheck === null) {
+    localStorage.setItem('sq_s', '[]');
+  }
+} catch(e) {
+  try { localStorage.clear(); } catch(err) {}
+}
+
+var BR=['川内校','鳴門校','藍住校','松茂校','石井校','北島校','南部校','勝瑞校'];
+var SBJ=['数学','英語','国語','理科','社会','算数','物理','化学'];
+var GRADES=['小','中1','中2','中3','高1','高2','高3'];
+var SCOLD={数学:'#EA580C',算数:'#EA580C',英語:'#0D9488',国語:'#BE123C',理科:'#0369A1',物理:'#0369A1',化学:'#0369A1',社会:'#7E22CE'};
+var DY=['日','月','火','水','木','金','土'];
+var TS0=480,TSD=10,TSN=90;
+function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
+var ACCOUNTS=[
+  {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
+  {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
+  {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
+  {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
+  {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
+  {id:6,name:'山本',email:'yamamoto@gmail.com',color:'#059669'},
+  {id:7,name:'井上',email:'inoue@gmail.com',color:'#DC2626'},
+  {id:8,name:'渡辺',email:'watanabe@gmail.com',color:'#6B7280'}
+];
+function canEdit(ins){return cu&&cu.name===ins;}
+
+var savedS = localStorage.getItem('sq_s');
+var S = savedS ? JSON.parse(savedS) : [];
+var nid = S.length > 0 ? Math.max.apply(null, S.map(function(x){return x.id;})) + 1 : 1;
+var savedSubj = localStorage.getItem('sq_asubj');
+var aSubj = savedSubj ? JSON.parse(savedSubj) : {};
+var savedBr = localStorage.getItem('sq_abr');
+var aBr = savedBr ? JSON.parse(savedBr) : {};
+var savedGr = localStorage.getItem('sq_agr');
+var aGr = savedGr ? JSON.parse(savedGr) : {};
+
+function saveToLocalStorage(){
+  localStorage.setItem('sq_s', JSON.stringify(S));
+  localStorage.setItem('sq_asubj', JSON.stringify(aSubj));
+  localStorage.setItem('sq_abr', JSON.stringify(aBr));
+  localStorage.setItem('sq_agr', JSON.stringify(aGr));
+}
+
+var suSubj=[],suBr=[],suGr=[];
+var _today = new Date();
+try {
+  var day = _today.getDay();
+  var diff = _today.getDate() - day; // 日曜日を起点とする
+  _today = new Date(_today.setDate(diff));
+} catch(e) {
+  _today = new Date();
+}
+
+var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
+var APP_VERSION='v1.75';
+var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
+var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
+var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
+var _skipAutoScroll=false;
+var _schFirstLoad=true;
+var _customDur=false;
+var schFBr=[],schFDt=[],schFIns=[],schPickerOpen=false;
+var delConfId=null,delAccId=null;
+var undoPrevS=null,undoMsg='',undoTimer=null;
+var schNavOpen=false,schBrOpen=false,schInsOpen=false;
+var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
+
+function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function isTd(d){return fd(d)===fd(new Date())}
+
+// ▼ 日曜日から土曜日までの7日間に限定して生成 ▼
+function wkd(){
+  var r = [];
+  try {
+    var base = new Date(wk.getTime());
+    var day = base.getDay();
+    var diff = base.getDate() - day; // 日曜日を週の始まりにする
+    var sunday = new Date(base.setDate(diff));
+    
+    for(var i=0; i<7; i++){
+      var d = new Date(sunday.getTime());
+      d.setDate(sunday.getDate() + i);
+      r.push(d);
+    }
+  } catch(e) {
+    var fallback = new Date();
+    for(var i=0; i<7; i++){
+      var d = new Date(fallback.getTime());
+      d.setDate(fallback.getDate() + i);
+      r.push(d);
+    }
+  }
+  return r;
+}
+
+function m2s(m){return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2)}
+function sl2m(i){return TS0+i*TSD}
+function av(n){return n.replace(/\s/g,'').slice(0,2)}
+function t2sl(t){var p=t.split(':');return(parseInt(p[0])*60+parseInt(p[1])-TS0)/TSD}
+function t2m(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1])}
+function mySbj(){return cu&&aSubj[cu.id]?aSubj[cu.id]:SBJ}
+function myBr(){return cu&&aBr[cu.id]?aBr[cu.id]:BR}
+function myGr(){return cu&&aGr[cu.id]?aGr[cu.id]:GRADES}
+
+window.loginAs=function(id){cu=ACCOUNTS.find(function(a){return a.id===id});fIns=cu.name;showPick=false;_schFirstLoad=true;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();};
+window.loginWithEmail=function(){
+  var email=(loginEmail||'').trim().toLowerCase();
+  if(!email){alert('Gmailアドレスを入力してください');return;}
+  var acct=ACCOUNTS.find(function(a){return a.email.toLowerCase()===email;});
+  if(acct){cu=acct;fIns=cu.name;if(!aSubj[cu.id]){suSubj=[];suBr=[];suGr=[];view='setup';}else view='sch';R();}
+  else{regName='';regEmail=email;regColor='#3B82F6';view='register';R();}
+};
+window.openRegister=function(){regName='';regEmail='';regColor='#3B82F6';regErrMsg='';view='register';R();};
+window.cancelRegister=function(){view=cu?'sch':'login';showPick=false;R();};
+window.confirmRegister=function(){
+  var n=regName.trim(),e=(regEmail||'').trim().toLowerCase();
+  if(!e||!n){regErrMsg='必要項目を入力してください';R();return;}
+  var newId=Math.max.apply(null,ACCOUNTS.map(function(a){return a.id;}))+1;
+  ACCOUNTS.push({id:newId,name:n,email:e,color:'#3B82F6'});
+  cu=ACCOUNTS[ACCOUNTS.length-1];fIns=cu.name;suSubj=[];suBr=[];suGr=[];view='setup';R();
+};
+window.logout=function(){cu=null;showPick=false;view='sch';R()};
+window.tgSuSubj=function(s){var i=suSubj.indexOf(s);if(i>=0)suSubj.splice(i,1);else suSubj.push(s);R()};
+window.tgSuBr=function(b){var i=suBr.indexOf(b);if(i>=0)suBr.splice(i,1);else suBr.push(b);R()};
+window.tgSuGr=function(g){var i=suGr.indexOf(g);if(i>=0)suGr.splice(i,1);else suGr.push(g);R()};
+window.confSetup=function(){
+  if(!suSubj.length||!suBr.length||!suGr.length){alert('すべて選択してください');return;}
+  aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();fBrList=suBr.slice();
+  saveToLocalStorage();
+  view='sch';R();
+};
+window.openSettings=function(){suSubj=(aSubj[cu.id]||[]).slice();suBr=(aBr[cu.id]||[]).slice();suGr=(aGr[cu.id]||[]).slice();view='settings';R();};
+window.saveSettings=function(){aSubj[cu.id]=suSubj.slice();aBr[cu.id]=suBr.slice();aGr[cu.id]=suGr.slice();saveToLocalStorage();view='sch';R();};
+window.cancelSettings=function(){view='sch';R()};
+window.openCal=function(){var today=new Date();calY=today.getFullYear();calM=today.getMonth();calOpen=true;R();};
+window.closeCal=function(){calOpen=false;R();};
+window.calPrev=function(){if(calM===0){calM=11;calY--;}else calM--;R();};
+window.calNext=function(){if(calM===11){calM=0;calY++;}else calM++;R();};
+window.calSel=function(y,m,d){
+  var dt=new Date(y,m,d,12,0,0),dtStr=fd(dt);
+  var day = dt.getDay();
+  var diff = dt.getDate() - day; // 日曜日を起点にする
+  dt.setDate(diff);
+  wk=dt;calOpen=false;schNavOpen=false;
+  var mb=myBr(),br=mb.length===1?mb[0]:(fBrList[0]||mb[0]||'');
+  view='form';editId=null;fBrList=[br];fDate=dtStr;fGr=null;fStu='';fIns=cu?cu.name:'';
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
+  var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
+};
+window.pWk=function(){var d=new Date(wk.getTime());d.setDate(d.getDate()-7);wk=d;R()};
+window.nWk=function(){var d=new Date(wk.getTime());d.setDate(d.getDate()+7);wk=d;R()};
+window.oForm=function(br,dt){
+  view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
+  tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
+  var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
+};
+window.editSession=function(id){
+  var s=S.find(function(x){return x.id===id});if(!s||!canEdit(s.ins))return;
+  view='form';editId=id;fBrList=[s.br];fDate=s.dt;fSj=s.sj;fGr=s.gr;fStu=s.stu;fIns=s.ins;
+  tR=s.dt;tS=t2sl(s.s);dur=t2m(s.e)-t2m(s.s);fNote=s.note||'';cfOpen=true;R();
+};
+window.gBack=function(){view='sch';editId=null;cfOpen=false;savedCount=0;fBrList=[];_customDur=false;fNote='';R();};
+window.sBr=function(b){fBrList=[b];R();};
+window.sSj=function(s){fSj=s;R();};
+window.sGr=function(g){fGr=fGr===g?null:g;if(fGr&&!_customDur){var ds=getDurs(fGr);if(ds.indexOf(dur)<0)dur=ds.length===1?ds[0]:null;}R();};
+window.delS=function(id,ev){
+  if(ev)ev.stopPropagation();
+  var s=S.find(function(x){return x.id===id;});
+  if(!s||!canEdit(s.ins))return;
+  delConfId=id;
+  R();
+};
+window.delConfOk=function(){
+  if(delConfId===null)return;
+  var target=S.find(function(x){return x.id===delConfId;});
+  if(target){
+    undoPrevS=target;
+    undoMsg=target.br+' '+target.s+'〜'+target.e+' '+target.sj+' を削除しました';
+  }
+  S=S.filter(function(x){return x.id!==delConfId;});
+  saveToLocalStorage();
+  delConfId=null;
+  R();
+  if(undoTimer)clearTimeout(undoTimer);
+  undoTimer=setTimeout(function(){undoPrevS=null;undoMsg='';R();},6000);
+};
+window.delConfCancel=function(){delConfId=null;R();};
+window.undoDel=function(){
+  if(undoPrevS){
+    S.push(undoPrevS);
+    saveToLocalStorage();
+    undoPrevS=null;
+    undoMsg='';
+    if(undoTimer)clearTimeout(undoTimer);
+    R();
+  }
+};
+window.delFF=function(){if(editId!==null)S=S.filter(function(s){return s.id!==editId});saveToLocalStorage();view='sch';editId=null;R()};
+window.clearTime=function(){tR=null;tS=null;dur=null;cfOpen=false;_customDur=false;R()};
+window.clickSlot=function(dt,i){tR=dt;tS=i;if(!_customDur){if(fGr){var ds=getDurs(fGr);dur=ds.length===1?ds[0]:null;}else dur=null;}R();};
+window.applyCustomDur=function(m){dur=m;_customDur=true;cfOpen=false;R();};
+window.saveF=function(){cfOpen=true;R();};
+window.cancelCf=function(){cfOpen=false;R()};
+window.cBr=function(b){
+  if(editId!==null)fBrList=[b];
+  else{var i=fBrList.indexOf(b);if(i>=0)fBrList.splice(i,1);else fBrList.push(b);if(!fBrList.length)fBrList=[b];}
+  R();
+};
+window.cSj=function(s){fSj=s;R()};
+window.cGr=function(g){fGr=g;R();};
+window.editTime=function(){cfOpen=false;R()};
+window.doSave=function(){
+  var sT=m2s(sl2m(tS)),eT=m2s(sl2m(tS)+dur);
+  if(editId!==null){
+    var br1=fBrList[0]||'';
+    S=S.map(function(s){return s.id===editId?{id:s.id,br:br1,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT}:s;});
+    savedCount++;editId=null;
+    view='sch';
+  }else{
+    fBrList.forEach(function(br){S.push({id:nid++,br:br,sj:fSj,gr:fGr,ins:fIns,stu:fStu,note:fNote,dt:tR,s:sT,e:eT});});
+    savedCount+=(fBrList.length||1);
+    cfOpen=false;tR=null;tS=null;dur=null;fStu='';fNote='';_customDur=false;
+  }
+  saveToLocalStorage();
+  R();
+};
+window.showDayModal=function(dt){
+  var all=S.filter(function(s){return s.dt===dt;});
+  var old=document.getElementById('day-modal');if(old)old.remove();
+  var modal=document.createElement('div');modal.id='day-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML='<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;max-height:80vh;padding:18px;overflow-y:auto">'
+    +'<div style="font-size:18px;font-weight:700;margin-bottom:10px">'+dt+' の予定</div>'
+    +(all.length?all.map(function(s){return'<div style="padding:8px;border-bottom:1px solid #eee"><b>'+s.br+'</b> '+s.s+'-'+s.e+' '+s.sj+' ('+s.stu+')'+(s.note?'<br><span style="color:#666;font-size:11px">備考: '+s.note+'</span>':'')+'</div>';}).join(''):'<div style="color:#888">予定なし</div>')
+    +'<button onclick="document.getElementById(\'day-modal\').remove()" style="margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:8px">閉じる</button>'
+    +'</div>';
+  document.body.appendChild(modal);
+};
+
+function rAH(bk){
+  if(!cu)return'';
+  var cameraBtnHtml = '<input type="file" id="globalCameraInput" accept="image/*" capture="environment" style="display:none" onchange="alert(\'写真が選択されました\')">' +
+                      '<button class="hdr-camera-btn" onclick="document.getElementById(\'globalCameraInput\').click()">📷 撮影</button>';
+
+  return'<div class="ahdr">' +
+    '<div class="atitle"><span>■</span> 個別指導スクエア <span style="font-size:10px;font-weight:400;color:#9ca3af">'+APP_VERSION+'</span>' + cameraBtnHtml + '</div>' +
+    '<div style="display:flex;align-items:center;gap:6px">' +
+    (bk?'':'<button class="hdrbtn" onclick="openSettings()">⚙ 設定変更</button><button class="hdrbtn" onclick="openRegister()" style="background:#22C55E;color:#fff;border-color:#22C55E">＋ 講師登録</button>') +
+    '<div class="uchip"><div class="uav" style="background:'+cu.color+'">'+av(cu.name)+'</div>' +
+    '<span style="font-size:11px;font-weight:500;color:#374151">'+cu.name+'</span>' +
+    '<button class="hdrbtn" onclick="logout()">ログアウト</button></div>' +
+    '</div></div>';
+}
+
+function rLogin(){
+  return'<div class="cp"><div class="lcard">'
+    +'<div class="llogo"><span>■</span> 個別指導スクエア</div>'
+    +'<div class="lsub">補習管理システム</div>'
+    +'<div style="text-align:left;margin-bottom:16px">'
+    +'<div style="font-size:12px;color:#6b7280;margin-bottom:6px">Gmailアドレス</div>'
+    +'<input id="loginEmailInput" type="email" value="'+loginEmail+'" placeholder="example@gmail.com" oninput="loginEmail=this.value" style="width:100%;font-size:15px;padding:10px 12px;border:1.5px solid #d
