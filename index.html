@@ -3,7 +3,7 @@
 ==========================================================
   個別指導スクエア 補習管理アプリ
 ==========================================================
-  v1.72 月曜〜土曜の安全な日付範囲固定＆安定版
+  v1.73 白紙化完全ブロック＆月曜〜土曜表示版
 ==========================================================
 -->
 <html lang="ja">
@@ -211,7 +211,7 @@ var TS0=480,TSD=10,TSN=90;
 function getDurs(gr){if(!gr)return[50,80,90,120];if(gr==='小')return[50];if(gr[0]==='中')return[80];if(gr[0]==='高')return[90,120];return[50,80,90,120];}
 var ACCOUNTS=[
   {id:1,name:'宮川 博',email:'miyakawa.hiroshi@gmail.com',color:'#3B82F6'},
-  {id:2,name:'山下',email:'yamashita@gmail.com',color:'#10B981'},
+  {id:2,name:'山下',email:'yamashita@gmail.com',color:#10B981},
   {id:3,name:'三好',email:'miyoshi@gmail.com',color:'#7C3AED'},
   {id:4,name:'田中',email:'tanaka@gmail.com',color:'#D97706'},
   {id:5,name:'佐藤',email:'sato@gmail.com',color:'#0891B2'},
@@ -239,16 +239,17 @@ function saveToLocalStorage(){
 }
 
 var suSubj=[],suBr=[],suGr=[];
-var _today=new Date();
+var _today = new Date();
 try {
   var day = _today.getDay();
   var diff = _today.getDate() - day + (day === 0 ? -6 : 1);
-  _today.setDate(diff);
+  _today = new Date(_today.setDate(diff));
 } catch(e) {
   _today = new Date();
 }
+
 var regName='',regEmail='',regColor='#3B82F6',regErrMsg='';
-var APP_VERSION='v1.72';
+var APP_VERSION='v1.73';
 var cu=null,showPick=false,loginEmail='',wk=_today,view='sch';
 var fBrList=[],fDate=null,fSj=null,fGr=null,fStu='',fIns='',fNote='';
 var tR=null,tS=null,dur=null,editId=null,cfOpen=false,savedCount=0;
@@ -264,18 +265,27 @@ var calOpen=false,calY=new Date().getFullYear(),calM=new Date().getMonth();
 function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function isTd(d){return fd(d)===fd(new Date())}
 
-// ▼ タイムテーブルの日付範囲を月曜〜土曜（6日間）に固定して生成 ▼
+// ▼ 確実に安全な月曜〜土曜（6日間）を生成するロジック ▼
 function wkd(){
-  var r=[];
-  var base = new Date(wk);
-  var day = base.getDay();
-  var diff = base.getDate() - day + (day === 0 ? -6 : 1);
-  var monday = new Date(base.setDate(diff));
-  
-  for(var i=0; i<6; i++){
-    var d = new Date(monday.getTime());
-    d.setDate(monday.getDate() + i);
-    r.push(d);
+  var r = [];
+  try {
+    var base = new Date(wk.getTime());
+    var day = base.getDay();
+    var diff = base.getDate() - day + (day === 0 ? -6 : 1);
+    var monday = new Date(base.setDate(diff));
+    
+    for(var i=0; i<6; i++){
+      var d = new Date(monday.getTime());
+      d.setDate(monday.getDate() + i);
+      r.push(d);
+    }
+  } catch(e) {
+    var fallback = new Date();
+    for(var i=0; i<6; i++){
+      var d = new Date(fallback.getTime());
+      d.setDate(fallback.getDate() + i);
+      r.push(d);
+    }
   }
   return r;
 }
@@ -334,8 +344,8 @@ window.calSel=function(y,m,d){
   tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
   var ms=mySbj();fSj=ms.length===1?ms[0]:null;R();
 };
-window.pWk=function(){var d=new Date(wk);d.setDate(d.getDate()-7);wk=d;R()};
-window.nWk=function(){var d=new Date(wk);d.setDate(d.getDate()+7);wk=d;R()};
+window.pWk=function(){var d=new Date(wk.getTime());d.setDate(d.getDate()-7);wk=d;R()};
+window.nWk=function(){var d=new Date(wk.getTime());d.setDate(d.getDate()+7);wk=d;R()};
 window.oForm=function(br,dt){
   view='form';editId=null;fBrList=[br];fDate=dt;fGr=null;fStu='';fIns=cu?cu.name:'';
   tR=null;tS=null;dur=null;cfOpen=false;fNote='';savedCount=0;_customDur=false;
@@ -588,3 +598,201 @@ function rForm(){
         var insB = b.ins || '';
         if (insA !== insB) return insA > insB ? 1 : -1;
         if (a.s !== b.s) return a.s - b.s;
+        return a.e - b.e;
+      });
+    });
+
+    var gIdx = 0;
+    while (i < TSN) {
+      if (gIdx < groups.length && i === groups[gIdx].s) {
+        var g = groups[gIdx];
+        var glen = g.e - g.s;
+
+        var stackHtml = '<div style="position:relative; z-index:2; width:100%; min-height:var(--slot-h); padding:4px 0; pointer-events:none;">';
+        
+        stackHtml += '<div style="padding:0 4px; margin-bottom:4px;">'
+                   + '<button class="adc" style="pointer-events:auto;" onclick="clickSlot(\''+dt+'\','+g.s+');event.stopPropagation();">+</button>'
+                   + '</div>';
+
+        g.items.forEach(function(it) {
+          var pctLeft = ((it.s - g.s) / glen) * 100;
+          var pctWidth = (it.len / glen) * 100;
+          
+          if (it.type === 'pre') {
+            var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px; pointer-events:none;';
+            var selLabel = (fBrList.join('・')||'') + ' ' + (fGr||'') + ' ' + (fSj||'');
+            stackHtml += '<div style="'+blockStyle+'">'
+                       + '<div class="selbar" style="height:auto; padding:8px 10px; align-items:flex-start;">'
+                       + '<div class="sbi" style="white-space:normal; text-align:left;">'+selLabel+'</div>'
+                       + '<div class="sbt">'+m2s(sl2m(it.s))+'〜'+m2s(sl2m(it.e))+'</div>'
+                       + '</div></div>';
+          } else {
+            var blockStyle = 'margin-left:'+pctLeft+'%; width:'+pctWidth+'%; position:relative; margin-bottom:4px; padding:0 2px; pointer-events:auto;';
+            var s = it.orig;
+            var scCol = SCOLD[s.sj] || '#6B7280';
+            var isEd = canEdit(s.ins);
+            stackHtml += '<div style="'+blockStyle+'">'
+                       + '<div class="sc" style="background:'+scCol+';" onclick="showTipModal('+s.id+',event)">'
+                       + (isEd?'<button class="delbtn" onclick="delS('+s.id+',event)">×</button>':'')
+                       + '<div class="sct">'+s.br+' '+s.sj+' '+s.gr+' '+s.ins+'</div>'
+                       + '<div class="scd">'+s.s+'〜'+s.e+'</div>'
+                       + '</div></div>';
+          }
+        });
+        stackHtml += '</div>';
+
+        var bgHtml = '<div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; z-index:1;">';
+        for (var slot = 0; slot < glen; slot++) {
+          var actualSlot = g.s + slot;
+          var mm = sl2m(actualSlot) % 60;
+          var cls = 'tds';
+          if (mm === 0) cls += ' hst';
+          else if (mm === 30) cls += ' h30s';
+          if (isPre) cls += ' prow';
+          bgHtml += '<div class="'+cls+'" style="flex:1; height:100%; border-top:1px solid #e5e7eb;" onclick="clickSlot(\''+dt+'\','+actualSlot+')"></div>';
+        }
+        bgHtml += '</div>';
+
+        cells += '<td colspan="'+glen+'" class="exm" style="padding:0; position:relative; vertical-align:top; border-top:1px solid #e5e7eb; border-right:1px solid #e5e7eb; background:'+(isPre?'#FFF5F5':'#fff')+';">'
+               + bgHtml + stackHtml + '</td>';
+        
+        i += glen;
+        gIdx++;
+      } else {
+        var mm = sl2m(i) % 60;
+        var cls = 'tds';
+        if (mm === 0) cls += ' hst';
+        else if (mm === 30) cls += ' h30s';
+        if (isPre) cls += ' prow';
+        cells += '<td class="'+cls+'" onclick="clickSlot(\''+dt+'\','+i+')"></td>';
+        i++;
+      }
+    }
+    var dowStr = DY[d.getDay()];
+    var isWeekend = (d.getDay() === 0 || d.getDay() === 6);
+    var targetAttr = (isPre || (!fDate && isWeekend)) ? 'id="pre-target-row"' : '';
+    return '<tr data-dt="'+dt+'" '+targetAttr+'>'
+         + '<td class="tdd">'+(d.getMonth()+1)+'/'+d.getDate()+'<br><span style="font-size:10px;opacity:.75">('+dowStr+')</span></td>'
+         + cells + '</tr>';
+  }).join('');
+
+  var cfPanel='';
+  if(cfOpen&&tR&&tS!==null&&dur&&fSj&&fGr){
+    var bpillsC=mb.map(function(b){return'<button class="cpill '+(fBrList.indexOf(b)>=0?'act':'')+'" onclick="cBr(\''+b+'\')">'+b+'</button>';}).join('');
+    var spillsC=ms.map(function(s){return'<button class="cpill '+(fSj===s?'act':'')+'" onclick="cSj(\''+s+'\')">'+s+'</button>';}).join('');
+    var gpillsC=mg.map(function(g){return'<button class="cpill '+(fGr===g?'act':'')+'" onclick="cGr(\''+g+'\')">'+g+'</button>';}).join('');
+
+    cfPanel='<div class="cpanel"><div style="padding:14px"><div class="cptitle">内容確認</div>'
+      +'<div class="cprow"><div class="cplab">日時</div><div style="font-size:13px;font-weight:700;color:#1E40AF;padding-top:2px">'+tR+' '+m2s(sl2m(tS))+'〜'+m2s(sl2m(tS)+dur)+'</div><button class="cetbtn" onclick="editTime()">時間変更</button></div>'
+      +'<div class="cprow"><div class="cplab">校舎</div><div class="cppills">'+bpillsC+'</div></div>'
+      +'<div class="cprow"><div class="cplab">教科</div><div class="cppills">'+spillsC+'</div></div>'
+      +'<div class="cprow"><div class="cplab">学年</div><div class="cppills">'+gpillsC+'</div></div>'
+      +'<div style="margin-top:8px"><input class="tinp" type="text" placeholder="生徒名 (任意)" value="'+fStu+'" oninput="fStu=this.value"></div>'
+      +'<div style="margin-top:6px"><input class="tinp" type="text" placeholder="備考欄 (任意)" value="'+fNote+'" oninput="fNote=this.value"></div>'
+      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="cpcancel" onclick="cancelCf()">キャンセル</button><button class="cpok" onclick="doSave()">登録する</button></div>'
+      +'</div></div>';
+  }
+
+  var delModalStr='';
+  if(delConfId!==null){
+    var targetS=S.find(function(x){return x.id===delConfId;});
+    if(targetS){
+      delModalStr='<div class="del-modal-overlay"><div class="del-modal">'
+        +'<div class="del-modal-title">🗑️ 予定を削除しますか？</div>'
+        +'<div class="del-modal-info"><b>'+targetS.br+'</b> '+targetS.dt+' '+targetS.s+'〜'+targetS.e+'<br>'+targetS.gr+' '+targetS.sj+(targetS.stu?'<br>生徒: '+targetS.stu:'')+'</div>'
+        +'<div class="del-modal-btns"><button class="del-modal-cancel" onclick="delConfCancel()">キャンセル</button><button class="del-modal-ok" onclick="delConfOk()">削除する</button></div>'
+        +'</div></div>';
+    }
+  }
+
+  var undoToastStr='';
+  if(undoMsg){
+    undoToastStr='<div class="undo-toast"><span>'+undoMsg+'</span><button class="undo-btn" onclick="undoDel()">元に戻す</button></div>';
+  }
+
+  setTimeout(function(){
+    var wrap = document.getElementById('tgW');
+    var hc = document.getElementById('tgHC');
+    if(wrap && hc && !wrap._scrollLinked){
+      wrap._scrollLinked = true;
+      wrap.onscroll = function(){
+        hc.scrollLeft = wrap.scrollLeft;
+      };
+    }
+    
+    function scrollToTopLine() {
+      var targetRow = document.getElementById('pre-target-row');
+      if(!targetRow && wrap) {
+        targetRow = wrap.querySelector('tr:nth-child(6)') || wrap.querySelector('tr:last-child');
+      }
+      if(targetRow && wrap) {
+        wrap.scrollTop = Math.max(0, targetRow.offsetTop);
+      }
+    }
+    scrollToTopLine();
+    setTimeout(scrollToTopLine, 150);
+  }, 50);
+
+  return'<div class="fpage">'+rAH(true)
+    +'<div class="ffixed">'
+    +'<div class="fhrow"><button class="bbtn" onclick="gBack()">← 戻る</button><span class="kjval">'+fBrList.join('・')+'</span></div>'
+    +'<div class="frow"><span class="flab">校舎</span><div class="hpills">'+bpills+'</div></div>'
+    +'<div class="frow"><span class="flab">教科</span><div class="hpills">'+spills+'</div></div>'
+    +'<div class="frow"><span class="flab">学年</span><div class="hpills">'+gpills+'</div></div>'
+    +'<div style="padding:6px 12px;display:flex;gap:6px">'
+    +[50,80,90,120].map(function(m){return'<button class="durbtn" onclick="applyCustomDur('+m+')">'+m+'分</button>';}).join('')
+    +'</div>'
+    +'<div class="ubar"><span class="ubhint">'+(tR&&tS!==null&&dur?'時間設定完了':'時間枠をタップしてください')+'</span>'+(tR&&tS!==null&&dur?'<button class="ubsave" onclick="saveF()">確認画面へ</button>':'')+'</div>'
+    +cfPanel
+    +'</div>'
+    +'<div class="fbody">'
+    +'<div class="tgsh"><div class="tgcorner">時間</div><div class="tghc" id="tgHC"><table class="tght"><tr>'+hrHdr+'</tr><tr>'+subHdr+'</tr></table></div></div>'
+    +'<div class="tgwrap" id="tgW"><table class="tgbody"><tbody>'+tgRowsStr+'</tbody></table></div>'
+    +'</div>'+delModalStr+undoToastStr+'</div>';
+}
+
+// 予定詳細ポップアップ
+window.showTipModal=function(id,ev){
+  if(ev)ev.stopPropagation();
+  var s=S.find(function(x){return x.id===id;});if(!s)return;
+  var old=document.getElementById('sc-tip-modal');if(old)old.remove();
+
+  var isOwner = canEdit(s.ins);
+
+  var modal=document.createElement('div');modal.id='sc-tip-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML='<div style="background:#1F2937;color:#fff;padding:20px;border-radius:14px;width:280px;font-size:14px;line-height:1.6">'
+    +'<b style="font-size:16px">'+s.br+'</b><br>'+s.gr+' '+s.sj+'<br>'+s.s+'〜'+s.e+'<br>生徒: '+(s.stu||'なし')+'<br>担当: '+s.ins
+    +(s.note?'<br>備考: '+s.note:'')
+    +(isOwner ? '<div style="display:flex;gap:10px;margin-top:16px">'
+      +'<button id="tipEditBtn" style="flex:1;padding:10px;background:#22C55E;border:none;color:#fff;border-radius:8px;cursor:pointer;font-weight:700">編集</button>'
+      +'<button id="tipDelBtn" style="flex:1;padding:10px;background:#DC2626;border:none;color:#fff;border-radius:8px;cursor:pointer;font-weight:700">削除</button>'
+      +'</div>' : '<div style="margin-top:12px;font-size:12px;color:#9ca3af;text-align:center">※閲覧専用（編集・削除は担当者のみ可能）</div>')
+    +'<button id="tipCloseBtn" style="margin-top:10px;width:100%;padding:10px;background:#4B5563;border:none;color:#fff;border-radius:8px;cursor:pointer;font-weight:600">閉じる</button>'
+    +'</div>';
+  document.body.appendChild(modal);
+
+  if(isOwner){
+    document.getElementById('tipEditBtn').onclick = function(){
+      modal.remove();
+      editSession(id);
+    };
+    document.getElementById('tipDelBtn').onclick = function(){
+      modal.remove();
+      delConfId = id;
+      R();
+    };
+  }
+  document.getElementById('tipCloseBtn').onclick = function(){
+    modal.remove();
+  };
+};
+
+function R(){
+  var main=!cu?rLogin():view==='setup'?rSuCard(false):view==='settings'?rSuCard(true):view==='register'?rRegister():view==='sch'?rSch():rForm();
+  document.getElementById('app').innerHTML=main;
+}
+R();
+</script>
+</body>
+</html>
